@@ -380,6 +380,17 @@
         const btnCancelar = document.getElementById('btnCancelar');
         const tituloForm = document.getElementById('tituloForm');
 
+        // FUNÇÃO PARA OBTER DATA E HORA FORMATADA
+        function obterDataHoraAtual() {
+            const agora = new Date();
+            const dia = String(agora.getDate()).padStart(2, '0');
+            const mes = String(agora.getMonth() + 1).padStart(2, '0');
+            const ano = agora.getFullYear();
+            const hora = String(agora.getHours()).padStart(2, '0');
+            const minuto = String(agora.getMinutes()).padStart(2, '0');
+            return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+        }
+
         // FUNÇÃO PARA RENDERIZAR A TELA
         function renderizarHistorico() {
             listaHistorico.innerHTML = '';
@@ -394,12 +405,15 @@
                 let tipoDocumento = registro.cpf.length > 14 ? 'CNPJ' : 'CPF';
                 let isEditando = idEmEdicao === registro.id ? 'editando' : '';
                 
+                // Exibe a dataHora se existir, senão usa apenas a hora (para registros antigos)
+                let dataExibicao = registro.dataHora || registro.hora;
+                
                 const card = document.createElement('div');
                 card.className = `card ${isEditando}`;
                 card.innerHTML = `
                     <div class="card-header">
                         <span>Registro #${numRegistro.toString().padStart(2, '0')} | ${tipoDocumento}: ${registro.cpf}</span>
-                        <span>${registro.hora}</span>
+                        <span>${dataExibicao}</span>
                     </div>
                     <div class="card-body" id="texto-${registro.id}">${registro.textoGerado}</div>
                     <div class="card-footer">
@@ -425,23 +439,25 @@
             const descricao = document.getElementById('descricao').value.trim();
 
             const textoTemplate = `${nome} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n\nCONTATO: ${contato}\nPROTOCOLO: ${protocolo}`.toUpperCase();
+            const dataHoraAtual = obterDataHoraAtual();
 
             if (idEmEdicao) {
                 // ATUALIZAR REGISTRO EXISTENTE
                 const index = historico.findIndex(r => r.id === idEmEdicao);
                 if (index !== -1) {
                     historico[index] = {
-                        ...historico[index], // Mantém ID e Hora originais
+                        ...historico[index],
                         cpf: cpf,
                         nome: nome.toUpperCase(),
                         tipo: tipo,
                         contato: contato,
                         protocolo: protocolo,
                         descricao: descricao,
-                        textoGerado: textoTemplate
+                        textoGerado: textoTemplate,
+                        dataHora: `${dataHoraAtual} (Editado)` // Atualiza com a nova data e marca como editado
                     };
                 }
-                cancelarEdicao(); // Limpa o estado de edição
+                cancelarEdicao(); 
             } else {
                 // CRIAR NOVO REGISTRO
                 const novoRegistro = {
@@ -453,7 +469,8 @@
                     protocolo: protocolo,
                     descricao: descricao,
                     textoGerado: textoTemplate,
-                    hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' })
+                    dataHora: dataHoraAtual,
+                    hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' }) // backup de compatibilidade
                 };
                 historico.push(novoRegistro);
             }
@@ -472,7 +489,6 @@
             const registro = historico.find(r => r.id === id);
             if (!registro) return;
 
-            // Preenche o formulário com os dados salvos
             document.getElementById('nome').value = registro.nome || '';
             document.getElementById('cpf').value = registro.cpf || '';
             
@@ -484,15 +500,14 @@
             document.getElementById('protocolo').value = registro.protocolo || '';
             document.getElementById('descricao').value = registro.descricao || '';
 
-            // Altera a interface para modo de edição
             idEmEdicao = id;
             tituloForm.innerText = "Editando Atendimento";
             btnSubmit.innerText = "Atualizar Atendimento";
             btnSubmit.classList.add('btn-warning-submit');
             btnCancelar.style.display = 'inline-block';
             
-            renderizarHistorico(); // Re-renderiza para destacar o card em edição
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // Sobe a tela
+            renderizarHistorico(); 
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
         };
 
         // FUNÇÃO PARA CANCELAR EDIÇÃO
@@ -514,7 +529,6 @@
                 historico = historico.filter(r => r.id !== id);
                 localStorage.setItem('atendimentos', JSON.stringify(historico));
                 
-                // Se excluir o registro que estava sendo editado, cancela a edição
                 if (idEmEdicao === id) cancelarEdicao();
                 else renderizarHistorico();
             }
@@ -546,8 +560,10 @@
             historico.forEach((registro, index) => {
                 let numRegistro = (index + 1).toString().padStart(2, '0');
                 let tipoDocumento = registro.cpf.length > 14 ? 'CNPJ' : 'CPF';
+                let dataExibicao = registro.dataHora || registro.hora;
                 
                 conteudoTxt += `--- REGISTRO ${numRegistro} ---\n`;
+                conteudoTxt += `DATA/HORA: ${dataExibicao}\n`;
                 conteudoTxt += `${tipoDocumento}: ${registro.cpf}\n`;
                 conteudoTxt += `NOME: ${registro.nome}\n`;
                 conteudoTxt += `TEXTO GERADO:\n${registro.textoGerado}\n\n\n`;
@@ -571,7 +587,7 @@
             if(confirm("Tem certeza que deseja apagar todo o histórico do dia? Certifique-se de já ter gerado o arquivo .txt.")) {
                 historico = [];
                 localStorage.removeItem('atendimentos');
-                cancelarEdicao(); // Reseta caso esteja editando
+                cancelarEdicao(); 
                 renderizarHistorico();
             }
         });
