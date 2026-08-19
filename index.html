@@ -31,21 +31,32 @@
   .form-grid { display: flex; flex-direction: column; gap: 12px; }
   .row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
   .form-group { display: flex; flex-direction: column; }
-  label { font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; color: var(--text-light); text-transform: uppercase; }
+  
+  /* Rótulos mais destacados (preto e bold) */
+  label { font-size: 0.75rem; font-weight: 800; margin-bottom: 4px; color: #000; text-transform: uppercase; }
   .label-center { text-align: center; margin-bottom: 6px; }
+  
   input[type="text"], textarea {
     padding: 8px 10px; border: 1px solid var(--border-dark); border-radius: 4px;
-    font-size: 0.85rem; outline: none; transition: border-color 0.2s; width: 100%;
+    font-size: 0.85rem; outline: none; transition: all 0.2s; width: 100%;
   }
   input[type="text"]:focus, textarea:focus { border-color: var(--primary); }
-  textarea#descricao { min-height: 110px; background-color: #f1f5f9; resize: vertical; }
+  
+  /* Destaque para campos preenchidos */
+  input[type="text"].campo-preenchido, textarea.campo-preenchido {
+    border-color: var(--success);
+    background-color: #f0fdf4;
+  }
+
+  textarea#descricao, textarea#blocoNotas { min-height: 110px; background-color: #f1f5f9; resize: vertical; }
   .radio-group { display: flex; gap: 15px; padding: 5px 0; }
-  .radio-label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; cursor: pointer; }
+  .radio-label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; color: #333; font-weight: 600; text-transform: uppercase; cursor: pointer; }
   .helper-text { font-size: 0.7rem; color: var(--text-light); margin-top: 2px; }
 
   /* Campo com botão de colar embutido */
   .input-com-paste { position: relative; display: flex; align-items: center; }
   .input-com-paste input[type="text"] { padding-right: 34px; }
+  .input-com-paste textarea { padding-right: 34px; }
   .btn-paste {
     position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
     background: none; border: none; cursor: pointer; font-size: 0.95rem;
@@ -61,7 +72,7 @@
     font-size: 0.72rem; color: var(--text-light); text-transform: uppercase; font-weight: 600;
   }
   .dispensa-cadastro-box input[type="checkbox"] { accent-color: var(--warning); cursor: pointer; width: 14px; height: 14px; }
-  .dispensa-cadastro-box label { margin: 0; cursor: pointer; text-transform: none; font-size: 0.78rem; color: var(--text); font-weight: 500; }
+  .dispensa-cadastro-box label { margin: 0; cursor: pointer; text-transform: none; font-size: 0.78rem; color: #333; font-weight: 600; }
   .dispensa-cadastro-box.ativo { color: var(--warning); }
   .dispensa-cadastro-box .helper-text { margin: 0; margin-left: 2px; }
 
@@ -126,8 +137,11 @@
   .btn-ver-cadastro .badge {
     background-color: var(--primary); color: white; border-radius: 10px; font-size: 0.65rem; padding: 1px 6px; text-transform: uppercase;
   }
+  
+  /* Cor laranja para Alterado e também para Nada Alterado */
   .btn-ver-cadastro.badge-alterado .badge { background-color: var(--warning); }
-  .btn-ver-cadastro.badge-nada .badge { background-color: var(--text-light); }
+  .btn-ver-cadastro.badge-nada .badge { background-color: var(--warning); }
+  
   .btn-ver-cadastro.badge-atualizado .badge { background-color: var(--success); }
   .btn-ver-cadastro.badge-dispensado .badge { background-color: var(--border-dark); color: var(--text); }
   .sub-historico-body {
@@ -287,6 +301,16 @@
       <button type="button" id="btnCancelar" class="btn btn-cancel" style="display:none">Cancelar</button>
     </div>
   </form>
+
+  <!-- NOVO BLOCO DE ANOTAÇÕES (Fora do form para não apagar ao gravar) -->
+  <div class="form-group" style="margin-top: 25px; border-top: 2px dashed var(--border); padding-top: 20px;">
+    <label for="blocoNotas">Bloco de Anotações (Não vai para o registro)</label>
+    <div class="input-com-paste">
+      <textarea id="blocoNotas" placeholder="Use este espaço livre para rascunhos e observações temporárias..." style="min-height: 80px;"></textarea>
+      <button type="button" class="btn-paste" data-target="blocoNotas" title="Colar da área de transferência" style="top: 15px; transform: none;">&#128203;</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- COLUNA DIREITA - HISTÓRICO -->
@@ -371,6 +395,28 @@
 </div>
 
 <script>
+/* ===================== LOGICA DE DESTAQUE (PREENCHIMENTO) ===================== */
+function atualizarDestaqueCampos() {
+  document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+    if (el.value.trim() !== '') {
+      el.classList.add('campo-preenchido');
+    } else {
+      el.classList.remove('campo-preenchido');
+    }
+  });
+}
+
+// Escuta geral para todo o documento, se digitar ou colar destaca na hora.
+document.addEventListener('input', (e) => {
+  if((e.target.tagName === 'INPUT' && e.target.type === 'text') || e.target.tagName === 'TEXTAREA') {
+    if(e.target.value.trim() !== '') {
+      e.target.classList.add('campo-preenchido');
+    } else {
+      e.target.classList.remove('campo-preenchido');
+    }
+  }
+});
+
 /* ===================== MÁSCARA DE CPF E CNPJ ===================== */
 const inputCpf = document.getElementById('cpf');
 inputCpf.addEventListener('input', function(e) {
@@ -389,12 +435,18 @@ inputCpf.addEventListener('input', function(e) {
   e.target.value = value;
 });
 
-/* ===================== MÁSCARA DE CONTATOS ===================== */
+/* ===================== MÁSCARA DE CONTATOS (REMOÇÃO DO +55) ===================== */
 const inputContato = document.getElementById('contato');
 inputContato.addEventListener('input', function(e) {
   let partes = e.target.value.split('/');
   let formatado = partes.map(p => {
     let n = p.replace(/\D/g, '');
+    
+    // Tratamento para remover o 55 (Código BR) se o total for 12 ou 13 dígitos
+    if (n.startsWith('55') && (n.length === 12 || n.length === 13)) {
+        n = n.substring(2);
+    }
+
     if (n.length === 0) return '';
     if (n.length <= 2) return `(${n}`;
     if (n.length <= 6) return `(${n.slice(0,2)}) ${n.slice(2)}`;
@@ -438,7 +490,6 @@ if (historico.length > 0) {
   ultimoTipoSelecionado = historico[historico.length - 1].tipo || 'TELEFONE';
 }
 
-/* Estado temporário do cadastro para o atendimento sendo criado/editado */
 let cadastroAtual = null; 
 
 /* ===================== REFERÊNCIAS ===================== */
@@ -522,6 +573,9 @@ function abrirModalCadastro() {
       modalNumeroAdicionado.value = cadastroAtual.numeroAdicionado || '';
     }
   }
+  
+  // Atualiza os destaques caso tenham campos preenchidos previamente
+  setTimeout(atualizarDestaqueCampos, 10);
   modalCadastro.classList.add('aberto');
 }
 
@@ -669,7 +723,6 @@ function renderizarHistorico() {
     if (registro.contato) identificadores.push(`CONTATO: ${registro.contato}`);
     let cabecalhoDocumento = identificadores.join(' | ');
 
-    // TITULO NOVO: Registro #01 — NOME DO CONTRATO | CPF: 123...
     let nomeFormatado = (registro.nomeContrato || registro.nome || "").toUpperCase();
     let tituloFormatado = `Registro #${numRegistro.toString().padStart(2, '0')} — ${nomeFormatado} | ${cabecalhoDocumento}`;
 
@@ -684,7 +737,6 @@ function renderizarHistorico() {
     card.className = `card ${isEditando} ${isConcluido ? 'concluido' : ''}`;
     card.id = `card-${registro.id}`;
     
-    // O header agora é clicável para expandir/recolher
     card.innerHTML = `
       <div class="card-header" onclick="toggleCardCollapse(${registro.id})">
         <div class="card-header-title">
@@ -729,10 +781,10 @@ window.toggleCardCollapse = function(id) {
   const seta = document.getElementById(`seta-${id}`);
   if (collapseArea.style.display === 'none') {
     collapseArea.style.display = 'block';
-    seta.innerHTML = '&#9660;'; // seta para baixo
+    seta.innerHTML = '&#9660;';
   } else {
     collapseArea.style.display = 'none';
-    seta.innerHTML = '&#9658;'; // seta para a direita
+    seta.innerHTML = '&#9658;';
   }
 };
 
@@ -816,7 +868,7 @@ form.addEventListener('submit', function(e) {
       descricao: descricao,
       textoGerado: textoTemplate,
       cadastro: cadastroAtual,
-      concluido: false, // Inicia desmarcado
+      concluido: false,
       dataHora: dataHoraAtual,
       hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
     };
@@ -832,6 +884,7 @@ form.addEventListener('submit', function(e) {
     document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
     chkDispensaCadastro.checked = localStorage.getItem('dispensaCadastro') === 'true';
     atualizarVisualDispensa();
+    setTimeout(atualizarDestaqueCampos, 10);
     document.getElementById('contato').focus();
   }
 
@@ -858,6 +911,7 @@ window.editarRegistro = function(id) {
 
   cadastroAtual = registro.cadastro || null;
   atualizarStatusVisualCadastro();
+  setTimeout(atualizarDestaqueCampos, 10);
 
   idEmEdicao = id;
   tituloForm.innerText = 'Editando Atendimento';
@@ -881,6 +935,7 @@ function cancelarEdicao() {
   btnCancelar.style.display = 'none';
   cadastroAtual = null;
   atualizarStatusVisualCadastro();
+  setTimeout(atualizarDestaqueCampos, 10);
   renderizarHistorico();
 }
 btnCancelar.addEventListener('click', cancelarEdicao);
@@ -960,11 +1015,12 @@ document.getElementById('btnLimpar').addEventListener('click', function() {
   renderizarHistorico();
 });
 
-/* ===================== INICIA A TELA E MARCA A OPÇÃO PADRÃO ===================== */
+/* ===================== INICIALIZAÇÃO ===================== */
 renderizarHistorico();
 document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
 atualizarVisualDispensa();
 atualizarStatusVisualCadastro();
+atualizarDestaqueCampos();
 </script>
 </body>
 </html>
