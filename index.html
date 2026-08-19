@@ -264,16 +264,23 @@
         <form id="formAtendimento" class="form-grid">
             
             <div class="form-group half-width">
-                <label for="nome">Nome Completo</label>
-                <input type="text" id="nome" required autocomplete="off">
+                <label for="nomeContrato">Nome do Contrato</label>
+                <input type="text" id="nomeContrato" required autocomplete="off">
             </div>
 
-            <div class="form-group">
+            <div class="form-group half-width">
+                <label for="nomeContato">Nome do Contato (Pessoa)</label>
+                <input type="text" id="nomeContato" required autocomplete="off">
+            </div>
+
+            <div class="form-group half-width">
                 <label for="cpf">CPF / CNPJ</label>
-                <input type="text" id="cpf" maxlength="18" required autocomplete="off">
+                <!-- CPF não é required -->
+                <input type="text" id="cpf" maxlength="18" autocomplete="off">
+                <span class="helper-text">Opcional</span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group half-width">
                 <label>Tipo de Contato</label>
                 <div class="radio-group">
                     <label class="radio-label">
@@ -287,6 +294,7 @@
 
             <div class="form-group half-width">
                 <label for="contato">Contatos (Telefones)</label>
+                <!-- Contato volta a ser required obrigatoriamente -->
                 <input type="text" id="contato" required autocomplete="off" placeholder="(00) 00000-0000">
                 <span class="helper-text">Digite "/" para adicionar outro número</span>
             </div>
@@ -402,17 +410,25 @@
 
             historico.slice().reverse().forEach((registro, index) => {
                 let numRegistro = historico.length - index; 
-                let tipoDocumento = registro.cpf.length > 14 ? 'CNPJ' : 'CPF';
                 let isEditando = idEmEdicao === registro.id ? 'editando' : '';
-                
-                // Exibe a dataHora se existir, senão usa apenas a hora (para registros antigos)
                 let dataExibicao = registro.dataHora || registro.hora;
+                
+                // Monta o identificador do cabeçalho (mostra CPF, Contato ou ambos)
+                let identificadores = [];
+                if (registro.cpf) {
+                    let tipoDocumento = registro.cpf.length > 14 ? 'CNPJ' : 'CPF';
+                    identificadores.push(`${tipoDocumento}: ${registro.cpf}`);
+                }
+                if (registro.contato) {
+                    identificadores.push(`CONTATO: ${registro.contato}`);
+                }
+                let cabecalhoDocumento = identificadores.join(' | ');
                 
                 const card = document.createElement('div');
                 card.className = `card ${isEditando}`;
                 card.innerHTML = `
                     <div class="card-header">
-                        <span>Registro #${numRegistro.toString().padStart(2, '0')} | ${tipoDocumento}: ${registro.cpf}</span>
+                        <span>Registro #${numRegistro.toString().padStart(2, '0')} | ${cabecalhoDocumento}</span>
                         <span>${dataExibicao}</span>
                     </div>
                     <div class="card-body" id="texto-${registro.id}">${registro.textoGerado}</div>
@@ -430,7 +446,8 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const nome = document.getElementById('nome').value.trim();
+            const nomeContrato = document.getElementById('nomeContrato').value.trim();
+            const nomeContato = document.getElementById('nomeContato').value.trim();
             const cpf = document.getElementById('cpf').value.trim();
             const tipo = document.querySelector('input[name="tipo"]:checked').value;
             let contato = document.getElementById('contato').value.trim();
@@ -438,39 +455,44 @@
             const protocolo = document.getElementById('protocolo').value.trim();
             const descricao = document.getElementById('descricao').value.trim();
 
-            const textoTemplate = `${nome} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n\nCONTATO: ${contato}\nPROTOCOLO: ${protocolo}`.toUpperCase();
+            // TEMPLATE DO TEXTO COPIADO (Sem o Nome do Contrato, como era antes)
+            let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n\n`;
+            textoTemplate += `CONTATO: ${contato}\n`;
+            textoTemplate += `PROTOCOLO: ${protocolo}`;
+            textoTemplate = textoTemplate.toUpperCase();
+
             const dataHoraAtual = obterDataHoraAtual();
 
             if (idEmEdicao) {
-                // ATUALIZAR REGISTRO EXISTENTE
                 const index = historico.findIndex(r => r.id === idEmEdicao);
                 if (index !== -1) {
                     historico[index] = {
                         ...historico[index],
+                        nomeContrato: nomeContrato.toUpperCase(),
+                        nomeContato: nomeContato.toUpperCase(),
                         cpf: cpf,
-                        nome: nome.toUpperCase(),
                         tipo: tipo,
                         contato: contato,
                         protocolo: protocolo,
                         descricao: descricao,
                         textoGerado: textoTemplate,
-                        dataHora: `${dataHoraAtual} (Editado)` // Atualiza com a nova data e marca como editado
+                        dataHora: `${dataHoraAtual} (Editado)`
                     };
                 }
                 cancelarEdicao(); 
             } else {
-                // CRIAR NOVO REGISTRO
                 const novoRegistro = {
                     id: Date.now(),
+                    nomeContrato: nomeContrato.toUpperCase(),
+                    nomeContato: nomeContato.toUpperCase(),
                     cpf: cpf,
-                    nome: nome.toUpperCase(),
                     tipo: tipo,
                     contato: contato,
                     protocolo: protocolo,
                     descricao: descricao,
                     textoGerado: textoTemplate,
                     dataHora: dataHoraAtual,
-                    hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' }) // backup de compatibilidade
+                    hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' }) 
                 };
                 historico.push(novoRegistro);
             }
@@ -480,7 +502,7 @@
             
             if (!idEmEdicao) {
                 form.reset();
-                document.getElementById('nome').focus();
+                document.getElementById('nomeContrato').focus();
             }
         });
 
@@ -489,7 +511,8 @@
             const registro = historico.find(r => r.id === id);
             if (!registro) return;
 
-            document.getElementById('nome').value = registro.nome || '';
+            document.getElementById('nomeContrato').value = registro.nomeContrato || registro.nome || '';
+            document.getElementById('nomeContato').value = registro.nomeContato || registro.nome || '';
             document.getElementById('cpf').value = registro.cpf || '';
             
             if (registro.tipo) {
@@ -559,13 +582,21 @@
 
             historico.forEach((registro, index) => {
                 let numRegistro = (index + 1).toString().padStart(2, '0');
-                let tipoDocumento = registro.cpf.length > 14 ? 'CNPJ' : 'CPF';
                 let dataExibicao = registro.dataHora || registro.hora;
                 
                 conteudoTxt += `--- REGISTRO ${numRegistro} ---\n`;
                 conteudoTxt += `DATA/HORA: ${dataExibicao}\n`;
-                conteudoTxt += `${tipoDocumento}: ${registro.cpf}\n`;
-                conteudoTxt += `NOME: ${registro.nome}\n`;
+                conteudoTxt += `CONTRATO: ${registro.nomeContrato || registro.nome}\n`;
+                conteudoTxt += `NOME DO CONTATO: ${registro.nomeContato || registro.nome}\n`;
+                
+                if (registro.cpf) {
+                    let tipoDocumento = registro.cpf.length > 14 ? 'CNPJ' : 'CPF';
+                    conteudoTxt += `${tipoDocumento}: ${registro.cpf}\n`;
+                }
+                if (registro.contato) {
+                    conteudoTxt += `CONTATOS: ${registro.contato}\n`;
+                }
+                
                 conteudoTxt += `TEXTO GERADO:\n${registro.textoGerado}\n\n\n`;
             });
 
