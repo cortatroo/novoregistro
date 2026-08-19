@@ -102,6 +102,12 @@
     border-radius: 4px; padding: 10px; font-size: 0.8rem; font-family: monospace; white-space: pre-wrap; color: #92400e;
   }
   .sub-historico-body.aberto { display: block; }
+  .sub-historico-footer { display: none; justify-content: flex-end; margin-top: 6px; }
+  .sub-historico-footer.aberto { display: flex; }
+  .btn-copy-sub {
+    background-color: var(--text); color: white; padding: 5px 10px; font-size: 0.72rem; border: none; border-radius: 4px; cursor: pointer;
+  }
+  .btn-copy-sub:hover { background-color: #000; }
 
   .card-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px; }
   .btn-sm { padding: 6px 10px; font-size: 0.8rem; }
@@ -268,7 +274,7 @@
         <input type="radio" name="opcaoCadastro" value="nada">
         <div class="modal-option-text">
           <strong>B) Dados não alterados</strong>
-          <span>Registra "Nada a declarar" no sub-histórico, sem poluir a descrição principal.</span>
+          <span>Registra o template padrão no sub-histórico, sem poluir a descrição principal.</span>
         </div>
       </label>
 
@@ -506,22 +512,38 @@ function atualizarStatusVisualCadastro() {
   }
 }
 
-function gerarSubHistoricoTexto(cadastro) {
+/*
+  Gera o texto do sub-histórico com base no cadastro e nos dados de contato/protocolo do atendimento.
+  - Opção A ("atualizado"): sem texto (mantido como antes).
+  - Opção B ("nada"): "Dados do cadastro não foram alterados." + linha vazia + contato + protocolo.
+  - Opção C ("alterado"): "Dados do cadastro que foram alterados:" + campos preenchidos + linha vazia + contato + protocolo.
+*/
+function gerarSubHistoricoTexto(cadastro, contato, protocolo) {
   if (!cadastro) return '';
+
   if (cadastro.opcao === 'atualizado') {
-    return 'CADASTRO: Já estava atualizado.';
+    return '';
   }
+
   if (cadastro.opcao === 'nada') {
-    return 'CADASTRO: Nada a declarar (dados não alterados).';
+    let linhas = ['Dados do cadastro não foram alterados.', ''];
+    linhas.push(`CONTATO: ${contato}`);
+    linhas.push(`PROTOCOLO: ${protocolo}`);
+    return linhas.join('\n');
   }
+
   if (cadastro.opcao === 'alterado') {
-    let linhas = ['CADASTRO: Alteração realizada.'];
+    let linhas = ['Dados do cadastro que foram alterados:', ''];
     if (cadastro.emailRemovido) linhas.push(`E-MAIL REMOVIDO: ${cadastro.emailRemovido}`);
     if (cadastro.numeroRemovido) linhas.push(`NÚMERO REMOVIDO: ${cadastro.numeroRemovido}`);
     if (cadastro.emailAdicionado) linhas.push(`E-MAIL ADICIONADO: ${cadastro.emailAdicionado}`);
     if (cadastro.numeroAdicionado) linhas.push(`NÚMERO ADICIONADO: ${cadastro.numeroAdicionado}`);
+    linhas.push('');
+    linhas.push(`CONTATO: ${contato}`);
+    linhas.push(`PROTOCOLO: ${protocolo}`);
     return linhas.join('\n');
   }
+
   return '';
 }
 
@@ -556,7 +578,8 @@ function renderizarHistorico() {
     let cabecalhoDocumento = identificadores.join(' | ');
 
     const badge = badgeInfoCadastro(registro.cadastro);
-    const subTexto = gerarSubHistoricoTexto(registro.cadastro);
+    const subTexto = gerarSubHistoricoTexto(registro.cadastro, registro.contato, registro.protocolo);
+    const temTextoSub = subTexto && subTexto.trim().length > 0;
 
     const card = document.createElement('div');
     card.className = `card ${isEditando}`;
@@ -570,7 +593,8 @@ function renderizarHistorico() {
         <button type="button" class="btn-ver-cadastro ${badge.classe}" onclick="toggleSubHistorico(${registro.id})">
           Ver Cadastro <span class="badge">${badge.label}</span>
         </button>
-        <div class="sub-historico-body" id="sub-historico-${registro.id}">${subTexto || 'Nenhum registro cadastral vinculado.'}</div>
+        <div class="sub-historico-body" id="sub-historico-${registro.id}">${temTextoSub ? subTexto : 'Cadastro já estava atualizado. Nenhuma alteração registrada.'}</div>
+        ${temTextoSub ? `<div class="sub-historico-footer" id="sub-historico-footer-${registro.id}"><button type="button" class="btn-copy-sub" onclick="copiarSubHistorico(${registro.id})">Copiar Texto do Cadastro</button></div>` : ''}
       </div>
       <div class="card-footer">
         <button class="btn btn-sm btn-delete" onclick="excluirRegistro(${registro.id})">Excluir</button>
@@ -584,7 +608,15 @@ function renderizarHistorico() {
 
 window.toggleSubHistorico = function(id) {
   const el = document.getElementById(`sub-historico-${id}`);
+  const footer = document.getElementById(`sub-historico-footer-${id}`);
   if (el) el.classList.toggle('aberto');
+  if (footer) footer.classList.toggle('aberto');
+};
+
+window.copiarSubHistorico = function(id) {
+  const el = document.getElementById(`sub-historico-${id}`);
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText).then(mostrarToast);
 };
 
 /* ===================== EVENTO DE GRAVAR/ATUALIZAR REGISTRO ===================== */
@@ -755,7 +787,7 @@ document.getElementById('btnExportar').addEventListener('click', function() {
     if (registro.contato) conteudoTxt += `CONTATOS: ${registro.contato}\n`;
     conteudoTxt += `TEXTO GERADO:\n${registro.textoGerado}\n`;
 
-    const subTexto = gerarSubHistoricoTexto(registro.cadastro);
+    const subTexto = gerarSubHistoricoTexto(registro.cadastro, registro.contato, registro.protocolo);
     if (subTexto) {
       conteudoTxt += `\n${subTexto}\n`;
     }
