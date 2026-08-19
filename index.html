@@ -13,6 +13,7 @@
             --text: #1f2937;
             --text-light: #6b7280;
             --border: #e5e7eb;
+            --border-dark: #9ca3af;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
@@ -37,22 +38,61 @@
         /* Topo Fixo - Formulário */
         .top-panel {
             background-color: var(--surface);
-            padding: 20px 30px;
+            padding: 25px 40px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             z-index: 10;
             border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
         }
 
         h1 {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
             color: var(--primary);
         }
 
-        .form-grid {
+        /* Novo Layout baseado na Imagem */
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .grid-top {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .grid-left {
+            display: flex;
+            flex-direction: column;
             gap: 15px;
+        }
+
+        .grid-right {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-row-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .grid-middle {
+            display: grid;
+            grid-template-columns: 6fr 4fr; /* Contatos um pouco maior que Protocolos */
+            gap: 40px;
+        }
+
+        .grid-bottom {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
         }
 
         .form-group {
@@ -60,44 +100,42 @@
             flex-direction: column;
         }
 
-        .form-group.full-width {
-            grid-column: span 4;
-        }
-
-        .form-group.half-width {
-            grid-column: span 2;
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
         label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             color: var(--text-light);
             text-transform: uppercase;
+        }
+
+        .label-center {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
         }
 
         input[type="text"], textarea {
             padding: 10px;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 4px;
             font-size: 0.95rem;
             outline: none;
             transition: border-color 0.2s;
+            width: 100%;
         }
 
         input[type="text"]:focus, textarea:focus {
             border-color: var(--primary);
         }
 
-        textarea {
-            resize: vertical;
-            height: 60px;
+        /* Textarea customizada igual a imagem */
+        textarea#descricao {
+            flex: 1; /* Preenche a altura restante da coluna */
+            min-height: 215px;
+            background-color: #eeeeee;
+            border: 1px solid var(--border-dark);
+            resize: none; /* Bloqueia o redimensionamento manual para manter o layout da imagem */
+            border-radius: 2px;
         }
 
         .radio-group {
@@ -109,21 +147,23 @@
         .radio-label {
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 0.95rem;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
             cursor: pointer;
         }
 
         .helper-text {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-light);
-            margin-top: 3px;
+            margin-top: 4px;
         }
 
         .btn {
-            padding: 10px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s, color 0.2s;
@@ -132,33 +172,33 @@
         .btn-primary {
             background-color: var(--primary);
             color: white;
+            padding: 12px 30px;
+            font-size: 1rem;
+            min-width: 320px; /* Botão largo conforme a imagem */
         }
         .btn-primary:hover { background-color: var(--primary-hover); }
 
         .btn-warning-submit {
             background-color: var(--warning);
             color: white;
+            padding: 12px 30px;
+            font-size: 1rem;
+            min-width: 320px;
         }
         .btn-warning-submit:hover { background-color: #d97706; }
-
-        .btn-clear {
-            background-color: transparent;
-            color: var(--danger);
-            border: 1px solid var(--danger);
-        }
-        .btn-clear:hover { background-color: var(--danger); color: white; }
 
         .btn-cancel {
             background-color: transparent;
             color: var(--text-light);
             border: 1px solid var(--border);
+            padding: 12px 20px;
         }
         .btn-cancel:hover { background-color: var(--bg); }
 
         /* Área do Histórico (Rolável) */
         .bottom-panel {
             flex: 1;
-            padding: 30px;
+            padding: 30px 40px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -180,8 +220,17 @@
         .btn-export {
             background-color: var(--success);
             color: white;
+            padding: 8px 16px;
         }
         .btn-export:hover { background-color: #059669; }
+
+        .btn-clear {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 8px 16px;
+        }
+        .btn-clear:hover { background-color: var(--danger); color: white; }
 
         /* Cards de Atendimento */
         .card {
@@ -260,60 +309,75 @@
 
     <!-- PAINEL SUPERIOR - FIXO -->
     <div class="top-panel">
-        <h1 id="tituloForm">Novo Atendimento</h1>
-        <form id="formAtendimento" class="form-grid">
+        <form id="formAtendimento" class="form-container">
             
-            <div class="form-group half-width">
-                <label for="nomeContrato">Nome do Contrato</label>
-                <input type="text" id="nomeContrato" required autocomplete="off">
+            <!-- Linha Superior (Esquerda e Direita) -->
+            <div class="grid-top">
+                
+                <!-- Coluna da Esquerda -->
+                <div class="grid-left">
+                    <h1 id="tituloForm">Novo Atendimento</h1>
+                    
+                    <div class="form-group">
+                        <label for="nomeContrato">Nome do Contrato</label>
+                        <input type="text" id="nomeContrato" required autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nomeContato">Nome do Contato (Pessoa)</label>
+                        <input type="text" id="nomeContato" required autocomplete="off">
+                    </div>
+
+                    <div class="grid-row-split">
+                        <div class="form-group">
+                            <label>Tipo de Contato</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="tipo" value="TELEFONE" checked> Telefone
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="tipo" value="WHATSAPP"> WhatsApp
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cpf">CPF / CNPJ</label>
+                            <input type="text" id="cpf" maxlength="18" autocomplete="off">
+                            <span class="helper-text">Opcional</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna da Direita -->
+                <div class="grid-right">
+                    <label for="descricao" class="label-center">Descrição do Ocorrido</label>
+                    <textarea id="descricao" required></textarea>
+                </div>
+
             </div>
 
-            <div class="form-group half-width">
-                <label for="nomeContato">Nome do Contato (Pessoa)</label>
-                <input type="text" id="nomeContato" required autocomplete="off">
-            </div>
+            <!-- Linha do Meio (Contatos e Protocolos) -->
+            <div class="grid-middle">
+                <div class="form-group">
+                    <label for="contato">Contatos (Telefones)</label>
+                    <input type="text" id="contato" required autocomplete="off" placeholder="(00) 00000-0000">
+                    <span class="helper-text">Digite "/" para adicionar outro número</span>
+                </div>
 
-            <div class="form-group half-width">
-                <label for="cpf">CPF / CNPJ</label>
-                <!-- CPF não é required -->
-                <input type="text" id="cpf" maxlength="18" autocomplete="off">
-                <span class="helper-text">Opcional</span>
-            </div>
-
-            <div class="form-group half-width">
-                <label>Tipo de Contato</label>
-                <div class="radio-group">
-                    <label class="radio-label">
-                        <input type="radio" name="tipo" value="TELEFONE" checked> Telefone
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="tipo" value="WHATSAPP"> WhatsApp
-                    </label>
+                <div class="form-group">
+                    <label for="protocolo">Protocolos</label>
+                    <input type="text" id="protocolo" required autocomplete="off">
+                    <span class="helper-text">Separe múltiplos com barra ( / )</span>
                 </div>
             </div>
 
-            <div class="form-group half-width">
-                <label for="contato">Contatos (Telefones)</label>
-                <!-- Contato volta a ser required obrigatoriamente -->
-                <input type="text" id="contato" required autocomplete="off" placeholder="(00) 00000-0000">
-                <span class="helper-text">Digite "/" para adicionar outro número</span>
-            </div>
-
-            <div class="form-group half-width">
-                <label for="protocolo">Protocolos</label>
-                <input type="text" id="protocolo" required autocomplete="off">
-                <span class="helper-text">Separe múltiplos com barra ( / )</span>
-            </div>
-
-            <div class="form-group full-width">
-                <label for="descricao">Descrição do Ocorrido</label>
-                <textarea id="descricao" required></textarea>
-            </div>
-
-            <div class="form-group full-width form-actions">
+            <!-- Linha Inferior (Botões) -->
+            <div class="grid-bottom">
                 <button type="submit" id="btnSubmit" class="btn btn-primary">Gravar Atendimento</button>
                 <button type="button" id="btnCancelar" class="btn btn-cancel" style="display: none;">Cancelar Edição</button>
             </div>
+
         </form>
     </div>
 
@@ -455,7 +519,7 @@
             const protocolo = document.getElementById('protocolo').value.trim();
             const descricao = document.getElementById('descricao').value.trim();
 
-            // TEMPLATE DO TEXTO COPIADO (Sem o Nome do Contrato, como era antes)
+            // TEMPLATE DO TEXTO COPIADO
             let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n\n`;
             textoTemplate += `CONTATO: ${contato}\n`;
             textoTemplate += `PROTOCOLO: ${protocolo}`;
