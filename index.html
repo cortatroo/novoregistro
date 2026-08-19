@@ -598,9 +598,6 @@ function atualizarStatusVisualCadastro() {
 
 /*
   Gera o texto do sub-histórico com base no cadastro e nos dados de contato/protocolo do atendimento.
-  - Opção A ("atualizado"): sem texto (mantido como antes).
-  - Opção B ("nada"): "Dados do cadastro não foram alterados." + linha vazia + contato + protocolo.
-  - Opção C ("alterado"): "Dados do cadastro que foram alterados:" + campos preenchidos + linha vazia + contato + protocolo.
 */
 function gerarSubHistoricoTexto(cadastro, contato, protocolo) {
   if (!cadastro) return '';
@@ -728,7 +725,8 @@ form.addEventListener('submit', function(e) {
   const protocolo = document.getElementById('protocolo').value.trim();
   const descricao = document.getElementById('descricao').value.trim();
 
-  let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n`;
+  // ADICIONADO A QUEBRA DE LINHA EXTRA (\n\n) AQUI:
+  let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n\n`;
   textoTemplate += `CONTATO: ${contato}\n`;
   textoTemplate += `PROTOCOLO: ${protocolo}`;
   textoTemplate = textoTemplate.toUpperCase();
