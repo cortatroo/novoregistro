@@ -105,7 +105,15 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.2s;
   }
   .card.editando { border: 2px solid var(--warning); }
-  .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; font-size: 0.75rem; color: var(--text-light); }
+  .card.concluido { border-color: var(--success); background-color: #f8fafc; opacity: 0.85; }
+  
+  .card-header { 
+    display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); 
+    padding-bottom: 6px; font-size: 0.75rem; color: var(--text-light); user-select: none;
+  }
+  .card-header:hover .card-toggle-icon { color: var(--primary); }
+  .card-header-title { display: flex; align-items: center; gap: 6px; cursor: pointer; flex: 1; }
+  .card-toggle-icon { font-size: 0.65rem; transition: transform 0.2s; display: inline-block; }
   .card-body { font-family: monospace; white-space: pre-wrap; background-color: var(--bg); padding: 10px; border-radius: 4px; font-size: 0.85rem; color: #000; }
 
   /* Sub-histórico de cadastro */
@@ -134,7 +142,15 @@
   }
   .btn-copy-sub:hover { background-color: #000; }
 
-  .card-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px; }
+  /* Checkbox Concluído e Footer geral */
+  .card-footer-container { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+  .concluido-wrapper label {
+    display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.8rem; 
+    font-weight: 600; color: var(--text); text-transform: none; margin: 0;
+  }
+  .concluido-wrapper input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--success); cursor: pointer; }
+  
+  .card-footer-actions { display: flex; gap: 8px; }
   .btn-sm { padding: 6px 10px; font-size: 0.8rem; }
   .btn-copy { background-color: var(--text); color: white; }
   .btn-copy:hover { background-color: #000; }
@@ -423,7 +439,7 @@ if (historico.length > 0) {
 }
 
 /* Estado temporário do cadastro para o atendimento sendo criado/editado */
-let cadastroAtual = null; // { opcao: 'atualizado'|'nada'|'alterado', emailRemovido, numeroRemovido, emailAdicionado, numeroAdicionado }
+let cadastroAtual = null; 
 
 /* ===================== REFERÊNCIAS ===================== */
 const form = document.getElementById('formAtendimento');
@@ -463,7 +479,7 @@ function obterDataHoraAtual() {
   return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
 }
 
-/* ===================== FLAG "DISPENSAR CADASTRO" (persistente entre atendimentos) ===================== */
+/* ===================== FLAG "DISPENSAR CADASTRO" ===================== */
 chkDispensaCadastro.checked = localStorage.getItem('dispensaCadastro') === 'true';
 
 function atualizarVisualDispensa() {
@@ -477,7 +493,6 @@ chkDispensaCadastro.addEventListener('change', () => {
 });
 
 /* ===================== LÓGICA DO MODAL DE CADASTRO ===================== */
-
 function abrirModalCadastro() {
   const protocolo = document.getElementById('protocolo').value.trim();
   const contato = document.getElementById('contato').value.trim();
@@ -507,7 +522,6 @@ function abrirModalCadastro() {
       modalNumeroAdicionado.value = cadastroAtual.numeroAdicionado || '';
     }
   }
-
   modalCadastro.classList.add('aberto');
 }
 
@@ -596,15 +610,9 @@ function atualizarStatusVisualCadastro() {
   }
 }
 
-/*
-  Gera o texto do sub-histórico com base no cadastro e nos dados de contato/protocolo do atendimento.
-*/
 function gerarSubHistoricoTexto(cadastro, contato, protocolo) {
   if (!cadastro) return '';
-
-  if (cadastro.opcao === 'atualizado') {
-    return '';
-  }
+  if (cadastro.opcao === 'atualizado') return '';
 
   if (cadastro.opcao === 'nada') {
     let linhas = ['DADOS DO CADASTRO NÃO FORAM ALTERADOS.', ''];
@@ -624,7 +632,6 @@ function gerarSubHistoricoTexto(cadastro, contato, protocolo) {
     linhas.push(`PROTOCOLO: ${protocolo}`);
     return linhas.join('\n');
   }
-
   return '';
 }
 
@@ -638,16 +645,20 @@ function badgeInfoCadastro(cadastro) {
 /* ===================== FUNÇÃO PARA RENDERIZAR A TELA ===================== */
 function renderizarHistorico() {
   listaHistorico.innerHTML = '';
+  
   if (historico.length === 0) {
     txtQtdRegistros.innerText = 'Nenhum atendimento gravado hoje ainda.';
     listaHistorico.innerHTML = '<p style="color:var(--text-light); text-align:center; margin-top:20px; font-size:0.9rem">Os registros aparecerão aqui.</p>';
     return;
   }
-  txtQtdRegistros.innerText = `${historico.length} atendimento(s) gravado(s)`;
+  
+  const concluidos = historico.filter(r => r.concluido).length;
+  txtQtdRegistros.innerText = `${historico.length} atendimento(s) gravado(s) — ${concluidos} concluído(s)`;
 
   historico.slice().reverse().forEach((registro, index) => {
     let numRegistro = historico.length - index;
     let isEditando = idEmEdicao === registro.id ? 'editando' : '';
+    let isConcluido = registro.concluido ? true : false;
     let dataExibicao = registro.dataHora || registro.hora;
 
     let identificadores = [];
@@ -658,6 +669,10 @@ function renderizarHistorico() {
     if (registro.contato) identificadores.push(`CONTATO: ${registro.contato}`);
     let cabecalhoDocumento = identificadores.join(' | ');
 
+    // TITULO NOVO: Registro #01 — NOME DO CONTRATO | CPF: 123...
+    let nomeFormatado = (registro.nomeContrato || registro.nome || "").toUpperCase();
+    let tituloFormatado = `Registro #${numRegistro.toString().padStart(2, '0')} — ${nomeFormatado} | ${cabecalhoDocumento}`;
+
     const badge = badgeInfoCadastro(registro.cadastro);
     const subTexto = gerarSubHistoricoTexto(registro.cadastro, registro.contato, registro.protocolo);
     const temTextoSub = subTexto && subTexto.trim().length > 0;
@@ -666,29 +681,69 @@ function renderizarHistorico() {
       : 'Gestão de cadastro dispensada para este atendimento.';
 
     const card = document.createElement('div');
-    card.className = `card ${isEditando}`;
+    card.className = `card ${isEditando} ${isConcluido ? 'concluido' : ''}`;
+    card.id = `card-${registro.id}`;
+    
+    // O header agora é clicável para expandir/recolher
     card.innerHTML = `
-      <div class="card-header">
-        <span>Registro #${numRegistro.toString().padStart(2, '0')} — ${cabecalhoDocumento}</span>
+      <div class="card-header" onclick="toggleCardCollapse(${registro.id})">
+        <div class="card-header-title">
+          <span class="card-toggle-icon" id="seta-${registro.id}">${isConcluido ? '&#9658;' : '&#9660;'}</span>
+          <span>${tituloFormatado}</span>
+        </div>
         <span>${dataExibicao}</span>
       </div>
-      <div class="card-body" id="texto-registro-${registro.id}">${registro.textoGerado}</div>
-      <div class="sub-historico-wrapper">
-        <button type="button" class="btn-ver-cadastro ${badge.classe}" onclick="toggleSubHistorico(${registro.id})">
-          Ver Cadastro <span class="badge">${badge.label}</span>
-        </button>
-        <div class="sub-historico-body" id="sub-historico-${registro.id}">${temTextoSub ? subTexto : mensagemPadrao}</div>
-        ${temTextoSub ? `<div class="sub-historico-footer" id="sub-historico-footer-${registro.id}"><button type="button" class="btn-copy-sub" onclick="copiarSubHistorico(${registro.id})">Copiar Texto do Cadastro</button></div>` : ''}
-      </div>
-      <div class="card-footer">
-        <button class="btn btn-sm btn-delete" onclick="excluirRegistro(${registro.id})">Excluir</button>
-        <button class="btn btn-sm btn-edit" onclick="editarRegistro(${registro.id})">Editar</button>
-        <button class="btn btn-sm btn-copy" onclick="copiarTexto('texto-registro-${registro.id}')">Copiar Texto</button>
+      
+      <div id="collapse-${registro.id}" style="display: ${isConcluido ? 'none' : 'block'};">
+        <div class="card-body" id="texto-registro-${registro.id}">${registro.textoGerado}</div>
+        
+        <div class="sub-historico-wrapper">
+          <button type="button" class="btn-ver-cadastro ${badge.classe}" onclick="toggleSubHistorico(${registro.id})">
+            Ver Cadastro <span class="badge">${badge.label}</span>
+          </button>
+          <div class="sub-historico-body" id="sub-historico-${registro.id}">${temTextoSub ? subTexto : mensagemPadrao}</div>
+          ${temTextoSub ? `<div class="sub-historico-footer" id="sub-historico-footer-${registro.id}"><button type="button" class="btn-copy-sub" onclick="copiarSubHistorico(${registro.id})">Copiar Texto do Cadastro</button></div>` : ''}
+        </div>
+        
+        <div class="card-footer-container">
+          <div class="concluido-wrapper">
+            <label>
+              <input type="checkbox" onchange="marcarConcluido(${registro.id}, this.checked)" ${isConcluido ? 'checked' : ''}>
+              Marcar como concluído
+            </label>
+          </div>
+          <div class="card-footer-actions">
+            <button class="btn btn-sm btn-delete" onclick="excluirRegistro(${registro.id})">Excluir</button>
+            <button class="btn btn-sm btn-edit" onclick="editarRegistro(${registro.id})">Editar</button>
+            <button class="btn btn-sm btn-copy" onclick="copiarTexto('texto-registro-${registro.id}')">Copiar Texto</button>
+          </div>
+        </div>
       </div>
     `;
     listaHistorico.appendChild(card);
   });
 }
+
+window.toggleCardCollapse = function(id) {
+  const collapseArea = document.getElementById(`collapse-${id}`);
+  const seta = document.getElementById(`seta-${id}`);
+  if (collapseArea.style.display === 'none') {
+    collapseArea.style.display = 'block';
+    seta.innerHTML = '&#9660;'; // seta para baixo
+  } else {
+    collapseArea.style.display = 'none';
+    seta.innerHTML = '&#9658;'; // seta para a direita
+  }
+};
+
+window.marcarConcluido = function(id, isChecked) {
+  const index = historico.findIndex(r => r.id === id);
+  if (index !== -1) {
+    historico[index].concluido = isChecked;
+    localStorage.setItem('atendimentos', JSON.stringify(historico));
+    renderizarHistorico();
+  }
+};
 
 window.toggleSubHistorico = function(id) {
   const el = document.getElementById(`sub-historico-${id}`);
@@ -709,7 +764,6 @@ let gravamentoPendente = false;
 form.addEventListener('submit', function(e) {
   e.preventDefault();
 
-  // Só exige o preenchimento do modal se a dispensa não estiver marcada
   if (!cadastroAtual && !chkDispensaCadastro.checked) {
     gravamentoPendente = true;
     abrirModalCadastro();
@@ -725,7 +779,6 @@ form.addEventListener('submit', function(e) {
   const protocolo = document.getElementById('protocolo').value.trim();
   const descricao = document.getElementById('descricao').value.trim();
 
-  // ADICIONADO A QUEBRA DE LINHA EXTRA (\n\n) AQUI:
   let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n\n`;
   textoTemplate += `CONTATO: ${contato}\n`;
   textoTemplate += `PROTOCOLO: ${protocolo}`;
@@ -763,6 +816,7 @@ form.addEventListener('submit', function(e) {
       descricao: descricao,
       textoGerado: textoTemplate,
       cadastro: cadastroAtual,
+      concluido: false, // Inicia desmarcado
       dataHora: dataHoraAtual,
       hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
     };
@@ -776,7 +830,6 @@ form.addEventListener('submit', function(e) {
   if (!idEmEdicao) {
     form.reset();
     document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
-    // A flag de dispensa é persistente: não é resetada pelo form.reset()
     chkDispensaCadastro.checked = localStorage.getItem('dispensaCadastro') === 'true';
     atualizarVisualDispensa();
     document.getElementById('contato').focus();
