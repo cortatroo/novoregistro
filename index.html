@@ -43,6 +43,28 @@
   .radio-label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; cursor: pointer; }
   .helper-text { font-size: 0.7rem; color: var(--text-light); margin-top: 2px; }
 
+  /* Campo com botão de colar embutido */
+  .input-com-paste { position: relative; display: flex; align-items: center; }
+  .input-com-paste input[type="text"] { padding-right: 34px; }
+  .btn-paste {
+    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; font-size: 0.95rem;
+    color: var(--text-light); padding: 4px 6px; border-radius: 4px; line-height: 1;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .btn-paste:hover { background-color: #e2e8f0; color: var(--primary); }
+  .btn-paste:active { transform: translateY(-50%) scale(0.9); }
+
+  /* Flag Dispensar Cadastro */
+  .dispensa-cadastro-box {
+    display: flex; align-items: center; gap: 6px; margin-top: 8px;
+    font-size: 0.72rem; color: var(--text-light); text-transform: uppercase; font-weight: 600;
+  }
+  .dispensa-cadastro-box input[type="checkbox"] { accent-color: var(--warning); cursor: pointer; width: 14px; height: 14px; }
+  .dispensa-cadastro-box label { margin: 0; cursor: pointer; text-transform: none; font-size: 0.78rem; color: var(--text); font-weight: 500; }
+  .dispensa-cadastro-box.ativo { color: var(--warning); }
+  .dispensa-cadastro-box .helper-text { margin: 0; margin-left: 2px; }
+
   /* Botões do Formulário */
   .actions-center { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 5px; flex-wrap: wrap; }
   .btn { border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; }
@@ -60,9 +82,11 @@
   }
   .btn-cadastro:hover { background-color: #e2e8f0; }
   .btn-cadastro.status-ok { background-color: #ecfdf5; border-color: var(--success); color: #047857; }
+  .btn-cadastro.status-dispensado { background-color: #f8fafc; border-color: var(--border-dark); color: var(--text-light); }
   .btn-cadastro .status-icon { font-size: 0.95rem; }
   .btn-cadastro .status-icon.pending { color: var(--danger); }
   .btn-cadastro .status-icon.ok { color: var(--success); }
+  .btn-cadastro .status-icon.dispensado { color: var(--text-light); }
 
   /* Histórico na Direita */
   .history-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -97,6 +121,7 @@
   .btn-ver-cadastro.badge-alterado .badge { background-color: var(--warning); }
   .btn-ver-cadastro.badge-nada .badge { background-color: var(--text-light); }
   .btn-ver-cadastro.badge-atualizado .badge { background-color: var(--success); }
+  .btn-ver-cadastro.badge-dispensado .badge { background-color: var(--border-dark); color: var(--text); }
   .sub-historico-body {
     display: none; margin-top: 8px; background-color: #fffbeb; border: 1px solid #fde68a;
     border-radius: 4px; padding: 10px; font-size: 0.8rem; font-family: monospace; white-space: pre-wrap; color: #92400e;
@@ -181,12 +206,18 @@
     <div class="row-split">
       <div class="form-group">
         <label for="contato">Contatos (Telefones)</label>
-        <input type="text" id="contato" required autocomplete="off" placeholder="(00) 00000-0000">
+        <div class="input-com-paste">
+          <input type="text" id="contato" required autocomplete="off" placeholder="(00) 00000-0000">
+          <button type="button" class="btn-paste" data-target="contato" title="Colar da área de transferência">&#128203;</button>
+        </div>
         <span class="helper-text">Digite "/" para adicionar outro número</span>
       </div>
       <div class="form-group">
         <label for="cpf">CPF / CNPJ</label>
-        <input type="text" id="cpf" maxlength="18" autocomplete="off">
+        <div class="input-com-paste">
+          <input type="text" id="cpf" maxlength="18" autocomplete="off">
+          <button type="button" class="btn-paste" data-target="cpf" title="Colar da área de transferência">&#128203;</button>
+        </div>
         <span class="helper-text">Opcional</span>
       </div>
     </div>
@@ -198,7 +229,10 @@
 
     <div class="form-group">
       <label for="nomeContrato">Nome do Contrato</label>
-      <input type="text" id="nomeContrato" required autocomplete="off">
+      <div class="input-com-paste">
+        <input type="text" id="nomeContrato" required autocomplete="off">
+        <button type="button" class="btn-paste" data-target="nomeContrato" title="Colar da área de transferência">&#128203;</button>
+      </div>
     </div>
 
     <div class="row-split">
@@ -208,10 +242,17 @@
           <label class="radio-label"><input type="radio" name="tipo" value="TELEFONE"> Telefone</label>
           <label class="radio-label"><input type="radio" name="tipo" value="WHATSAPP"> WhatsApp</label>
         </div>
+        <div class="dispensa-cadastro-box" id="dispensaCadastroBox">
+          <input type="checkbox" id="chkDispensaCadastro">
+          <label for="chkDispensaCadastro">Dispensar Cadastro hoje</label>
+        </div>
       </div>
       <div class="form-group">
         <label for="protocolo">Protocolos</label>
-        <input type="text" id="protocolo" required autocomplete="off">
+        <div class="input-com-paste">
+          <input type="text" id="protocolo" required autocomplete="off">
+          <button type="button" class="btn-paste" data-target="protocolo" title="Colar da área de transferência">&#128203;</button>
+        </div>
         <span class="helper-text">Separe múltiplos com barra ( / )</span>
       </div>
     </div>
@@ -253,7 +294,7 @@
 <div class="modal-overlay" id="modalCadastro">
   <div class="modal-box">
     <h2>Gestão de Cadastro</h2>
-    <p class="modal-subtitle">Selecione a situação cadastral verificada neste atendimento. O preenchimento é obrigatório para gravar.</p>
+    <p class="modal-subtitle">Selecione a situação cadastral verificada neste atendimento. O preenchimento é obrigatório para gravar, exceto se "Dispensar Cadastro" estiver marcado.</p>
 
     <div class="modal-info-box" id="modalInfoContexto">
       Protocolo: <strong id="modalInfoProtocolo">-</strong> &nbsp;|&nbsp; Contato: <strong id="modalInfoContato">-</strong>
@@ -351,6 +392,28 @@ inputContato.addEventListener('input', function(e) {
   e.target.value = resultado;
 });
 
+/* ===================== BOTÕES DE COLAR (CLIPBOARD) ===================== */
+document.querySelectorAll('.btn-paste').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const targetId = btn.dataset.target;
+    const input = document.getElementById(targetId);
+    if (!input) return;
+    try {
+      const texto = await navigator.clipboard.readText();
+      if (!texto) {
+        mostrarToast('Área de transferência vazia.');
+        return;
+      }
+      input.value = texto.trim();
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.focus();
+      mostrarToast('Colado com sucesso!');
+    } catch (err) {
+      mostrarToast('Não foi possível acessar a área de transferência.');
+    }
+  });
+});
+
 /* ===================== ESTADO DA APLICAÇÃO ===================== */
 let historico = JSON.parse(localStorage.getItem('atendimentos')) || [];
 let idEmEdicao = null;
@@ -374,6 +437,9 @@ const btnGerenciarCadastro = document.getElementById('btnGerenciarCadastro');
 const iconeStatusCadastro = document.getElementById('iconeStatusCadastro');
 const textoStatusCadastro = document.getElementById('textoStatusCadastro');
 
+const chkDispensaCadastro = document.getElementById('chkDispensaCadastro');
+const dispensaCadastroBox = document.getElementById('dispensaCadastroBox');
+
 const modalCadastro = document.getElementById('modalCadastro');
 const modalInfoProtocolo = document.getElementById('modalInfoProtocolo');
 const modalInfoContato = document.getElementById('modalInfoContato');
@@ -396,6 +462,19 @@ function obterDataHoraAtual() {
   const minuto = String(agora.getMinutes()).padStart(2, '0');
   return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
 }
+
+/* ===================== FLAG "DISPENSAR CADASTRO" (persistente entre atendimentos) ===================== */
+chkDispensaCadastro.checked = localStorage.getItem('dispensaCadastro') === 'true';
+
+function atualizarVisualDispensa() {
+  dispensaCadastroBox.classList.toggle('ativo', chkDispensaCadastro.checked);
+}
+
+chkDispensaCadastro.addEventListener('change', () => {
+  localStorage.setItem('dispensaCadastro', chkDispensaCadastro.checked);
+  atualizarVisualDispensa();
+  atualizarStatusVisualCadastro();
+});
 
 /* ===================== LÓGICA DO MODAL DE CADASTRO ===================== */
 
@@ -496,16 +575,21 @@ btnModalSalvar.addEventListener('click', () => {
 });
 
 function atualizarStatusVisualCadastro() {
+  btnGerenciarCadastro.classList.remove('status-ok', 'status-dispensado');
+  iconeStatusCadastro.classList.remove('pending', 'ok', 'dispensado');
+
   if (cadastroAtual) {
     btnGerenciarCadastro.classList.add('status-ok');
-    iconeStatusCadastro.classList.remove('pending');
     iconeStatusCadastro.classList.add('ok');
     iconeStatusCadastro.innerHTML = '&#10003;';
     const labels = { atualizado: 'Cadastro Registrado (Já Atualizado)', nada: 'Cadastro Registrado (Sem Alteração)', alterado: 'Cadastro Registrado (Alterado)' };
     textoStatusCadastro.innerText = labels[cadastroAtual.opcao];
+  } else if (chkDispensaCadastro.checked) {
+    btnGerenciarCadastro.classList.add('status-dispensado');
+    iconeStatusCadastro.classList.add('dispensado');
+    iconeStatusCadastro.innerHTML = '&#8226;';
+    textoStatusCadastro.innerText = 'Gerenciar Cadastro (Dispensado hoje)';
   } else {
-    btnGerenciarCadastro.classList.remove('status-ok');
-    iconeStatusCadastro.classList.remove('ok');
     iconeStatusCadastro.classList.add('pending');
     iconeStatusCadastro.innerHTML = '&#9888;';
     textoStatusCadastro.innerText = 'Gerenciar Cadastro';
@@ -526,14 +610,14 @@ function gerarSubHistoricoTexto(cadastro, contato, protocolo) {
   }
 
   if (cadastro.opcao === 'nada') {
-    let linhas = ['Dados do cadastro não foram alterados.', ''];
+    let linhas = ['DADOS DO CADASTRO NÃO FORAM ALTERADOS.', ''];
     linhas.push(`CONTATO: ${contato}`);
     linhas.push(`PROTOCOLO: ${protocolo}`);
     return linhas.join('\n');
   }
 
   if (cadastro.opcao === 'alterado') {
-    let linhas = ['Dados do cadastro que foram alterados:', ''];
+    let linhas = ['DADOS DO CADASTRO QUE FORAM ALTERADOS:', ''];
     if (cadastro.emailRemovido) linhas.push(`E-MAIL REMOVIDO: ${cadastro.emailRemovido}`);
     if (cadastro.numeroRemovido) linhas.push(`NÚMERO REMOVIDO: ${cadastro.numeroRemovido}`);
     if (cadastro.emailAdicionado) linhas.push(`E-MAIL ADICIONADO: ${cadastro.emailAdicionado}`);
@@ -548,7 +632,7 @@ function gerarSubHistoricoTexto(cadastro, contato, protocolo) {
 }
 
 function badgeInfoCadastro(cadastro) {
-  if (!cadastro) return { classe: '', label: 'Sem Cadastro' };
+  if (!cadastro) return { classe: 'badge-dispensado', label: 'Sem Cadastro' };
   if (cadastro.opcao === 'atualizado') return { classe: 'badge-atualizado', label: 'Já Atualizado' };
   if (cadastro.opcao === 'nada') return { classe: 'badge-nada', label: 'Sem Alteração' };
   return { classe: 'badge-alterado', label: 'Alterado' };
@@ -580,6 +664,9 @@ function renderizarHistorico() {
     const badge = badgeInfoCadastro(registro.cadastro);
     const subTexto = gerarSubHistoricoTexto(registro.cadastro, registro.contato, registro.protocolo);
     const temTextoSub = subTexto && subTexto.trim().length > 0;
+    const mensagemPadrao = registro.cadastro
+      ? 'Cadastro já estava atualizado. Nenhuma alteração registrada.'
+      : 'Gestão de cadastro dispensada para este atendimento.';
 
     const card = document.createElement('div');
     card.className = `card ${isEditando}`;
@@ -593,7 +680,7 @@ function renderizarHistorico() {
         <button type="button" class="btn-ver-cadastro ${badge.classe}" onclick="toggleSubHistorico(${registro.id})">
           Ver Cadastro <span class="badge">${badge.label}</span>
         </button>
-        <div class="sub-historico-body" id="sub-historico-${registro.id}">${temTextoSub ? subTexto : 'Cadastro já estava atualizado. Nenhuma alteração registrada.'}</div>
+        <div class="sub-historico-body" id="sub-historico-${registro.id}">${temTextoSub ? subTexto : mensagemPadrao}</div>
         ${temTextoSub ? `<div class="sub-historico-footer" id="sub-historico-footer-${registro.id}"><button type="button" class="btn-copy-sub" onclick="copiarSubHistorico(${registro.id})">Copiar Texto do Cadastro</button></div>` : ''}
       </div>
       <div class="card-footer">
@@ -616,7 +703,7 @@ window.toggleSubHistorico = function(id) {
 window.copiarSubHistorico = function(id) {
   const el = document.getElementById(`sub-historico-${id}`);
   if (!el) return;
-  navigator.clipboard.writeText(el.innerText).then(mostrarToast);
+  navigator.clipboard.writeText(el.innerText).then(() => mostrarToast());
 };
 
 /* ===================== EVENTO DE GRAVAR/ATUALIZAR REGISTRO ===================== */
@@ -625,7 +712,8 @@ let gravamentoPendente = false;
 form.addEventListener('submit', function(e) {
   e.preventDefault();
 
-  if (!cadastroAtual) {
+  // Só exige o preenchimento do modal se a dispensa não estiver marcada
+  if (!cadastroAtual && !chkDispensaCadastro.checked) {
     gravamentoPendente = true;
     abrirModalCadastro();
     return;
@@ -690,6 +778,9 @@ form.addEventListener('submit', function(e) {
   if (!idEmEdicao) {
     form.reset();
     document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
+    // A flag de dispensa é persistente: não é resetada pelo form.reset()
+    chkDispensaCadastro.checked = localStorage.getItem('dispensaCadastro') === 'true';
+    atualizarVisualDispensa();
     document.getElementById('contato').focus();
   }
 
@@ -731,6 +822,8 @@ function cancelarEdicao() {
   idEmEdicao = null;
   form.reset();
   document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
+  chkDispensaCadastro.checked = localStorage.getItem('dispensaCadastro') === 'true';
+  atualizarVisualDispensa();
   tituloForm.innerText = 'Novo Atendimento';
   btnSubmit.innerText = 'Gravar Atendimento';
   btnSubmit.classList.remove('btn-warning-submit');
@@ -756,11 +849,13 @@ window.excluirRegistro = function(id) {
 /* ===================== FUNÇÃO DE COPIAR ===================== */
 window.copiarTexto = function(elementId) {
   const texto = document.getElementById(elementId).innerText;
-  navigator.clipboard.writeText(texto).then(mostrarToast);
+  navigator.clipboard.writeText(texto).then(() => mostrarToast());
 };
 
-function mostrarToast() {
+function mostrarToast(mensagem) {
   const toast = document.getElementById('toast');
+  if (mensagem) toast.innerText = mensagem;
+  else toast.innerText = 'Texto copiado!';
   toast.style.opacity = 1;
   setTimeout(() => { toast.style.opacity = 0; }, 2000);
 }
@@ -817,6 +912,7 @@ document.getElementById('btnLimpar').addEventListener('click', function() {
 /* ===================== INICIA A TELA E MARCA A OPÇÃO PADRÃO ===================== */
 renderizarHistorico();
 document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
+atualizarVisualDispensa();
 atualizarStatusVisualCadastro();
 </script>
 </body>
