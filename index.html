@@ -6,697 +6,175 @@
     <title>Gerador de Atendimentos</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
-            --surface: #ffffff;
-            --text: #1f2937;
-            --text-light: #6b7280;
-            --border: #e2e8f0;
-            --border-dark: #cbd5e1;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
+            --primary: #2563eb; --primary-hover: #1d4ed8; --bg: #f8fafc; --surface: #ffffff;
+            --text: #1f2937; --text-light: #6b7280; --border: #e2e8f0; --border-dark: #cbd5e1;
+            --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-
-        body {
-            background-color: var(--surface);
-            color: var(--text);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Estrutura Principal: Duas Colunas */
-        .left-column {
-            width: 45%;
-            padding: 25px 30px; /* Reduzido o padding geral */
-            overflow-y: auto;
-            border-right: 2px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .right-column {
-            width: 55%;
-            padding: 25px 30px; /* Reduzido o padding geral */
-            background-color: var(--bg);
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        h1 {
-            font-size: 1.2rem; /* Título um pouco menor */
-            margin-bottom: 15px; /* Menos espaço abaixo do título */
-            color: var(--primary);
-        }
-
-        /* Grid do Formulário */
-        .form-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px; /* Reduzido o gap geral do formulário */
-        }
-
-        .row-split {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px; /* Reduzido o gap entre colunas */
-            align-items: start;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            font-size: 0.75rem; /* Rótulo menor */
-            font-weight: 600;
-            margin-bottom: 4px; /* Menos margem no rótulo */
-            color: var(--text-light);
-            text-transform: uppercase;
-        }
-
-        .label-center {
-            text-align: center;
-            margin-bottom: 6px;
-        }
-
-        input[type="text"], textarea {
-            padding: 8px 10px; /* Inputs menos altos */
-            border: 1px solid var(--border-dark);
-            border-radius: 4px;
-            font-size: 0.85rem; /* Fonte do input menor */
-            outline: none;
-            transition: border-color 0.2s;
-            width: 100%;
-        }
-
-        input[type="text"]:focus, textarea:focus {
-            border-color: var(--primary);
-        }
-
-        textarea#descricao {
-            min-height: 110px; /* Altura da descrição bem menor para caber na tela */
-            background-color: #f1f5f9;
-            resize: vertical;
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 15px;
-            padding: 5px 0; /* Menos preenchimento vertical nos radios */
-        }
-
-        .radio-label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.85rem;
-            color: var(--text-light);
-            font-weight: 600;
-            text-transform: uppercase;
-            cursor: pointer;
-        }
-
-        .helper-text {
-            font-size: 0.7rem; /* Texto de ajuda menor */
-            color: var(--text-light);
-            margin-top: 2px;
-        }
-
-        /* Botões do Formulário */
-        .actions-center {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 5px; /* Subiu o botão */
-        }
-
-        .btn {
-            border: none;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s, color 0.2s;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            padding: 10px 30px; /* Botão mais fino */
-            font-size: 0.95rem;
-            min-width: 220px;
-        }
-        .btn-primary:hover { background-color: var(--primary-hover); }
-
-        .btn-warning-submit {
-            background-color: var(--warning);
-            color: white;
-            padding: 10px 30px;
-            font-size: 0.95rem;
-            min-width: 220px;
-        }
-        .btn-warning-submit:hover { background-color: #d97706; }
-
-        .btn-cancel {
-            background-color: transparent;
-            color: var(--text-light);
-            border: 1px solid var(--border-dark);
-            padding: 10px 20px;
-        }
-        .btn-cancel:hover { background-color: #e2e8f0; }
-
-        /* Histórico na Direita */
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .history-title-box {
-            background-color: #e2e8f0;
-            padding: 10px 15px; /* Caixa de título menor */
-            border-radius: 6px;
-            flex: 1;
-            margin-right: 15px;
-        }
-
-        .history-title-box h2 {
-            font-size: 1.1rem;
-            color: var(--text);
-            margin-bottom: 2px;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-export {
-            background-color: var(--success);
-            color: white;
-            padding: 8px 14px;
-            font-size: 0.85rem;
-        }
-        .btn-export:hover { background-color: #059669; }
-
-        .btn-clear {
-            background-color: transparent;
-            color: var(--danger);
-            border: 1px solid var(--danger);
-            padding: 8px 14px;
-            font-size: 0.85rem;
-            background-color: var(--surface);
-        }
-        .btn-clear:hover { background-color: var(--danger); color: white; }
-
-        /* Cards de Atendimento (Mais compactos) */
-        #listaHistorico {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .card {
-            background-color: var(--surface);
-            padding: 12px 15px; /* Padding do card reduzido */
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 10px; /* Reduzido o espaço interno do card */
-            transition: border-color 0.2s;
-        }
-
-        .card.editando {
-            border: 2px solid var(--warning);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 6px; /* Menos espaço no cabeçalho */
-            font-size: 0.75rem; /* Fonte do cabeçalho do card menor */
-            color: var(--text-light);
-        }
-
-        .card-body {
-            font-family: monospace;
-            white-space: pre-wrap;
-            background-color: var(--bg);
-            padding: 10px; /* Padding interno do texto gerado reduzido */
-            border-radius: 4px;
-            font-size: 0.85rem; /* Fonte do texto gerado um pouco menor */
-            color: #000;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 2px;
-        }
-
-        .btn-sm {
-            padding: 6px 10px; /* Botões dos cards menores */
-            font-size: 0.8rem; /* Fonte dos botões dos cards menores */
-        }
-
-        .btn-copy { background-color: var(--text); color: white; }
-        .btn-copy:hover { background-color: #000; }
-
-        .btn-edit { background-color: var(--warning); color: white; }
-        .btn-edit:hover { background-color: #d97706; }
-
-        .btn-delete { background-color: var(--danger); color: white; }
-        .btn-delete:hover { background-color: #b91c1c; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: var(--surface); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
         
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 1000;
-        }
+        /* Colunas */
+        .left-column { width: 45%; padding: 20px; overflow-y: auto; border-right: 2px solid var(--border); }
+        .right-column { width: 55%; padding: 20px; background-color: var(--bg); overflow-y: auto; }
+
+        /* Formulário */
+        .form-grid { display: flex; flex-direction: column; gap: 12px; }
+        .row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-size: 0.75rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; margin-bottom: 4px; }
+        input, textarea { padding: 8px; border: 1px solid var(--border-dark); border-radius: 4px; font-size: 0.9rem; }
+        textarea#descricao { min-height: 120px; background-color: #f1f5f9; }
+        
+        /* Botões */
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; }
+        .btn-primary { background-color: var(--primary); color: white; width: 100%; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 400px; }
+        .modal-body { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; }
+        
+        /* Cards */
+        .card { background: white; padding: 15px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 10px; }
+        .card-body { font-family: monospace; font-size: 0.85rem; background: var(--bg); padding: 10px; margin: 5px 0; }
+        .sub-hist { font-family: monospace; font-size: 0.8rem; color: #444; border-top: 1px dashed #ccc; padding-top: 5px; margin-top: 5px; white-space: pre-wrap; }
     </style>
 </head>
 <body>
 
-    <!-- COLUNA ESQUERDA - FORMULÁRIO -->
-    <div class="left-column">
-        <h1 id="tituloForm">Novo Atendimento</h1>
-        
-        <form id="formAtendimento" class="form-grid">
-            
-            <!-- LINHA 1: Contato | CPF -->
-            <div class="row-split">
-                <div class="form-group">
-                    <label for="contato">Contatos (Telefones)</label>
-                    <input type="text" id="contato" required autocomplete="off" placeholder="(00) 00000-0000">
-                    <span class="helper-text">Digite "/" para adicionar outro número</span>
-                </div>
-
-                <div class="form-group">
-                    <label for="cpf">CPF / CNPJ</label>
-                    <input type="text" id="cpf" maxlength="18" autocomplete="off">
-                    <span class="helper-text">Opcional</span>
-                </div>
-            </div>
-
-            <!-- LINHA 2: Nome do Contato -->
-            <div class="form-group">
-                <label for="nomeContato">Nome do Contato (Pessoa)</label>
-                <input type="text" id="nomeContato" required autocomplete="off">
-            </div>
-
-            <!-- LINHA 3: Nome do Contrato -->
-            <div class="form-group">
-                <label for="nomeContrato">Nome do Contrato</label>
-                <input type="text" id="nomeContrato" required autocomplete="off">
-            </div>
-
-            <!-- LINHA 4: Tipo de Contato | Protocolo -->
-            <div class="row-split">
-                <div class="form-group">
-                    <label>Tipo de Contato</label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="tipo" value="TELEFONE"> Telefone
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="tipo" value="WHATSAPP"> WhatsApp
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="protocolo">Protocolos</label>
-                    <input type="text" id="protocolo" required autocomplete="off">
-                    <span class="helper-text">Separe múltiplos com barra ( / )</span>
-                </div>
-            </div>
-
-            <!-- LINHA 5: Descrição -->
-            <div class="form-group" style="margin-top: 5px;">
-                <label for="descricao" class="label-center">Descrição do Ocorrido</label>
-                <textarea id="descricao" required></textarea>
-            </div>
-
-            <!-- LINHA 6: Botão Gravar -->
-            <div class="actions-center">
-                <button type="submit" id="btnSubmit" class="btn btn-primary">Gravar Atendimento</button>
-                <button type="button" id="btnCancelar" class="btn btn-cancel" style="display: none;">Cancelar</button>
-            </div>
-
-        </form>
-    </div>
-
-    <!-- COLUNA DIREITA - HISTÓRICO -->
-    <div class="right-column">
-        <div class="history-header">
-            <div class="history-title-box">
-                <h2>Histórico do Dia</h2>
-                <p id="txtQtdRegistros" style="color: var(--text-light); font-size: 0.85rem;">Carregando...</p>
-            </div>
-            <div class="actions">
-                <button id="btnExportar" class="btn btn-export">Gerar Arquivo .txt</button>
-                <button id="btnLimpar" class="btn btn-clear">Limpar Histórico</button>
-            </div>
+<div class="left-column">
+    <h1>Novo Atendimento</h1>
+    <form id="formAtendimento" class="form-grid">
+        <div class="row-split">
+            <div class="form-group"><label>Contatos</label><input type="text" id="contato" required></div>
+            <div class="form-group"><label>CPF / CNPJ (Opcional)</label><input type="text" id="cpf"></div>
         </div>
-        
-        <div id="listaHistorico">
-            <!-- Os cards entrarão aqui dinamicamente -->
+        <div class="form-group"><label>Nome do Contato</label><input type="text" id="nomeContato" required></div>
+        <div class="form-group"><label>Nome do Contrato</label><input type="text" id="nomeContrato" required></div>
+        <div class="row-split">
+            <div class="form-group">
+                <label>Tipo de Contato</label>
+                <div style="display: flex; gap: 10px; padding-top: 5px;">
+                    <label><input type="radio" name="tipo" value="TELEFONE" required> Telefone</label>
+                    <label><input type="radio" name="tipo" value="WHATSAPP" required> WhatsApp</label>
+                </div>
+            </div>
+            <div class="form-group"><label>Protocolos</label><input type="text" id="protocolo" required></div>
         </div>
+        <div class="form-group"><label>Descrição</label><textarea id="descricao" required></textarea></div>
+        <button type="submit" class="btn btn-primary" id="btnGravar">Gravar Atendimento</button>
+    </form>
+</div>
+
+<div class="right-column">
+    <h2>Histórico do Dia</h2>
+    <div id="listaHistorico"></div>
+</div>
+
+<!-- MODAL CADASTRO -->
+<div id="modalCadastro" class="modal">
+    <div class="modal-content">
+        <h3>Gestão Cadastral</h3>
+        <div class="modal-body">
+            <label><input type="radio" name="statusCad" value="JÁ ATUALIZADO" required> Já estava atualizado</label>
+            <label><input type="radio" name="statusCad" value="NÃO ALTERADO"> Dados não foram alterados</label>
+            <label><input type="radio" name="statusCad" value="ALTERADO"> Alteração realizada:</label>
+            <input type="text" id="emailRemovido" placeholder="E-mail removido">
+            <input type="text" id="numRemovido" placeholder="Número removido">
+            <input type="text" id="emailAdicionado" placeholder="E-mail adicionado">
+            <input type="text" id="numAdicionado" placeholder="Número adicionado">
+        </div>
+        <button class="btn btn-primary" onclick="confirmarCadastro()">Confirmar Cadastro</button>
     </div>
+</div>
 
-    <div id="toast" class="toast">Texto copiado!</div>
+<script>
+    let historico = JSON.parse(localStorage.getItem('atendimentos')) || [];
+    let cadastroStatus = null; // Guarda o estado do modal
+    let ultimoTipo = 'TELEFONE';
 
-    <script>
-        // MÁSCARA DE CPF E CNPJ
-        const inputCpf = document.getElementById('cpf');
-        inputCpf.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, ''); 
-            if (value.length <= 11) {
-                value = value.replace(/(\d{3})(\d)/, '$1.$2');
-                value = value.replace(/(\d{3})(\d)/, '$1.$2');
-                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            } else {
-                value = value.slice(0, 14);
-                value = value.replace(/^(\d{2})(\d)/, '$1.$2');
-                value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
-                value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
-                value = value.replace(/(\d{4})(\d)/, '$1-$2');
-            }
-            e.target.value = value;
-        });
+    // MÁSCARA CONTATOS
+    document.getElementById('contato').addEventListener('input', (e) => {
+        let n = e.target.value.replace(/\D/g, '');
+        e.target.value = n.length > 10 ? `(${n.slice(0,2)}) ${n.slice(2,7)}-${n.slice(7,11)}` : `(${n.slice(0,2)}) ${n.slice(2)}`;
+    });
 
-        // MÁSCARA DE CONTATOS
-        const inputContato = document.getElementById('contato');
-        inputContato.addEventListener('input', function(e) {
-            let partes = e.target.value.split('/');
-            let formatado = partes.map(p => {
-                let n = p.replace(/\D/g, '');
-                if (n.length === 0) return '';
-                if (n.length <= 2) return `(${n}`;
-                if (n.length <= 6) return `(${n.slice(0,2)}) ${n.slice(2)}`;
-                if (n.length <= 10) return `(${n.slice(0,2)}) ${n.slice(2,6)}-${n.slice(6)}`;
-                return `(${n.slice(0,2)}) ${n.slice(2,7)}-${n.slice(7,11)}`;
-            });
-            let resultado = formatado.join(' / ');
-            if (e.target.value.endsWith('/') || e.target.value.endsWith('/ ')) {
-                if (!resultado.endsWith(' / ')) resultado += ' / ';
-            }
-            e.target.value = resultado;
-        });
-
-        // ESTADO DA APLICAÇÃO
-        let historico = JSON.parse(localStorage.getItem('atendimentos')) || [];
-        let idEmEdicao = null;
-        let ultimoTipoSelecionado = 'TELEFONE'; // Valor padrão inicial
-
-        // Se já tiver registros hoje, pega o último tipo de contato salvo
-        if (historico.length > 0) {
-            ultimoTipoSelecionado = historico[historico.length - 1].tipo || 'TELEFONE';
+    const form = document.getElementById('formAtendimento');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!cadastroStatus) {
+            document.getElementById('modalCadastro').style.display = 'flex';
+        } else {
+            finalizarGravacao();
         }
+    });
 
-        // REFERÊNCIAS
-        const form = document.getElementById('formAtendimento');
-        const listaHistorico = document.getElementById('listaHistorico');
-        const txtQtdRegistros = document.getElementById('txtQtdRegistros');
-        const btnSubmit = document.getElementById('btnSubmit');
-        const btnCancelar = document.getElementById('btnCancelar');
-        const tituloForm = document.getElementById('tituloForm');
-
-        function obterDataHoraAtual() {
-            const agora = new Date();
-            const dia = String(agora.getDate()).padStart(2, '0');
-            const mes = String(agora.getMonth() + 1).padStart(2, '0');
-            const ano = agora.getFullYear();
-            const hora = String(agora.getHours()).padStart(2, '0');
-            const minuto = String(agora.getMinutes()).padStart(2, '0');
-            return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+    function confirmarCadastro() {
+        const radios = document.getElementsByName('statusCad');
+        let selecionado = null;
+        for (let r of radios) if (r.checked) selecionado = r.value;
+        
+        if (!selecionado) return alert("Selecione uma opção");
+        
+        if (selecionado === 'ALTERADO') {
+            const eR = document.getElementById('emailRemovido').value;
+            const nR = document.getElementById('numRemovido').value;
+            const eA = document.getElementById('emailAdicionado').value;
+            const nA = document.getElementById('numAdicionado').value;
+            if (!eR && !nR && !eA && !nA) return alert("Preencha ao menos uma alteração");
+            cadastroStatus = { tipo: 'ALTERADO', eR, nR, eA, nA };
+        } else {
+            cadastroStatus = { tipo: selecionado };
         }
+        document.getElementById('modalCadastro').style.display = 'none';
+        finalizarGravacao();
+    }
 
-        // FUNÇÃO PARA RENDERIZAR A TELA
-        function renderizarHistorico() {
-            listaHistorico.innerHTML = '';
-            
-            if(historico.length === 0) {
-                txtQtdRegistros.innerText = "Nenhum atendimento gravado hoje ainda.";
-                listaHistorico.innerHTML = '<p style="color: var(--text-light); text-align: center; margin-top: 20px; font-size: 0.9rem;">Os registros aparecerão aqui.</p>';
-                return;
-            }
+    function finalizarGravacao() {
+        const nomeContato = document.getElementById('nomeContato').value;
+        const tipo = document.querySelector('input[name="tipo"]:checked').value;
+        const descricao = document.getElementById('descricao').value;
+        const contato = document.getElementById('contato').value;
+        const protocolo = document.getElementById('protocolo').value;
+        
+        let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\nCONTATO: ${contato}\nPROTOCOLO: ${protocolo}`.toUpperCase();
 
-            txtQtdRegistros.innerText = `${historico.length} atendimento(s) gravado(s)`;
-
-            historico.slice().reverse().forEach((registro, index) => {
-                let numRegistro = historico.length - index; 
-                let isEditando = idEmEdicao === registro.id ? 'editando' : '';
-                let dataExibicao = registro.dataHora || registro.hora;
-                
-                let identificadores = [];
-                if (registro.cpf) {
-                    let tipoDocumento = registro.cpf.length > 14 ? 'CNPJ' : 'CPF';
-                    identificadores.push(`${tipoDocumento}: ${registro.cpf}`);
-                }
-                if (registro.contato) {
-                    identificadores.push(`CONTATO: ${registro.contato}`);
-                }
-                let cabecalhoDocumento = identificadores.join(' | ');
-                
-                const card = document.createElement('div');
-                card.className = `card ${isEditando}`;
-                card.innerHTML = `
-                    <div class="card-header">
-                        <span>Registro #${numRegistro.toString().padStart(2, '0')} | ${cabecalhoDocumento}</span>
-                        <span>${dataExibicao}</span>
-                    </div>
-                    <div class="card-body" id="texto-${registro.id}">${registro.textoGerado}</div>
-                    <div class="card-footer">
-                        <button class="btn btn-sm btn-delete" onclick="excluirRegistro(${registro.id})">Excluir</button>
-                        <button class="btn btn-sm btn-edit" onclick="editarRegistro(${registro.id})">Editar</button>
-                        <button class="btn btn-sm btn-copy" onclick="copiarTexto('texto-${registro.id}')">Copiar Texto</button>
-                    </div>
-                `;
-                listaHistorico.appendChild(card);
-            });
+        let subHist = "";
+        if (cadastroStatus.tipo === 'ALTERADO') {
+            subHist = "DADOS DO CONTRATO QUE FORAM ALTERADOS:\n";
+            if (cadastroStatus.eR) subHist += `E-MAIL REMOVIDO: ${cadastroStatus.eR}\n`;
+            if (cadastroStatus.nR) subHist += `NUMERO REMOVIDO: ${cadastroStatus.nR}\n`;
+            if (cadastroStatus.eA) subHist += `E-MAIL ADICIONADO: ${cadastroStatus.eA}\n`;
+            if (cadastroStatus.nA) subHist += `NUMERO ADICIONADO: ${cadastroStatus.nA}\n`;
+        } else if (cadastroStatus.tipo === 'NÃO ALTERADO') {
+            subHist = "DADOS DO CONTRATO NÃO FORAM ALTERADOS\n";
         }
+        
+        if (subHist) subHist += `\nCONTATO: ${contato}\nPROTOCOLO: ${protocolo}`;
 
-        // EVENTO DE GRAVAR/ATUALIZAR REGISTRO
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
+        historico.push({ id: Date.now(), textoTemplate, subHist, tipo, ...Object.fromEntries(new FormData(form)) });
+        localStorage.setItem('atendimentos', JSON.stringify(historico));
+        
+        cadastroStatus = null;
+        form.reset();
+        document.querySelector(`input[name="tipo"][value="${tipo}"]`).checked = true;
+        renderizar();
+    }
 
-            // Pega o valor selecionado no rádio
-            const tipo = document.querySelector('input[name="tipo"]:checked').value;
-            
-            const nomeContrato = document.getElementById('nomeContrato').value.trim();
-            const nomeContato = document.getElementById('nomeContato').value.trim();
-            const cpf = document.getElementById('cpf').value.trim();
-            let contato = document.getElementById('contato').value.trim();
-            if (contato.endsWith('/')) contato = contato.slice(0, -1).trim(); 
-            const protocolo = document.getElementById('protocolo').value.trim();
-            const descricao = document.getElementById('descricao').value.trim();
+    function renderizar() {
+        const lista = document.getElementById('listaHistorico');
+        lista.innerHTML = historico.slice().reverse().map((r, i) => `
+            <div class="card">
+                <div class="card-body">${r.textoTemplate}</div>
+                ${r.subHist ? `<div class="sub-hist">${r.subHist}</div>` : ''}
+                <button onclick="excluir(${r.id})">Excluir</button>
+            </div>
+        `).join('');
+    }
+    
+    function excluir(id) { if(confirm("Excluir?")) { historico = historico.filter(r => r.id !== id); localStorage.setItem('atendimentos', JSON.stringify(historico)); renderizar(); } }
 
-            let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n\n`;
-            textoTemplate += `CONTATO: ${contato}\n`;
-            textoTemplate += `PROTOCOLO: ${protocolo}`;
-            textoTemplate = textoTemplate.toUpperCase();
-
-            const dataHoraAtual = obterDataHoraAtual();
-
-            if (idEmEdicao) {
-                const index = historico.findIndex(r => r.id === idEmEdicao);
-                if (index !== -1) {
-                    historico[index] = {
-                        ...historico[index],
-                        nomeContrato: nomeContrato.toUpperCase(),
-                        nomeContato: nomeContato.toUpperCase(),
-                        cpf: cpf,
-                        tipo: tipo,
-                        contato: contato,
-                        protocolo: protocolo,
-                        descricao: descricao,
-                        textoGerado: textoTemplate,
-                        dataHora: `${dataHoraAtual} (Editado)`
-                    };
-                }
-                cancelarEdicao(); 
-            } else {
-                const novoRegistro = {
-                    id: Date.now(),
-                    nomeContrato: nomeContrato.toUpperCase(),
-                    nomeContato: nomeContato.toUpperCase(),
-                    cpf: cpf,
-                    tipo: tipo,
-                    contato: contato,
-                    protocolo: protocolo,
-                    descricao: descricao,
-                    textoGerado: textoTemplate,
-                    dataHora: dataHoraAtual,
-                    hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' }) 
-                };
-                historico.push(novoRegistro);
-                
-                // Atualiza a memória com a última opção escolhida ao gravar um novo registro
-                ultimoTipoSelecionado = tipo;
-            }
-
-            localStorage.setItem('atendimentos', JSON.stringify(historico));
-            renderizarHistorico();
-            
-            if (!idEmEdicao) {
-                form.reset();
-                // Remarca o radio com a última opção usada
-                document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
-                document.getElementById('contato').focus(); 
-            }
-        });
-
-        // FUNÇÃO DE EDITAR
-        window.editarRegistro = function(id) {
-            const registro = historico.find(r => r.id === id);
-            if (!registro) return;
-
-            document.getElementById('nomeContrato').value = registro.nomeContrato || registro.nome || '';
-            document.getElementById('nomeContato').value = registro.nomeContato || registro.nome || '';
-            document.getElementById('cpf').value = registro.cpf || '';
-            
-            document.querySelectorAll('input[name="tipo"]').forEach(radio => radio.checked = false);
-            if (registro.tipo) {
-                const r = document.querySelector(`input[name="tipo"][value="${registro.tipo}"]`);
-                if(r) r.checked = true;
-            }
-            
-            document.getElementById('contato').value = registro.contato || '';
-            document.getElementById('protocolo').value = registro.protocolo || '';
-            document.getElementById('descricao').value = registro.descricao || '';
-
-            idEmEdicao = id;
-            tituloForm.innerText = "Editando Atendimento";
-            btnSubmit.innerText = "Atualizar Atendimento";
-            btnSubmit.classList.add('btn-warning-submit');
-            btnCancelar.style.display = 'inline-block';
-            
-            renderizarHistorico(); 
-        };
-
-        // FUNÇÃO PARA CANCELAR EDIÇÃO
-        function cancelarEdicao() {
-            idEmEdicao = null;
-            form.reset();
-            // Ao cancelar a edição, volta a marcação para a última usada no estado normal
-            document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
-            
-            tituloForm.innerText = "Novo Atendimento";
-            btnSubmit.innerText = "Gravar Atendimento";
-            btnSubmit.classList.remove('btn-warning-submit');
-            btnCancelar.style.display = 'none';
-            renderizarHistorico();
-        }
-
-        btnCancelar.addEventListener('click', cancelarEdicao);
-
-        // FUNÇÃO DE EXCLUIR
-        window.excluirRegistro = function(id) {
-            if (confirm("Tem certeza que deseja excluir este atendimento? Esta ação não pode ser desfeita.")) {
-                historico = historico.filter(r => r.id !== id);
-                localStorage.setItem('atendimentos', JSON.stringify(historico));
-                
-                if (idEmEdicao === id) cancelarEdicao();
-                else renderizarHistorico();
-            }
-        };
-
-        // FUNÇÃO DE COPIAR
-        window.copiarTexto = function(elementId) {
-            const texto = document.getElementById(elementId).innerText;
-            navigator.clipboard.writeText(texto).then(() => {
-                mostrarToast();
-            });
-        };
-
-        function mostrarToast() {
-            const toast = document.getElementById('toast');
-            toast.style.opacity = '1';
-            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
-        }
-
-        // GERAR ARQUIVO TXT
-        document.getElementById('btnExportar').addEventListener('click', function() {
-            if(historico.length === 0) {
-                alert("Não há registros para exportar!");
-                return;
-            }
-
-            let conteudoTxt = '';
-
-            historico.forEach((registro, index) => {
-                let numRegistro = (index + 1).toString().padStart(2, '0');
-                let dataExibicao = registro.dataHora || registro.hora;
-                
-                conteudoTxt += `--- REGISTRO ${numRegistro} ---\n`;
-                conteudoTxt += `DATA/HORA: ${dataExibicao}\n`;
-                conteudoTxt += `CONTRATO: ${registro.nomeContrato || registro.nome}\n`;
-                conteudoTxt += `NOME DO CONTATO: ${registro.nomeContato || registro.nome}\n`;
-                
-                if (registro.cpf) {
-                    let tipoDocumento = registro.cpf.length > 14 ? 'CNPJ' : 'CPF';
-                    conteudoTxt += `${tipoDocumento}: ${registro.cpf}\n`;
-                }
-                if (registro.contato) {
-                    conteudoTxt += `CONTATOS: ${registro.contato}\n`;
-                }
-                
-                conteudoTxt += `TEXTO GERADO:\n${registro.textoGerado}\n\n\n`;
-            });
-
-            const blob = new Blob([conteudoTxt], { type: "text/plain;charset=utf-8" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            
-            const hoje = new Date();
-            const nomeArquivo = `${hoje.getDate().toString().padStart(2, '0')}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}-${hoje.getFullYear()}.txt`;
-            
-            a.href = url;
-            a.download = nomeArquivo;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-
-        // LIMPAR HISTÓRICO
-        document.getElementById('btnLimpar').addEventListener('click', function() {
-            if(confirm("Tem certeza que deseja apagar todo o histórico do dia? Certifique-se de já ter gerado o arquivo .txt.")) {
-                historico = [];
-                localStorage.removeItem('atendimentos');
-                cancelarEdicao(); 
-                renderizarHistorico();
-            }
-        });
-
-        // INICIA A TELA E MARCA A OPÇÃO PADRÃO
-        renderizarHistorico();
-        document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
-    </script>
+    renderizar();
+</script>
 </body>
 </html>
