@@ -37,7 +37,7 @@
         /* Estrutura Principal: Duas Colunas */
         .left-column {
             width: 45%;
-            padding: 40px;
+            padding: 25px 30px; /* Reduzido o padding geral */
             overflow-y: auto;
             border-right: 2px solid var(--border);
             display: flex;
@@ -46,17 +46,17 @@
 
         .right-column {
             width: 55%;
-            padding: 40px;
+            padding: 25px 30px; /* Reduzido o padding geral */
             background-color: var(--bg);
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         h1 {
-            font-size: 1.4rem;
-            margin-bottom: 30px;
+            font-size: 1.2rem; /* Título um pouco menor */
+            margin-bottom: 15px; /* Menos espaço abaixo do título */
             color: var(--primary);
         }
 
@@ -64,13 +64,13 @@
         .form-grid {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 12px; /* Reduzido o gap geral do formulário */
         }
 
         .row-split {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 20px; /* Reduzido o gap entre colunas */
             align-items: start;
         }
 
@@ -80,23 +80,23 @@
         }
 
         label {
-            font-size: 0.8rem;
+            font-size: 0.75rem; /* Rótulo menor */
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 4px; /* Menos margem no rótulo */
             color: var(--text-light);
             text-transform: uppercase;
         }
 
         .label-center {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         input[type="text"], textarea {
-            padding: 12px;
+            padding: 8px 10px; /* Inputs menos altos */
             border: 1px solid var(--border-dark);
             border-radius: 4px;
-            font-size: 0.95rem;
+            font-size: 0.85rem; /* Fonte do input menor */
             outline: none;
             transition: border-color 0.2s;
             width: 100%;
@@ -107,22 +107,22 @@
         }
 
         textarea#descricao {
-            min-height: 180px;
+            min-height: 110px; /* Altura da descrição bem menor para caber na tela */
             background-color: #f1f5f9;
             resize: vertical;
         }
 
         .radio-group {
             display: flex;
-            gap: 20px;
-            padding: 10px 0;
+            gap: 15px;
+            padding: 5px 0; /* Menos preenchimento vertical nos radios */
         }
 
         .radio-label {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.9rem;
+            gap: 5px;
+            font-size: 0.85rem;
             color: var(--text-light);
             font-weight: 600;
             text-transform: uppercase;
@@ -130,17 +130,17 @@
         }
 
         .helper-text {
-            font-size: 0.75rem;
+            font-size: 0.7rem; /* Texto de ajuda menor */
             color: var(--text-light);
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
-        /* Botões */
+        /* Botões do Formulário */
         .actions-center {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-top: 10px;
+            margin-top: 5px; /* Subiu o botão */
         }
 
         .btn {
@@ -154,18 +154,18 @@
         .btn-primary {
             background-color: var(--primary);
             color: white;
-            padding: 14px 40px;
-            font-size: 1rem;
-            min-width: 250px;
+            padding: 10px 30px; /* Botão mais fino */
+            font-size: 0.95rem;
+            min-width: 220px;
         }
         .btn-primary:hover { background-color: var(--primary-hover); }
 
         .btn-warning-submit {
             background-color: var(--warning);
             color: white;
-            padding: 14px 40px;
-            font-size: 1rem;
-            min-width: 250px;
+            padding: 10px 30px;
+            font-size: 0.95rem;
+            min-width: 220px;
         }
         .btn-warning-submit:hover { background-color: #d97706; }
 
@@ -173,7 +173,7 @@
             background-color: transparent;
             color: var(--text-light);
             border: 1px solid var(--border-dark);
-            padding: 14px 20px;
+            padding: 10px 20px;
         }
         .btn-cancel:hover { background-color: #e2e8f0; }
 
@@ -182,21 +182,21 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .history-title-box {
             background-color: #e2e8f0;
-            padding: 15px 20px;
+            padding: 10px 15px; /* Caixa de título menor */
             border-radius: 6px;
             flex: 1;
-            margin-right: 20px;
+            margin-right: 15px;
         }
 
         .history-title-box h2 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--text);
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .actions {
@@ -207,7 +207,8 @@
         .btn-export {
             background-color: var(--success);
             color: white;
-            padding: 10px 16px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
         }
         .btn-export:hover { background-color: #059669; }
 
@@ -215,27 +216,28 @@
             background-color: transparent;
             color: var(--danger);
             border: 1px solid var(--danger);
-            padding: 10px 16px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
             background-color: var(--surface);
         }
         .btn-clear:hover { background-color: var(--danger); color: white; }
 
-        /* Cards de Atendimento */
+        /* Cards de Atendimento (Mais compactos) */
         #listaHistorico {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
         .card {
             background-color: var(--surface);
-            padding: 20px;
-            border-radius: 8px;
+            padding: 12px 15px; /* Padding do card reduzido */
+            border-radius: 6px;
             border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px; /* Reduzido o espaço interno do card */
             transition: border-color 0.2s;
         }
 
@@ -248,8 +250,8 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-            font-size: 0.85rem;
+            padding-bottom: 6px; /* Menos espaço no cabeçalho */
+            font-size: 0.75rem; /* Fonte do cabeçalho do card menor */
             color: var(--text-light);
         }
 
@@ -257,22 +259,22 @@
             font-family: monospace;
             white-space: pre-wrap;
             background-color: var(--bg);
-            padding: 15px;
-            border-radius: 6px;
-            font-size: 0.95rem;
+            padding: 10px; /* Padding interno do texto gerado reduzido */
+            border-radius: 4px;
+            font-size: 0.85rem; /* Fonte do texto gerado um pouco menor */
             color: #000;
         }
 
         .card-footer {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-top: 5px;
+            gap: 8px;
+            margin-top: 2px;
         }
 
         .btn-sm {
-            padding: 8px 14px;
-            font-size: 0.85rem;
+            padding: 6px 10px; /* Botões dos cards menores */
+            font-size: 0.8rem; /* Fonte dos botões dos cards menores */
         }
 
         .btn-copy { background-color: var(--text); color: white; }
@@ -356,7 +358,7 @@
             </div>
 
             <!-- LINHA 5: Descrição -->
-            <div class="form-group" style="margin-top: 10px;">
+            <div class="form-group" style="margin-top: 5px;">
                 <label for="descricao" class="label-center">Descrição do Ocorrido</label>
                 <textarea id="descricao" required></textarea>
             </div>
@@ -375,7 +377,7 @@
         <div class="history-header">
             <div class="history-title-box">
                 <h2>Histórico do Dia</h2>
-                <p id="txtQtdRegistros" style="color: var(--text-light); font-size: 0.9rem;">Carregando...</p>
+                <p id="txtQtdRegistros" style="color: var(--text-light); font-size: 0.85rem;">Carregando...</p>
             </div>
             <div class="actions">
                 <button id="btnExportar" class="btn btn-export">Gerar Arquivo .txt</button>
@@ -462,7 +464,7 @@
             
             if(historico.length === 0) {
                 txtQtdRegistros.innerText = "Nenhum atendimento gravado hoje ainda.";
-                listaHistorico.innerHTML = '<p style="color: var(--text-light); text-align: center; margin-top: 20px;">Os registros aparecerão aqui.</p>';
+                listaHistorico.innerHTML = '<p style="color: var(--text-light); text-align: center; margin-top: 20px; font-size: 0.9rem;">Os registros aparecerão aqui.</p>';
                 return;
             }
 
