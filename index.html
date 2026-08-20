@@ -92,10 +92,17 @@
   .bloco-notas-global .form-group { flex: 1; }
   .bloco-notas-global textarea { min-height: 90px; background-color: #fefce8; border-color: #fde047; }
   
-  /* Histórico na Direita */
+  /* Histórico na Direita e Quick Replies */
   .history-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .history-title-box { background-color: #e2e8f0; padding: 10px 15px; border-radius: 6px; flex: 1; margin-right: 15px; }
   .history-title-box h2 { font-size: 1.1rem; color: var(--text); margin-bottom: 2px; }
+  
+  .quick-replies-container { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+  .qr-btn { font-size: 1.4rem; cursor: pointer; user-select: none; transition: transform 0.1s; line-height: 1; padding: 2px; border-radius: 4px; display: inline-block; }
+  .qr-btn:hover { transform: scale(1.15); background-color: #cbd5e1; }
+  .btn-add-qr { font-size: 1.1rem; font-weight: bold; color: var(--text-light); background: transparent; border: 1px dashed var(--border-dark); border-radius: 4px; cursor: pointer; padding: 2px 8px; line-height: 1.2; margin-left: 5px; }
+  .btn-add-qr:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
+
   .actions { display: flex; gap: 10px; }
   .btn-export { background-color: var(--success); color: white; padding: 8px 14px; font-size: 0.85rem; }
   .btn-export:hover { background-color: #059669; }
@@ -137,10 +144,11 @@
 
   .toast { position: fixed; bottom: 20px; right: 20px; background-color: #333; color: white; padding: 10px 20px; border-radius: 5px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; }
 
-  /* MODAL */
+  /* MODAIS */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
   .modal-overlay.aberto { display: flex; }
   .modal-box { background-color: var(--surface); border-radius: 8px; padding: 25px 30px; width: 480px; max-height: 85vh; overflow-y: auto; }
+  
   .modal-box h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 5px; }
   .modal-box .modal-subtitle { font-size: 0.8rem; color: var(--text-light); margin-bottom: 18px; }
   .modal-info-box { background-color: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 8px 12px; font-size: 0.75rem; color: var(--text-light); margin-bottom: 18px; }
@@ -151,16 +159,21 @@
   .modal-option-text { display: flex; flex-direction: column; }
   .modal-option-text strong { font-size: 0.85rem; color: var(--text); }
   .modal-option-text span { font-size: 0.72rem; color: var(--text-light); margin-top: 2px; }
+  
   .modal-campos-alteracao { display: none; flex-direction: column; gap: 10px; margin: 8px 0 15px 26px; border-left: 2px solid var(--primary); padding-left: 14px; }
   .modal-campos-alteracao.visivel { display: flex; }
   .modal-campos-alteracao .form-group label { font-size: 0.7rem; }
   .modal-campos-alteracao .removido label { color: var(--danger); }
   .modal-campos-alteracao .adicionado label { color: var(--success); }
+  
   .modal-erro { display: none; background-color: #fef2f2; border: 1px solid var(--danger); color: #b91c1c; font-size: 0.78rem; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px; }
   .modal-erro.visivel { display: block; }
+  
   .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
-  .btn-modal-cancelar { background-color: transparent; color: var(--text-light); border: 1px solid var(--border-dark); padding: 9px 18px; font-size: 0.85rem; }
-  .btn-modal-salvar { background-color: var(--primary); color: white; padding: 9px 22px; font-size: 0.85rem; }
+  .btn-modal-cancelar { background-color: transparent; color: var(--text-light); border: 1px solid var(--border-dark); padding: 9px 18px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; }
+  .btn-modal-cancelar:hover { background-color: #e2e8f0; }
+  .btn-modal-salvar { background-color: var(--primary); color: white; border: none; padding: 9px 22px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; }
+  .btn-modal-salvar:hover { background-color: var(--primary-hover); }
 </style>
 </head>
 <body>
@@ -173,7 +186,7 @@
   </h1>
   
   <div id="formulariosContainer">
-    <!-- Mini formulários (Sanfonas) entrarão aqui -->
+    <!-- Mini formulários entrarão aqui -->
   </div>
 
   <!-- BLOCO DE NOTAS GLOBAL -->
@@ -195,12 +208,19 @@
   </div>
 </div>
 
-<!-- COLUNA DIREITA - HISTÓRICO -->
+<!-- COLUNA DIREITA - HISTÓRICO E TEXTOS RÁPIDOS -->
 <div class="right-column">
   <div class="history-header">
     <div class="history-title-box">
       <h2>Histórico do Dia</h2>
-      <p id="txtQtdRegistros" style="color:var(--text-light); font-size:0.85rem">Carregando...</p>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <p id="txtQtdRegistros" style="color:var(--text-light); font-size:0.85rem; white-space: nowrap;">Carregando...</p>
+        
+        <!-- AREA DOS TEXTOS RÁPIDOS (EMOJIS) -->
+        <div id="quickRepliesContainer" class="quick-replies-container">
+          <!-- Os emojis serão carregados aqui -->
+        </div>
+      </div>
     </div>
     <div class="actions">
       <button id="btnExportar" class="btn btn-export">Gerar Arquivo .txt</button>
@@ -211,6 +231,38 @@
 </div>
 
 <div id="toast" class="toast">Texto copiado!</div>
+
+<!-- MODAL DE TEXTOS RÁPIDOS (SNIPPETS) -->
+<div class="modal-overlay" id="modalQuickReply">
+  <div class="modal-box" style="width: 400px;">
+    <h2 id="modalQrTitle">Novo Texto Rápido</h2>
+    <p class="modal-subtitle">1 Clique = Copiar | 2 Cliques = Editar</p>
+    
+    <div class="form-group" style="margin-top: 10px;">
+      <label>Emoji (Ícone visual)</label>
+      <input type="text" id="qrEmoji" maxlength="3" placeholder="Ex: ☀️" autocomplete="off" style="font-size: 1.2rem; width: 80px; text-align: center;">
+    </div>
+    
+    <div class="form-group" style="margin-top: 15px;">
+      <label>Texto a ser copiado</label>
+      <textarea id="qrText" style="min-height: 90px;" placeholder="Ex: Obrigado [var], volte sempre!"></textarea>
+      <span class="helper-text">Se usar variável dinâmica, digite a tag [var] no meio da frase.</span>
+    </div>
+    
+    <div class="dispensa-cadastro-box" style="margin-top: 15px; margin-bottom: 20px;">
+      <input type="checkbox" id="qrHasVar">
+      <label for="qrHasVar">Este texto exige preencher a variável [var] antes de colar.</label>
+    </div>
+    
+    <div class="modal-footer" style="justify-content: space-between;">
+      <button type="button" class="btn-sm btn-delete" id="btnDeleteQr" style="display:none;" onclick="deletarQuickReply()">Excluir</button>
+      <div>
+        <button type="button" class="btn-modal-cancelar" onclick="fecharModalQr()">Cancelar</button>
+        <button type="button" class="btn-modal-salvar" onclick="salvarQuickReply()">Salvar Botão</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL DE GESTÃO DE CADASTRO -->
 <div class="modal-overlay" id="modalCadastro">
@@ -273,32 +325,29 @@ function obterDataHoraAtual() {
 
 /* ===================== ESTADOS GLOBAIS ===================== */
 let historico = JSON.parse(localStorage.getItem('atendimentos')) || [];
-let rascunhos = {}; // Guarda estado de cada formulário ativo: {id: {cadastro: null, isEdit: false, editId: null}}
+let quickReplies = JSON.parse(localStorage.getItem('quickReplies')) || [];
+let rascunhos = {}; 
 let ultimoTipoSelecionado = 'TELEFONE';
-let rascunhoAtivoModal = null; // ID do rascunho que abriu o modal
+let rascunhoAtivoModal = null; 
+let editQrId = null;
+let clickTimer = null; // Timer para distinguir click simples de duplo clique nos Emojis
 
-/* ===================== DELEGAÇÃO GERAL DE EVENTOS (INPUTS & BOTÕES) ===================== */
-
-// Controle de cores (Inputs preenchidos ficam verde) e Títulos Dinâmicos
+/* ===================== DELEGAÇÃO GERAL DE EVENTOS ===================== */
 document.addEventListener('input', (e) => {
-  // Destaque Verde
   if((e.target.tagName === 'INPUT' && e.target.type === 'text') || e.target.tagName === 'TEXTAREA') {
     if(e.target.value.trim() !== '') e.target.classList.add('campo-preenchido');
     else e.target.classList.remove('campo-preenchido');
   }
 
-  // Título Dinâmico do Rascunho
   if(e.target.classList.contains('dyn-titulo')) {
     const id = e.target.dataset.rascunho;
     if(id) atualizarTituloRascunho(id);
   }
 
-  // Máscaras Dinâmicas
   if(e.target.classList.contains('mask-cpf')) aplicarMascaraCpf(e.target);
   if(e.target.classList.contains('mask-contato')) aplicarMascaraContato(e.target);
 });
 
-// Delegação de Botão de Colar
 document.addEventListener('click', async (e) => {
   const btn = e.target.closest('.btn-paste');
   if(btn) {
@@ -344,6 +393,117 @@ function aplicarMascaraContato(el) {
   el.value = res;
 }
 
+/* ===================== MÓDULO: TEXTOS RÁPIDOS (SNIPPETS / EMOJIS) ===================== */
+function renderQuickReplies() {
+  const container = document.getElementById('quickRepliesContainer');
+  container.innerHTML = '';
+  
+  quickReplies.forEach(qr => {
+    const btn = document.createElement('span');
+    btn.className = 'qr-btn';
+    btn.innerText = qr.emoji;
+    btn.title = qr.text; // Mostra o texto quando passa o mouse por cima
+    
+    // Tratamento para 1 clique vs 2 cliques
+    btn.onclick = () => {
+      if (clickTimer) clearTimeout(clickTimer);
+      clickTimer = setTimeout(() => handleQrSingleClick(qr.id), 250); 
+    };
+    btn.ondblclick = () => {
+      if (clickTimer) clearTimeout(clickTimer);
+      handleQrDoubleClick(qr.id);
+    };
+    
+    container.appendChild(btn);
+  });
+  
+  // Botão de adicionar fica sempre no final
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn-add-qr';
+  addBtn.innerText = '+';
+  addBtn.title = 'Adicionar Texto Rápido';
+  addBtn.onclick = abrirModalQr;
+  container.appendChild(addBtn);
+}
+
+function handleQrSingleClick(id) {
+  const qr = quickReplies.find(q => q.id === id);
+  if (!qr) return;
+  
+  let textoFinal = qr.text;
+  
+  if (qr.hasVar) {
+    let variavel = prompt("Digite o valor para [var]:");
+    if (variavel === null) return; // Cancela silenciosamente se apertar Esc ou Cancelar
+    textoFinal = textoFinal.replace(/\[var\]/gi, variavel); // Procura [var] e substitui
+  }
+  
+  navigator.clipboard.writeText(textoFinal).then(() => mostrarToast('Texto copiado!'));
+}
+
+function handleQrDoubleClick(id) {
+  window.getSelection().removeAllRanges(); // Limpa seleção de texto acidental do dblclick
+  const qr = quickReplies.find(q => q.id === id);
+  if (!qr) return;
+  
+  editQrId = id;
+  document.getElementById('modalQrTitle').innerText = 'Editar Texto Rápido';
+  document.getElementById('qrEmoji').value = qr.emoji;
+  document.getElementById('qrText').value = qr.text;
+  document.getElementById('qrHasVar').checked = qr.hasVar;
+  document.getElementById('btnDeleteQr').style.display = 'inline-block';
+  
+  document.getElementById('modalQuickReply').classList.add('aberto');
+  document.getElementById('qrEmoji').focus();
+}
+
+function abrirModalQr() {
+  editQrId = null;
+  document.getElementById('modalQrTitle').innerText = 'Novo Texto Rápido';
+  document.getElementById('qrEmoji').value = '';
+  document.getElementById('qrText').value = '';
+  document.getElementById('qrHasVar').checked = false;
+  document.getElementById('btnDeleteQr').style.display = 'none';
+  
+  document.getElementById('modalQuickReply').classList.add('aberto');
+  document.getElementById('qrEmoji').focus();
+}
+
+function fecharModalQr() {
+  document.getElementById('modalQuickReply').classList.remove('aberto');
+}
+
+function salvarQuickReply() {
+  const emoji = document.getElementById('qrEmoji').value.trim();
+  const text = document.getElementById('qrText').value.trim();
+  const hasVar = document.getElementById('qrHasVar').checked;
+  
+  if (!emoji || !text) {
+    alert('Por favor, preencha o Emoji e o Texto a ser copiado.');
+    return;
+  }
+  
+  if (editQrId) {
+    const idx = quickReplies.findIndex(q => q.id === editQrId);
+    if (idx !== -1) quickReplies[idx] = { id: editQrId, emoji, text, hasVar };
+  } else {
+    quickReplies.push({ id: Date.now(), emoji, text, hasVar });
+  }
+  
+  localStorage.setItem('quickReplies', JSON.stringify(quickReplies));
+  fecharModalQr();
+  renderQuickReplies();
+}
+
+function deletarQuickReply() {
+  if (confirm('Tem certeza que deseja excluir este atalho de texto?')) {
+    quickReplies = quickReplies.filter(q => q.id !== editQrId);
+    localStorage.setItem('quickReplies', JSON.stringify(quickReplies));
+    fecharModalQr();
+    renderQuickReplies();
+  }
+}
+
 /* ===================== SISTEMA DE RASCUNHOS (MINI-FORMULÁRIOS) ===================== */
 function criarNovoRascunho(dadosPreenchidos = null, editId = null) {
   const id = Date.now().toString() + Math.floor(Math.random()*1000); 
@@ -357,7 +517,6 @@ function criarNovoRascunho(dadosPreenchidos = null, editId = null) {
 
   const container = document.getElementById('formulariosContainer');
   
-  // Recolhe os outros ao abrir um novo
   document.querySelectorAll('.draft-card').forEach(c => c.classList.remove('aberto'));
   document.querySelectorAll('.draft-toggle-icon').forEach(i => i.innerHTML = '&#9658;');
 
@@ -365,7 +524,6 @@ function criarNovoRascunho(dadosPreenchidos = null, editId = null) {
   let tipoChecked = isEdit ? (d.tipo || 'TELEFONE') : ultimoTipoSelecionado;
   let dispensaInicial = localStorage.getItem('dispensaCadastro') === 'true';
   
-  // Fallback de segurança para registros antigos que só tinham "nome"
   let valNomeContato = d.nomeContato || d.nome || '';
   let valNomeContrato = d.nomeContrato || d.nome || '';
   let valContato = d.contato || '';
@@ -475,8 +633,6 @@ function fecharRascunho(id, event) {
 
 function toggleDraftRascunho(id, event) {
   if(event.target.classList.contains('btn-fechar-rascunho')) return;
-  
-  // Evita colapsar se o usuário estiver tentando selecionar o texto do título
   if(window.getSelection().toString().length > 0) return; 
   
   const card = document.getElementById(`card-${id}`);
@@ -657,7 +813,6 @@ function validarEGravar(e, id) {
   if (contato.endsWith('/')) contato = contato.slice(0, -1).trim();
   const protocolo = document.getElementById(`protocolo-${id}`).value.trim();
   
-  // Tratamento da descrição para evitar dois pontos finais juntos
   let descricaoBruta = document.getElementById(`descricao-${id}`).value.trim();
   descricaoBruta = descricaoBruta.replace(/\.+$/, ''); 
   
@@ -838,7 +993,9 @@ document.getElementById('btnLimpar').addEventListener('click', function() {
 
 /* ===================== INICIALIZAÇÃO ===================== */
 renderizarHistorico();
+renderQuickReplies();
 if(Object.keys(rascunhos).length === 0) criarNovoRascunho();
+
 </script>
 </body>
 </html>
