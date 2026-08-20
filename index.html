@@ -33,7 +33,7 @@
   
   .draft-header { 
     background-color: #f8fafc; padding: 12px 15px; cursor: pointer; display: flex; 
-    align-items: center; gap: 8px; border-bottom: 1px solid transparent; user-select: none;
+    align-items: center; gap: 8px; border-bottom: 1px solid transparent;
   }
   .draft-card.aberto .draft-header { border-bottom-color: var(--border); background-color: #eff6ff; }
   .draft-toggle-icon { font-size: 0.7rem; color: var(--text-light); transition: transform 0.2s; }
@@ -44,9 +44,9 @@
   .draft-body { display: none; padding: 15px; }
   .draft-card.aberto .draft-body { display: block; }
 
-  /* Elementos do Formulário (Reaproveitados) */
+  /* Elementos do Formulário */
   .form-grid { display: flex; flex-direction: column; gap: 12px; }
-  .row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  .row-split { display: grid; gap: 20px; align-items: start; }
   .form-group { display: flex; flex-direction: column; }
   label { font-size: 0.75rem; font-weight: 800; margin-bottom: 4px; color: #000; text-transform: uppercase; }
   .label-center { text-align: center; margin-bottom: 6px; }
@@ -66,12 +66,12 @@
   .btn-paste:hover { background-color: #e2e8f0; color: var(--primary); }
   .btn-paste:active { transform: translateY(-50%) scale(0.9); }
 
-  .dispensa-cadastro-box { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.72rem; color: var(--text-light); text-transform: uppercase; font-weight: 600; }
+  .dispensa-cadastro-box { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-light); text-transform: uppercase; font-weight: 600; }
   .dispensa-cadastro-box input[type="checkbox"] { accent-color: var(--warning); cursor: pointer; width: 14px; height: 14px; }
   .dispensa-cadastro-box label { margin: 0; cursor: pointer; text-transform: none; font-size: 0.78rem; color: #333; font-weight: 600; }
   .dispensa-cadastro-box.ativo { color: var(--warning); }
 
-  .actions-center { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 5px; flex-wrap: wrap; }
+  .actions-center { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 10px; flex-wrap: wrap; }
   .btn { border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; }
   .btn-primary { background-color: var(--primary); color: white; padding: 10px 30px; font-size: 0.95rem; min-width: 220px; }
   .btn-primary:hover { background-color: var(--primary-hover); }
@@ -92,7 +92,7 @@
   .bloco-notas-global .form-group { flex: 1; }
   .bloco-notas-global textarea { min-height: 90px; background-color: #fefce8; border-color: #fde047; }
   
-  /* Histórico na Direita (Mantido como antes) */
+  /* Histórico na Direita */
   .history-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .history-title-box { background-color: #e2e8f0; padding: 10px 15px; border-radius: 6px; flex: 1; margin-right: 15px; }
   .history-title-box h2 { font-size: 1.1rem; color: var(--text); margin-bottom: 2px; }
@@ -350,10 +350,17 @@ function criarNovoRascunho(dadosPreenchidos = null, editId = null) {
   document.querySelectorAll('.draft-card').forEach(c => c.classList.remove('aberto'));
   document.querySelectorAll('.draft-toggle-icon').forEach(i => i.innerHTML = '&#9658;');
 
-  // Inicializa dados se for modo de edição
+  // Inicializa dados se for modo de edição (Garante fallback para o d.nomeContato se for registro antigo)
   let d = dadosPreenchidos || {};
   let tipoChecked = isEdit ? (d.tipo || 'TELEFONE') : ultimoTipoSelecionado;
   let dispensaInicial = localStorage.getItem('dispensaCadastro') === 'true';
+  
+  let valNomeContato = d.nomeContato || d.nome || '';
+  let valNomeContrato = d.nomeContrato || d.nome || '';
+  let valContato = d.contato || '';
+  let valCpf = d.cpf || '';
+  let valProtocolo = d.protocolo || '';
+  let valDesc = d.descricao || '';
 
   const html = `
     <div class="draft-card aberto ${isEdit ? 'edit-mode' : ''}" id="card-${id}">
@@ -366,52 +373,53 @@ function criarNovoRascunho(dadosPreenchidos = null, editId = null) {
       <div class="draft-body">
         <form id="form-${id}" onsubmit="validarEGravar(event, '${id}')" class="form-grid">
           
-          <div class="row-split">
+          <div class="row-split" style="grid-template-columns: 1fr 1fr;">
             <div class="form-group">
               <label>Contatos (Telefones)</label>
               <div class="input-com-paste">
-                <input type="text" id="contato-${id}" class="mask-contato dyn-titulo" data-rascunho="${id}" required autocomplete="off" value="${d.contato || ''}">
+                <input type="text" id="contato-${id}" class="mask-contato dyn-titulo" data-rascunho="${id}" required autocomplete="off" value="${valContato}">
                 <button type="button" class="btn-paste" data-target="contato-${id}">&#128203;</button>
               </div>
             </div>
             <div class="form-group">
               <label>CPF / CNPJ</label>
               <div class="input-com-paste">
-                <input type="text" id="cpf-${id}" class="mask-cpf dyn-titulo" data-rascunho="${id}" maxlength="18" autocomplete="off" value="${d.cpf || ''}">
+                <input type="text" id="cpf-${id}" class="mask-cpf dyn-titulo" data-rascunho="${id}" maxlength="18" autocomplete="off" value="${valCpf}">
                 <button type="button" class="btn-paste" data-target="cpf-${id}">&#128203;</button>
               </div>
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Nome do Contato (Pessoa)</label>
-            <input type="text" id="nomeContato-${id}" required autocomplete="off" value="${d.nomeContato || ''}">
-          </div>
-
-          <div class="form-group">
-            <label>Nome do Contrato</label>
-            <div class="input-com-paste">
-              <input type="text" id="nomeContrato-${id}" class="dyn-titulo" data-rascunho="${id}" required autocomplete="off" value="${d.nomeContrato || ''}">
-              <button type="button" class="btn-paste" data-target="nomeContrato-${id}">&#128203;</button>
+          <div class="row-split" style="grid-template-columns: 1fr 1.5fr;">
+            <div class="form-group">
+              <label>Nome do Contato (Pessoa)</label>
+              <input type="text" id="nomeContato-${id}" class="dyn-titulo" data-rascunho="${id}" required autocomplete="off" value="${valNomeContato}">
+            </div>
+            <div class="form-group">
+              <label>Nome do Contrato</label>
+              <div class="input-com-paste">
+                <input type="text" id="nomeContrato-${id}" required autocomplete="off" value="${valNomeContrato}">
+                <button type="button" class="btn-paste" data-target="nomeContrato-${id}">&#128203;</button>
+              </div>
             </div>
           </div>
 
-          <div class="row-split">
+          <div class="row-split" style="grid-template-columns: 1fr 1fr;">
             <div class="form-group">
               <label>Tipo de Contato</label>
-              <div class="radio-group">
+              <div class="radio-group" style="padding-bottom: 2px;">
                 <label class="radio-label"><input type="radio" name="tipo-${id}" value="TELEFONE" ${tipoChecked === 'TELEFONE' ? 'checked' : ''}> Telefone</label>
                 <label class="radio-label"><input type="radio" name="tipo-${id}" value="WHATSAPP" ${tipoChecked === 'WHATSAPP' ? 'checked' : ''}> WhatsApp</label>
               </div>
-              <div class="dispensa-cadastro-box" id="box-dispensa-${id}">
+              <div class="dispensa-cadastro-box" id="box-dispensa-${id}" style="margin-top: 0;">
                 <input type="checkbox" id="dispensa-${id}" onchange="toggleDispensa('${id}')" ${dispensaInicial ? 'checked' : ''}>
-                <label for="dispensa-${id}">Dispensar Cadastro</label>
+                <label for="dispensa-${id}" style="font-weight: 600; font-size: 0.78rem; text-transform: none; color: #333;">Dispensar Cadastro</label>
               </div>
             </div>
             <div class="form-group">
               <label>Protocolos</label>
               <div class="input-com-paste">
-                <input type="text" id="protocolo-${id}" required autocomplete="off" value="${d.protocolo || ''}">
+                <input type="text" id="protocolo-${id}" required autocomplete="off" value="${valProtocolo}">
                 <button type="button" class="btn-paste" data-target="protocolo-${id}">&#128203;</button>
               </div>
             </div>
@@ -419,10 +427,10 @@ function criarNovoRascunho(dadosPreenchidos = null, editId = null) {
 
           <div class="form-group" style="margin-top:5px">
             <label class="label-center">Descrição do Ocorrido</label>
-            <textarea id="descricao-${id}" class="descricao" required>${d.descricao || ''}</textarea>
+            <textarea id="descricao-${id}" class="descricao" required>${valDesc}</textarea>
           </div>
 
-          <div class="actions-center">
+          <div class="actions-center" style="margin-top: 15px;">
             <button type="button" class="btn-cadastro" id="btnGerenciar-${id}" onclick="abrirModalParaRascunho('${id}')">
               <span class="status-icon" id="iconeStatus-${id}">&#9888;</span>
               <span id="textoStatus-${id}">Gerenciar Cadastro</span>
@@ -457,6 +465,10 @@ function fecharRascunho(id, event) {
 
 function toggleDraftRascunho(id, event) {
   if(event.target.classList.contains('btn-fechar-rascunho')) return;
+  
+  // Evita colapsar se o usuário estiver tentando selecionar o texto do título
+  if(window.getSelection().toString().length > 0) return; 
+  
   const card = document.getElementById(`card-${id}`);
   const seta = document.getElementById(`seta-rascunho-${id}`);
   
@@ -474,13 +486,22 @@ function toggleDraftRascunho(id, event) {
 }
 
 function atualizarTituloRascunho(id) {
-  const nomeContrato = document.getElementById(`nomeContrato-${id}`)?.value.trim() || '';
+  const nomeContato = document.getElementById(`nomeContato-${id}`)?.value.trim() || '';
   const contato = document.getElementById(`contato-${id}`)?.value.trim() || '';
   const cpf = document.getElementById(`cpf-${id}`)?.value.trim() || '';
   
   let titulo = 'Novo Atendimento';
-  if (nomeContrato) titulo = nomeContrato;
-  if (contato || cpf) titulo += ` | ${contato || cpf}`;
+  if (nomeContato) titulo = nomeContato.toUpperCase();
+  
+  let partesExtras = [];
+  if (contato) partesExtras.push(contato);
+  if (cpf) partesExtras.push(cpf);
+  
+  if (partesExtras.length > 0 && nomeContato) {
+      titulo += ` | ${partesExtras.join(' | ')}`;
+  } else if (partesExtras.length > 0) {
+      titulo = partesExtras.join(' | ');
+  }
   
   const span = document.getElementById(`titulo-rascunho-${id}`);
   if(span) span.innerText = rascunhos[id].isEdit ? `(Editando) ${titulo}` : titulo;
@@ -573,8 +594,14 @@ document.getElementById('btnModalSalvar').addEventListener('click', () => {
   const formToSubmit = document.getElementById(`form-${rascunhoAtivoModal}`);
   fecharModalCadastro();
   
-  // Retrigger Submit
-  if (formToSubmit) formToSubmit.dispatchEvent(new Event('submit', { cancelable: true }));
+  // Utiliza requestSubmit para garantir que acione a validação HTML5 e a função de gravar nativa
+  if (formToSubmit) {
+      if (formToSubmit.requestSubmit) {
+          formToSubmit.requestSubmit();
+      } else {
+          formToSubmit.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }
+  }
 });
 
 function atualizarStatusVisualCadastroRascunho(id) {
@@ -622,13 +649,16 @@ function validarEGravar(e, id) {
   let contato = document.getElementById(`contato-${id}`).value.trim();
   if (contato.endsWith('/')) contato = contato.slice(0, -1).trim();
   const protocolo = document.getElementById(`protocolo-${id}`).value.trim();
-  const descricao = document.getElementById(`descricao-${id}`).value.trim();
-
-  let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n\nCONTATO: ${contato}\nPROTOCOLO: ${protocolo}`.toUpperCase();
+  
+  // Tratamento da descrição para evitar dois pontos finais juntos
+  let descricaoBruta = document.getElementById(`descricao-${id}`).value.trim();
+  descricaoBruta = descricaoBruta.replace(/\.+$/, ''); // Remove pontos no final, caso exista
+  
+  let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricaoBruta}.\n\nCONTATO: ${contato}\nPROTOCOLO: ${protocolo}`.toUpperCase();
   const dataHoraAtual = obterDataHoraAtual();
 
   const isEdit = rascunhos[id].isEdit;
-  const editId = rascunhos[id].editId;
+  const editId = rascunhos[id].editId; // editId é um Number
 
   if (isEdit) {
     const index = historico.findIndex(r => r.id === editId);
@@ -636,7 +666,7 @@ function validarEGravar(e, id) {
       historico[index] = {
         ...historico[index],
         nomeContrato: nomeContrato.toUpperCase(), nomeContato: nomeContato.toUpperCase(),
-        cpf, tipo, contato, protocolo, descricao, textoGerado: textoTemplate,
+        cpf, tipo, contato, protocolo, descricao: descricaoBruta, textoGerado: textoTemplate,
         cadastro: cad, dataHora: dataHoraAtual + ' (Editado)'
       };
     }
@@ -644,7 +674,7 @@ function validarEGravar(e, id) {
     historico.push({
       id: Date.now(),
       nomeContrato: nomeContrato.toUpperCase(), nomeContato: nomeContato.toUpperCase(),
-      cpf, tipo, contato, protocolo, descricao, textoGerado: textoTemplate,
+      cpf, tipo, contato, protocolo, descricao: descricaoBruta, textoGerado: textoTemplate,
       cadastro: cad, concluido: false,
       dataHora: dataHoraAtual, hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
     });
