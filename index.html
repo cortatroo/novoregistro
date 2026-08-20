@@ -37,7 +37,7 @@
   }
   .draft-card.aberto .draft-header { border-bottom-color: var(--border); background-color: #eff6ff; }
   .draft-toggle-icon { font-size: 0.7rem; color: var(--text-light); transition: transform 0.2s; }
-  .draft-title { font-size: 0.85rem; font-weight: 600; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .draft-title { font-size: 0.85rem; font-weight: 600; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text; }
   .btn-fechar-rascunho { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem; padding: 0 5px; opacity: 0.5; }
   .btn-fechar-rascunho:hover { opacity: 1; }
 
@@ -105,9 +105,9 @@
   #listaHistorico { display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px; }
   .card { background-color: var(--surface); padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.2s; }
   .card.concluido { border-color: var(--success); background-color: #f8fafc; opacity: 0.85; }
-  .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; font-size: 0.75rem; color: var(--text-light); user-select: none; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; font-size: 0.75rem; color: var(--text-light); cursor: pointer; }
   .card-header:hover .card-toggle-icon { color: var(--primary); }
-  .card-header-title { display: flex; align-items: center; gap: 6px; cursor: pointer; flex: 1; }
+  .card-header-title { display: flex; align-items: center; gap: 6px; flex: 1; cursor: text; }
   .card-body { font-family: monospace; white-space: pre-wrap; background-color: var(--bg); padding: 10px; border-radius: 4px; font-size: 0.85rem; color: #000; }
 
   .sub-historico-wrapper { border-top: 1px dashed var(--border-dark); padding-top: 8px; }
@@ -176,7 +176,7 @@
     <!-- Mini formulários (Sanfonas) entrarão aqui -->
   </div>
 
-  <!-- BLOCO DE NOTAS GLOBAL (Independente e Dividido) -->
+  <!-- BLOCO DE NOTAS GLOBAL -->
   <div class="bloco-notas-global">
     <div class="form-group">
       <label>Anotações 1</label>
@@ -260,6 +260,17 @@
 </div>
 
 <script>
+/* ===================== FUNÇÃO DE DATA E HORA ===================== */
+function obterDataHoraAtual() {
+  const agora = new Date();
+  const dia = String(agora.getDate()).padStart(2, '0');
+  const mes = String(agora.getMonth() + 1).padStart(2, '0');
+  const ano = agora.getFullYear();
+  const hora = String(agora.getHours()).padStart(2, '0');
+  const minuto = String(agora.getMinutes()).padStart(2, '0');
+  return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+}
+
 /* ===================== ESTADOS GLOBAIS ===================== */
 let historico = JSON.parse(localStorage.getItem('atendimentos')) || [];
 let rascunhos = {}; // Guarda estado de cada formulário ativo: {id: {cadastro: null, isEdit: false, editId: null}}
@@ -287,7 +298,7 @@ document.addEventListener('input', (e) => {
   if(e.target.classList.contains('mask-contato')) aplicarMascaraContato(e.target);
 });
 
-// Delegação de Botão de Colar (Funciona para elementos criados dinamicamente)
+// Delegação de Botão de Colar
 document.addEventListener('click', async (e) => {
   const btn = e.target.closest('.btn-paste');
   if(btn) {
@@ -321,7 +332,7 @@ function aplicarMascaraContato(el) {
   let partes = el.value.split('/');
   let formatado = partes.map(p => {
     let n = p.replace(/\D/g, '');
-    if (n.startsWith('55') && (n.length === 12 || n.length === 13)) n = n.substring(2); // Remove +55 BR
+    if (n.startsWith('55') && (n.length === 12 || n.length === 13)) n = n.substring(2);
     if (n.length === 0) return '';
     if (n.length <= 2) return `(${n}`;
     if (n.length <= 6) return `(${n.slice(0,2)}) ${n.slice(2)}`;
@@ -335,7 +346,7 @@ function aplicarMascaraContato(el) {
 
 /* ===================== SISTEMA DE RASCUNHOS (MINI-FORMULÁRIOS) ===================== */
 function criarNovoRascunho(dadosPreenchidos = null, editId = null) {
-  const id = Date.now().toString() + Math.floor(Math.random()*1000); // ID Único
+  const id = Date.now().toString() + Math.floor(Math.random()*1000); 
   const isEdit = editId !== null;
   
   rascunhos[id] = {
@@ -346,15 +357,15 @@ function criarNovoRascunho(dadosPreenchidos = null, editId = null) {
 
   const container = document.getElementById('formulariosContainer');
   
-  // Collapse os outros
+  // Recolhe os outros ao abrir um novo
   document.querySelectorAll('.draft-card').forEach(c => c.classList.remove('aberto'));
   document.querySelectorAll('.draft-toggle-icon').forEach(i => i.innerHTML = '&#9658;');
 
-  // Inicializa dados se for modo de edição (Garante fallback para o d.nomeContato se for registro antigo)
   let d = dadosPreenchidos || {};
   let tipoChecked = isEdit ? (d.tipo || 'TELEFONE') : ultimoTipoSelecionado;
   let dispensaInicial = localStorage.getItem('dispensaCadastro') === 'true';
   
+  // Fallback de segurança para registros antigos que só tinham "nome"
   let valNomeContato = d.nomeContato || d.nome || '';
   let valNomeContrato = d.nomeContrato || d.nome || '';
   let valContato = d.contato || '';
@@ -446,7 +457,6 @@ function criarNovoRascunho(dadosPreenchidos = null, editId = null) {
   atualizarStatusVisualCadastroRascunho(id);
   atualizarTituloRascunho(id);
 
-  // Força atualização de cor se houver campos preenchidos
   setTimeout(() => {
     document.querySelectorAll(`#form-${id} input, #form-${id} textarea`).forEach(el => {
       if(el.value.trim() !== '') el.classList.add('campo-preenchido');
@@ -476,10 +486,8 @@ function toggleDraftRascunho(id, event) {
     card.classList.remove('aberto');
     seta.innerHTML = '&#9658;';
   } else {
-    // Recolhe os outros
     document.querySelectorAll('.draft-card').forEach(c => c.classList.remove('aberto'));
     document.querySelectorAll('.draft-toggle-icon').forEach(i => i.innerHTML = '&#9658;');
-    // Abre este
     card.classList.add('aberto');
     seta.innerHTML = '&#9660;';
   }
@@ -513,7 +521,7 @@ function toggleDispensa(id) {
   atualizarStatusVisualCadastroRascunho(id);
 }
 
-/* ===================== LÓGICA DO MODAL DE CADASTRO PARA MÚLTIPLOS FORMS ===================== */
+/* ===================== LÓGICA DO MODAL DE CADASTRO ===================== */
 function abrirModalParaRascunho(id) {
   rascunhoAtivoModal = id;
   const protocolo = document.getElementById(`protocolo-${id}`).value.trim();
@@ -594,7 +602,6 @@ document.getElementById('btnModalSalvar').addEventListener('click', () => {
   const formToSubmit = document.getElementById(`form-${rascunhoAtivoModal}`);
   fecharModalCadastro();
   
-  // Utiliza requestSubmit para garantir que acione a validação HTML5 e a função de gravar nativa
   if (formToSubmit) {
       if (formToSubmit.requestSubmit) {
           formToSubmit.requestSubmit();
@@ -652,13 +659,13 @@ function validarEGravar(e, id) {
   
   // Tratamento da descrição para evitar dois pontos finais juntos
   let descricaoBruta = document.getElementById(`descricao-${id}`).value.trim();
-  descricaoBruta = descricaoBruta.replace(/\.+$/, ''); // Remove pontos no final, caso exista
+  descricaoBruta = descricaoBruta.replace(/\.+$/, ''); 
   
   let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricaoBruta}.\n\nCONTATO: ${contato}\nPROTOCOLO: ${protocolo}`.toUpperCase();
   const dataHoraAtual = obterDataHoraAtual();
 
   const isEdit = rascunhos[id].isEdit;
-  const editId = rascunhos[id].editId; // editId é um Number
+  const editId = rascunhos[id].editId; 
 
   if (isEdit) {
     const index = historico.findIndex(r => r.id === editId);
@@ -684,15 +691,13 @@ function validarEGravar(e, id) {
   localStorage.setItem('atendimentos', JSON.stringify(historico));
   renderizarHistorico();
   
-  // Fecha o rascunho
   document.getElementById(`card-${id}`).remove();
   delete rascunhos[id];
 
-  // Se não houver mais rascunhos, abre um vazio automático
   if(Object.keys(rascunhos).length === 0) criarNovoRascunho();
 }
 
-/* ===================== RENDERIZAÇÃO E FUNÇÕES DO HISTÓRICO ===================== */
+/* ===================== RENDERIZAÇÃO DO HISTÓRICO ===================== */
 function gerarSubHistoricoTexto(cadastro, contato, protocolo) {
   if (!cadastro || cadastro.opcao === 'atualizado') return '';
   if (cadastro.opcao === 'nada') return `DADOS DO CADASTRO NÃO FORAM ALTERADOS.\n\nCONTATO: ${contato}\nPROTOCOLO: ${protocolo}`;
@@ -738,7 +743,7 @@ function renderizarHistorico() {
     
     div.innerHTML += `
       <div class="card ${r.concluido ? 'concluido' : ''}">
-        <div class="card-header" onclick="toggleHistoryCollapse(${r.id})">
+        <div class="card-header" onclick="toggleHistoryCollapse(${r.id}, event)">
           <div class="card-header-title">
             <span class="card-toggle-icon" id="seta-hist-${r.id}">${r.concluido ? '&#9658;' : '&#9660;'}</span>
             <span>${titulo}</span>
@@ -766,7 +771,8 @@ function renderizarHistorico() {
   });
 }
 
-window.toggleHistoryCollapse = function(id) {
+window.toggleHistoryCollapse = function(id, event) {
+  if(window.getSelection().toString().length > 0) return;
   const el = document.getElementById(`collapse-hist-${id}`);
   const seta = document.getElementById(`seta-hist-${id}`);
   if (el.style.display === 'none') { el.style.display = 'block'; seta.innerHTML = '&#9660;'; } 
@@ -832,9 +838,7 @@ document.getElementById('btnLimpar').addEventListener('click', function() {
 
 /* ===================== INICIALIZAÇÃO ===================== */
 renderizarHistorico();
-// Cria o primeiro formulário automaticamente ao abrir
 if(Object.keys(rascunhos).length === 0) criarNovoRascunho();
-
 </script>
 </body>
 </html>
