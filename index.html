@@ -6,91 +6,79 @@
 <title>Gerador de Atendimentos</title>
 <style>
   :root {
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --bg: #f8fafc;
-    --surface: #ffffff;
-    --text: #1f2937;
-    --text-light: #6b7280;
-    --border: #e2e8f0;
-    --border-dark: #cbd5e1;
-    --success: #10b981;
-    --danger: #ef4444;
-    --warning: #f59e0b;
+    --primary: #2563eb; --primary-hover: #1d4ed8;
+    --bg: #f8fafc; --surface: #ffffff;
+    --text: #1f2937; --text-light: #6b7280;
+    --border: #e2e8f0; --border-dark: #cbd5e1;
+    --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
   body { background-color: var(--surface); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
-  /* Estrutura Principal: Duas Colunas */
-  .left-column { width: 45%; padding: 25px 30px; overflow-y: auto; border-right: 2px solid var(--border); display: flex; flex-direction: column; }
+  /* Estrutura Principal */
+  .left-column { width: 45%; padding: 25px 30px; overflow-y: auto; border-right: 2px solid var(--border); display: flex; flex-direction: column; position: relative; }
   .right-column { width: 55%; padding: 25px 30px; background-color: var(--bg); overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
 
-  h1 { font-size: 1.2rem; margin-bottom: 15px; color: var(--primary); }
+  h1 { font-size: 1.2rem; margin-bottom: 15px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+  
+  /* Botão Criar Novo Rascunho */
+  .btn-novo-rascunho { background-color: var(--primary); color: white; border: none; padding: 6px 15px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+  .btn-novo-rascunho:hover { background-color: var(--primary-hover); }
 
-  /* Grid do Formulário */
+  /* Lista de Formulários (Sanfona) */
+  #formulariosContainer { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  
+  .draft-card { border: 1px solid var(--border-dark); border-radius: 6px; background-color: var(--surface); overflow: hidden; }
+  .draft-card.edit-mode { border: 2px solid var(--warning); }
+  
+  .draft-header { 
+    background-color: #f8fafc; padding: 12px 15px; cursor: pointer; display: flex; 
+    align-items: center; gap: 8px; border-bottom: 1px solid transparent; user-select: none;
+  }
+  .draft-card.aberto .draft-header { border-bottom-color: var(--border); background-color: #eff6ff; }
+  .draft-toggle-icon { font-size: 0.7rem; color: var(--text-light); transition: transform 0.2s; }
+  .draft-title { font-size: 0.85rem; font-weight: 600; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn-fechar-rascunho { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem; padding: 0 5px; opacity: 0.5; }
+  .btn-fechar-rascunho:hover { opacity: 1; }
+
+  .draft-body { display: none; padding: 15px; }
+  .draft-card.aberto .draft-body { display: block; }
+
+  /* Elementos do Formulário (Reaproveitados) */
   .form-grid { display: flex; flex-direction: column; gap: 12px; }
   .row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
   .form-group { display: flex; flex-direction: column; }
-  
-  /* Rótulos mais destacados (preto e bold) */
   label { font-size: 0.75rem; font-weight: 800; margin-bottom: 4px; color: #000; text-transform: uppercase; }
   .label-center { text-align: center; margin-bottom: 6px; }
   
-  input[type="text"], textarea {
-    padding: 8px 10px; border: 1px solid var(--border-dark); border-radius: 4px;
-    font-size: 0.85rem; outline: none; transition: all 0.2s; width: 100%;
-  }
+  input[type="text"], textarea { padding: 8px 10px; border: 1px solid var(--border-dark); border-radius: 4px; font-size: 0.85rem; outline: none; transition: all 0.2s; width: 100%; }
   input[type="text"]:focus, textarea:focus { border-color: var(--primary); }
+  input[type="text"].campo-preenchido, textarea.campo-preenchido { border-color: var(--success); background-color: #f0fdf4; }
+  textarea.descricao { min-height: 110px; background-color: #f1f5f9; resize: vertical; }
   
-  /* Destaque para campos preenchidos */
-  input[type="text"].campo-preenchido, textarea.campo-preenchido {
-    border-color: var(--success);
-    background-color: #f0fdf4;
-  }
-
-  textarea#descricao, textarea#blocoNotas { min-height: 110px; background-color: #f1f5f9; resize: vertical; }
   .radio-group { display: flex; gap: 15px; padding: 5px 0; }
   .radio-label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; color: #333; font-weight: 600; text-transform: uppercase; cursor: pointer; }
   .helper-text { font-size: 0.7rem; color: var(--text-light); margin-top: 2px; }
 
-  /* Campo com botão de colar embutido */
   .input-com-paste { position: relative; display: flex; align-items: center; }
-  .input-com-paste input[type="text"] { padding-right: 34px; }
-  .input-com-paste textarea { padding-right: 34px; }
-  .btn-paste {
-    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; cursor: pointer; font-size: 0.95rem;
-    color: var(--text-light); padding: 4px 6px; border-radius: 4px; line-height: 1;
-    transition: background-color 0.15s, color 0.15s;
-  }
+  .input-com-paste input[type="text"], .input-com-paste textarea { padding-right: 34px; }
+  .btn-paste { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 0.95rem; color: var(--text-light); padding: 4px 6px; border-radius: 4px; line-height: 1; transition: background-color 0.15s, color 0.15s; }
   .btn-paste:hover { background-color: #e2e8f0; color: var(--primary); }
   .btn-paste:active { transform: translateY(-50%) scale(0.9); }
 
-  /* Flag Dispensar Cadastro */
-  .dispensa-cadastro-box {
-    display: flex; align-items: center; gap: 6px; margin-top: 8px;
-    font-size: 0.72rem; color: var(--text-light); text-transform: uppercase; font-weight: 600;
-  }
+  .dispensa-cadastro-box { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.72rem; color: var(--text-light); text-transform: uppercase; font-weight: 600; }
   .dispensa-cadastro-box input[type="checkbox"] { accent-color: var(--warning); cursor: pointer; width: 14px; height: 14px; }
   .dispensa-cadastro-box label { margin: 0; cursor: pointer; text-transform: none; font-size: 0.78rem; color: #333; font-weight: 600; }
   .dispensa-cadastro-box.ativo { color: var(--warning); }
-  .dispensa-cadastro-box .helper-text { margin: 0; margin-left: 2px; }
 
-  /* Botões do Formulário */
   .actions-center { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 5px; flex-wrap: wrap; }
   .btn { border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; }
-  .btn-primary { background-color: var(--primary); color: white; padding: 10px 30px; font-size: 0.95rem; min-width: 220px; position: relative; }
+  .btn-primary { background-color: var(--primary); color: white; padding: 10px 30px; font-size: 0.95rem; min-width: 220px; }
   .btn-primary:hover { background-color: var(--primary-hover); }
   .btn-warning-submit { background-color: var(--warning); color: white; padding: 10px 30px; font-size: 0.95rem; min-width: 220px; }
   .btn-warning-submit:hover { background-color: #d97706; }
-  .btn-cancel { background-color: transparent; color: var(--text-light); border: 1px solid var(--border-dark); padding: 10px 20px; }
-  .btn-cancel:hover { background-color: #e2e8f0; }
-
-  /* Botão Gerenciar Cadastro */
-  .btn-cadastro {
-    background-color: #f1f5f9; color: var(--text-light); border: 1px solid var(--border-dark);
-    padding: 10px 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; position: relative;
-  }
+  
+  .btn-cadastro { background-color: #f1f5f9; color: var(--text-light); border: 1px solid var(--border-dark); padding: 10px 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
   .btn-cadastro:hover { background-color: #e2e8f0; }
   .btn-cadastro.status-ok { background-color: #ecfdf5; border-color: var(--success); color: #047857; }
   .btn-cadastro.status-dispensado { background-color: #f8fafc; border-color: var(--border-dark); color: var(--text-light); }
@@ -99,218 +87,112 @@
   .btn-cadastro .status-icon.ok { color: var(--success); }
   .btn-cadastro .status-icon.dispensado { color: var(--text-light); }
 
-  /* Histórico na Direita */
+  /* Bloco de Notas Global Horizontal */
+  .bloco-notas-global { display: flex; gap: 15px; margin-top: 20px; border-top: 2px dashed var(--border); padding-top: 20px; }
+  .bloco-notas-global .form-group { flex: 1; }
+  .bloco-notas-global textarea { min-height: 90px; background-color: #fefce8; border-color: #fde047; }
+  
+  /* Histórico na Direita (Mantido como antes) */
   .history-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .history-title-box { background-color: #e2e8f0; padding: 10px 15px; border-radius: 6px; flex: 1; margin-right: 15px; }
   .history-title-box h2 { font-size: 1.1rem; color: var(--text); margin-bottom: 2px; }
   .actions { display: flex; gap: 10px; }
   .btn-export { background-color: var(--success); color: white; padding: 8px 14px; font-size: 0.85rem; }
   .btn-export:hover { background-color: #059669; }
-  .btn-clear { background-color: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 8px 14px; font-size: 0.85rem; background-color: var(--surface); }
+  .btn-clear { background-color: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 8px 14px; font-size: 0.85rem; }
   .btn-clear:hover { background-color: var(--danger); color: white; }
 
-  /* Cards de Atendimento */
-  #listaHistorico { display: flex; flex-direction: column; gap: 12px; }
-  .card {
-    background-color: var(--surface); padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.2s;
-  }
-  .card.editando { border: 2px solid var(--warning); }
+  #listaHistorico { display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px; }
+  .card { background-color: var(--surface); padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.2s; }
   .card.concluido { border-color: var(--success); background-color: #f8fafc; opacity: 0.85; }
-  
-  .card-header { 
-    display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); 
-    padding-bottom: 6px; font-size: 0.75rem; color: var(--text-light); user-select: none;
-  }
+  .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; font-size: 0.75rem; color: var(--text-light); user-select: none; }
   .card-header:hover .card-toggle-icon { color: var(--primary); }
   .card-header-title { display: flex; align-items: center; gap: 6px; cursor: pointer; flex: 1; }
-  .card-toggle-icon { font-size: 0.65rem; transition: transform 0.2s; display: inline-block; }
   .card-body { font-family: monospace; white-space: pre-wrap; background-color: var(--bg); padding: 10px; border-radius: 4px; font-size: 0.85rem; color: #000; }
 
-  /* Sub-histórico de cadastro */
   .sub-historico-wrapper { border-top: 1px dashed var(--border-dark); padding-top: 8px; }
-  .btn-ver-cadastro {
-    background: none; border: 1px solid var(--border-dark); color: var(--text-light);
-    font-size: 0.75rem; padding: 5px 10px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-  }
+  .btn-ver-cadastro { background: none; border: 1px solid var(--border-dark); color: var(--text-light); font-size: 0.75rem; padding: 5px 10px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
   .btn-ver-cadastro:hover { background-color: #f1f5f9; }
-  .btn-ver-cadastro .badge {
-    background-color: var(--primary); color: white; border-radius: 10px; font-size: 0.65rem; padding: 1px 6px; text-transform: uppercase;
-  }
-  
-  /* Cor laranja para Alterado e também para Nada Alterado */
+  .btn-ver-cadastro .badge { background-color: var(--primary); color: white; border-radius: 10px; font-size: 0.65rem; padding: 1px 6px; text-transform: uppercase; }
   .btn-ver-cadastro.badge-alterado .badge { background-color: var(--warning); }
   .btn-ver-cadastro.badge-nada .badge { background-color: var(--warning); }
-  
   .btn-ver-cadastro.badge-atualizado .badge { background-color: var(--success); }
   .btn-ver-cadastro.badge-dispensado .badge { background-color: var(--border-dark); color: var(--text); }
-  .sub-historico-body {
-    display: none; margin-top: 8px; background-color: #fffbeb; border: 1px solid #fde68a;
-    border-radius: 4px; padding: 10px; font-size: 0.8rem; font-family: monospace; white-space: pre-wrap; color: #92400e;
-  }
+  
+  .sub-historico-body { display: none; margin-top: 8px; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 4px; padding: 10px; font-size: 0.8rem; font-family: monospace; white-space: pre-wrap; color: #92400e; }
   .sub-historico-body.aberto { display: block; }
   .sub-historico-footer { display: none; justify-content: flex-end; margin-top: 6px; }
   .sub-historico-footer.aberto { display: flex; }
-  .btn-copy-sub {
-    background-color: var(--text); color: white; padding: 5px 10px; font-size: 0.72rem; border: none; border-radius: 4px; cursor: pointer;
-  }
+  .btn-copy-sub { background-color: var(--text); color: white; padding: 5px 10px; font-size: 0.72rem; border: none; border-radius: 4px; cursor: pointer; }
   .btn-copy-sub:hover { background-color: #000; }
 
-  /* Checkbox Concluído e Footer geral */
   .card-footer-container { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
-  .concluido-wrapper label {
-    display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.8rem; 
-    font-weight: 600; color: var(--text); text-transform: none; margin: 0;
-  }
+  .concluido-wrapper label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--text); text-transform: none; margin: 0; }
   .concluido-wrapper input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--success); cursor: pointer; }
-  
   .card-footer-actions { display: flex; gap: 8px; }
   .btn-sm { padding: 6px 10px; font-size: 0.8rem; }
   .btn-copy { background-color: var(--text); color: white; }
-  .btn-copy:hover { background-color: #000; }
   .btn-edit { background-color: var(--warning); color: white; }
-  .btn-edit:hover { background-color: #d97706; }
   .btn-delete { background-color: var(--danger); color: white; }
-  .btn-delete:hover { background-color: #b91c1c; }
 
-  .toast {
-    position: fixed; bottom: 20px; right: 20px; background-color: #333; color: white;
-    padding: 10px 20px; border-radius: 5px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000;
-  }
+  .toast { position: fixed; bottom: 20px; right: 20px; background-color: #333; color: white; padding: 10px 20px; border-radius: 5px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; }
 
   /* MODAL */
-  .modal-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;
-  }
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
   .modal-overlay.aberto { display: flex; }
-  .modal-box {
-    background-color: var(--surface); border-radius: 8px; padding: 25px 30px; width: 480px;
-    max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  }
+  .modal-box { background-color: var(--surface); border-radius: 8px; padding: 25px 30px; width: 480px; max-height: 85vh; overflow-y: auto; }
   .modal-box h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 5px; }
   .modal-box .modal-subtitle { font-size: 0.8rem; color: var(--text-light); margin-bottom: 18px; }
-  .modal-info-box {
-    background-color: var(--bg); border: 1px solid var(--border); border-radius: 4px;
-    padding: 8px 12px; font-size: 0.75rem; color: var(--text-light); margin-bottom: 18px;
-  }
+  .modal-info-box { background-color: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 8px 12px; font-size: 0.75rem; color: var(--text-light); margin-bottom: 18px; }
   .modal-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-  .modal-option {
-    border: 1px solid var(--border-dark); border-radius: 6px; padding: 12px 14px; cursor: pointer;
-    transition: all 0.2s; display: flex; align-items: flex-start; gap: 10px;
-  }
-  .modal-option:hover { border-color: var(--primary); background-color: #f8fafc; }
+  .modal-option { border: 1px solid var(--border-dark); border-radius: 6px; padding: 12px 14px; cursor: pointer; display: flex; align-items: flex-start; gap: 10px; }
   .modal-option.selecionado { border-color: var(--primary); background-color: #eff6ff; box-shadow: 0 0 0 1px var(--primary); }
   .modal-option input[type="radio"] { margin-top: 3px; accent-color: var(--primary); cursor: pointer; }
   .modal-option-text { display: flex; flex-direction: column; }
   .modal-option-text strong { font-size: 0.85rem; color: var(--text); }
   .modal-option-text span { font-size: 0.72rem; color: var(--text-light); margin-top: 2px; }
-
-  .modal-campos-alteracao {
-    display: none; flex-direction: column; gap: 10px; margin: 8px 0 15px 26px;
-    border-left: 2px solid var(--primary); padding-left: 14px;
-  }
+  .modal-campos-alteracao { display: none; flex-direction: column; gap: 10px; margin: 8px 0 15px 26px; border-left: 2px solid var(--primary); padding-left: 14px; }
   .modal-campos-alteracao.visivel { display: flex; }
   .modal-campos-alteracao .form-group label { font-size: 0.7rem; }
-  .modal-campos-alteracao .form-group.removido label { color: var(--danger); }
-  .modal-campos-alteracao .form-group.adicionado label { color: var(--success); }
-  .modal-erro {
-    display: none; background-color: #fef2f2; border: 1px solid var(--danger); color: #b91c1c;
-    font-size: 0.78rem; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px;
-  }
+  .modal-campos-alteracao .removido label { color: var(--danger); }
+  .modal-campos-alteracao .adicionado label { color: var(--success); }
+  .modal-erro { display: none; background-color: #fef2f2; border: 1px solid var(--danger); color: #b91c1c; font-size: 0.78rem; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px; }
   .modal-erro.visivel { display: block; }
   .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
   .btn-modal-cancelar { background-color: transparent; color: var(--text-light); border: 1px solid var(--border-dark); padding: 9px 18px; font-size: 0.85rem; }
-  .btn-modal-cancelar:hover { background-color: #e2e8f0; }
   .btn-modal-salvar { background-color: var(--primary); color: white; padding: 9px 22px; font-size: 0.85rem; }
-  .btn-modal-salvar:hover { background-color: var(--primary-hover); }
 </style>
 </head>
 <body>
 
-<!-- COLUNA ESQUERDA - FORMULÁRIO -->
+<!-- COLUNA ESQUERDA - FORMULÁRIOS DINÂMICOS -->
 <div class="left-column">
-  <h1 id="tituloForm">Novo Atendimento</h1>
-  <form id="formAtendimento" class="form-grid">
-
-    <div class="row-split">
-      <div class="form-group">
-        <label for="contato">Contatos (Telefones)</label>
-        <div class="input-com-paste">
-          <input type="text" id="contato" required autocomplete="off" placeholder="(00) 00000-0000">
-          <button type="button" class="btn-paste" data-target="contato" title="Colar da área de transferência">&#128203;</button>
-        </div>
-        <span class="helper-text">Digite "/" para adicionar outro número</span>
-      </div>
-      <div class="form-group">
-        <label for="cpf">CPF / CNPJ</label>
-        <div class="input-com-paste">
-          <input type="text" id="cpf" maxlength="18" autocomplete="off">
-          <button type="button" class="btn-paste" data-target="cpf" title="Colar da área de transferência">&#128203;</button>
-        </div>
-        <span class="helper-text">Opcional</span>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="nomeContato">Nome do Contato (Pessoa)</label>
-      <input type="text" id="nomeContato" required autocomplete="off">
-    </div>
-
-    <div class="form-group">
-      <label for="nomeContrato">Nome do Contrato</label>
-      <div class="input-com-paste">
-        <input type="text" id="nomeContrato" required autocomplete="off">
-        <button type="button" class="btn-paste" data-target="nomeContrato" title="Colar da área de transferência">&#128203;</button>
-      </div>
-    </div>
-
-    <div class="row-split">
-      <div class="form-group">
-        <label>Tipo de Contato</label>
-        <div class="radio-group">
-          <label class="radio-label"><input type="radio" name="tipo" value="TELEFONE"> Telefone</label>
-          <label class="radio-label"><input type="radio" name="tipo" value="WHATSAPP"> WhatsApp</label>
-        </div>
-        <div class="dispensa-cadastro-box" id="dispensaCadastroBox">
-          <input type="checkbox" id="chkDispensaCadastro">
-          <label for="chkDispensaCadastro">Dispensar Cadastro hoje</label>
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="protocolo">Protocolos</label>
-        <div class="input-com-paste">
-          <input type="text" id="protocolo" required autocomplete="off">
-          <button type="button" class="btn-paste" data-target="protocolo" title="Colar da área de transferência">&#128203;</button>
-        </div>
-        <span class="helper-text">Separe múltiplos com barra ( / )</span>
-      </div>
-    </div>
-
-    <div class="form-group" style="margin-top:5px">
-      <label for="descricao" class="label-center">Descrição do Ocorrido</label>
-      <textarea id="descricao" required></textarea>
-    </div>
-
-    <div class="actions-center">
-      <button type="button" id="btnGerenciarCadastro" class="btn btn-cadastro">
-        <span class="status-icon pending" id="iconeStatusCadastro">&#9888;</span>
-        <span id="textoStatusCadastro">Gerenciar Cadastro</span>
-      </button>
-      <button type="submit" id="btnSubmit" class="btn btn-primary">Gravar Atendimento</button>
-      <button type="button" id="btnCancelar" class="btn btn-cancel" style="display:none">Cancelar</button>
-    </div>
-  </form>
-
-  <!-- NOVO BLOCO DE ANOTAÇÕES (Fora do form para não apagar ao gravar) -->
-  <div class="form-group" style="margin-top: 25px; border-top: 2px dashed var(--border); padding-top: 20px;">
-    <label for="blocoNotas">Bloco de Anotações (Não vai para o registro)</label>
-    <div class="input-com-paste">
-      <textarea id="blocoNotas" placeholder="Use este espaço livre para rascunhos e observações temporárias..." style="min-height: 80px;"></textarea>
-      <button type="button" class="btn-paste" data-target="blocoNotas" title="Colar da área de transferência" style="top: 15px; transform: none;">&#128203;</button>
-    </div>
+  <h1>
+    Atendimentos em Andamento
+    <button class="btn-novo-rascunho" onclick="criarNovoRascunho()">+ Novo Atendimento</button>
+  </h1>
+  
+  <div id="formulariosContainer">
+    <!-- Mini formulários (Sanfonas) entrarão aqui -->
   </div>
 
+  <!-- BLOCO DE NOTAS GLOBAL (Independente e Dividido) -->
+  <div class="bloco-notas-global">
+    <div class="form-group">
+      <label>Anotações 1</label>
+      <div class="input-com-paste">
+        <textarea id="blocoNotas1" placeholder="Rascunhos temporários..."></textarea>
+        <button type="button" class="btn-paste" data-target="blocoNotas1" style="top:15px; transform:none;">&#128203;</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Anotações 2</label>
+      <div class="input-com-paste">
+        <textarea id="blocoNotas2" placeholder="Outras observações..."></textarea>
+        <button type="button" class="btn-paste" data-target="blocoNotas2" style="top:15px; transform:none;">&#128203;</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- COLUNA DIREITA - HISTÓRICO -->
@@ -325,7 +207,7 @@
       <button id="btnLimpar" class="btn btn-clear">Limpar Histórico</button>
     </div>
   </div>
-  <div id="listaHistorico"><!-- Os cards entrarão aqui dinamicamente --></div>
+  <div id="listaHistorico"></div>
 </div>
 
 <div id="toast" class="toast">Texto copiado!</div>
@@ -334,359 +216,463 @@
 <div class="modal-overlay" id="modalCadastro">
   <div class="modal-box">
     <h2>Gestão de Cadastro</h2>
-    <p class="modal-subtitle">Selecione a situação cadastral verificada neste atendimento. O preenchimento é obrigatório para gravar, exceto se "Dispensar Cadastro" estiver marcado.</p>
-
-    <div class="modal-info-box" id="modalInfoContexto">
+    <p class="modal-subtitle">O preenchimento é obrigatório para gravar o atendimento, exceto se "Dispensar Cadastro" estiver marcado no rascunho.</p>
+    
+    <div class="modal-info-box">
       Protocolo: <strong id="modalInfoProtocolo">-</strong> &nbsp;|&nbsp; Contato: <strong id="modalInfoContato">-</strong>
     </div>
 
-    <div class="modal-erro" id="modalErro">Selecione uma opção. Se escolher "Alteração realizada", preencha ao menos um dos quatro campos.</div>
+    <div class="modal-erro" id="modalErro">Selecione uma opção e preencha os campos caso houve alteração.</div>
 
     <div class="modal-options">
       <label class="modal-option" data-opcao="atualizado">
         <input type="radio" name="opcaoCadastro" value="atualizado">
         <div class="modal-option-text">
-          <strong>A) Cadastro já estava atualizado</strong>
-          <span>Marcador visual apenas — não altera o texto do atendimento.</span>
+          <strong>A) Cadastro já estava atualizado</strong><span>Marcador visual apenas.</span>
         </div>
       </label>
-
       <label class="modal-option" data-opcao="nada">
         <input type="radio" name="opcaoCadastro" value="nada">
         <div class="modal-option-text">
-          <strong>B) Dados não alterados</strong>
-          <span>Registra o template padrão no sub-histórico, sem poluir a descrição principal.</span>
+          <strong>B) Dados não alterados</strong><span>Registra o template padrão no sub-histórico.</span>
         </div>
       </label>
-
       <label class="modal-option" data-opcao="alterado">
         <input type="radio" name="opcaoCadastro" value="alterado">
         <div class="modal-option-text">
-          <strong>C) Alteração realizada</strong>
-          <span>Preencha apenas os campos que de fato mudaram.</span>
+          <strong>C) Alteração realizada</strong><span>Preencha apenas o que mudou.</span>
         </div>
       </label>
     </div>
 
     <div class="modal-campos-alteracao" id="camposAlteracao">
-      <div class="form-group removido">
-        <label for="modalEmailRemovido">E-mail Removido</label>
-        <input type="text" id="modalEmailRemovido" autocomplete="off" placeholder="ex: fulano@antigo.com">
-      </div>
-      <div class="form-group removido">
-        <label for="modalNumeroRemovido">Número Removido</label>
-        <input type="text" id="modalNumeroRemovido" autocomplete="off" placeholder="ex: (00) 00000-0000">
-      </div>
-      <div class="form-group adicionado">
-        <label for="modalEmailAdicionado">E-mail Adicionado</label>
-        <input type="text" id="modalEmailAdicionado" autocomplete="off" placeholder="ex: fulano@novo.com">
-      </div>
-      <div class="form-group adicionado">
-        <label for="modalNumeroAdicionado">Número Adicionado</label>
-        <input type="text" id="modalNumeroAdicionado" autocomplete="off" placeholder="ex: (00) 00000-0000">
-      </div>
+      <div class="form-group removido"><label>E-mail Removido</label><input type="text" id="modalEmailRemovido" autocomplete="off"></div>
+      <div class="form-group removido"><label>Número Removido</label><input type="text" id="modalNumeroRemovido" autocomplete="off"></div>
+      <div class="form-group adicionado"><label>E-mail Adicionado</label><input type="text" id="modalEmailAdicionado" autocomplete="off"></div>
+      <div class="form-group adicionado"><label>Número Adicionado</label><input type="text" id="modalNumeroAdicionado" autocomplete="off"></div>
     </div>
 
     <div class="modal-footer">
-      <button type="button" class="btn btn-modal-cancelar" id="btnModalCancelar">Cancelar</button>
-      <button type="button" class="btn btn-modal-salvar" id="btnModalSalvar">Salvar Cadastro</button>
+      <button type="button" class="btn-modal-cancelar" onclick="fecharModalCadastro()">Cancelar</button>
+      <button type="button" class="btn-modal-salvar" id="btnModalSalvar">Salvar Cadastro</button>
     </div>
   </div>
 </div>
 
 <script>
-/* ===================== LOGICA DE DESTAQUE (PREENCHIMENTO) ===================== */
-function atualizarDestaqueCampos() {
-  document.querySelectorAll('input[type="text"], textarea').forEach(el => {
-    if (el.value.trim() !== '') {
-      el.classList.add('campo-preenchido');
-    } else {
-      el.classList.remove('campo-preenchido');
-    }
-  });
-}
+/* ===================== ESTADOS GLOBAIS ===================== */
+let historico = JSON.parse(localStorage.getItem('atendimentos')) || [];
+let rascunhos = {}; // Guarda estado de cada formulário ativo: {id: {cadastro: null, isEdit: false, editId: null}}
+let ultimoTipoSelecionado = 'TELEFONE';
+let rascunhoAtivoModal = null; // ID do rascunho que abriu o modal
 
-// Escuta geral para todo o documento, se digitar ou colar destaca na hora.
+/* ===================== DELEGAÇÃO GERAL DE EVENTOS (INPUTS & BOTÕES) ===================== */
+
+// Controle de cores (Inputs preenchidos ficam verde) e Títulos Dinâmicos
 document.addEventListener('input', (e) => {
+  // Destaque Verde
   if((e.target.tagName === 'INPUT' && e.target.type === 'text') || e.target.tagName === 'TEXTAREA') {
-    if(e.target.value.trim() !== '') {
-      e.target.classList.add('campo-preenchido');
-    } else {
-      e.target.classList.remove('campo-preenchido');
-    }
+    if(e.target.value.trim() !== '') e.target.classList.add('campo-preenchido');
+    else e.target.classList.remove('campo-preenchido');
+  }
+
+  // Título Dinâmico do Rascunho
+  if(e.target.classList.contains('dyn-titulo')) {
+    const id = e.target.dataset.rascunho;
+    if(id) atualizarTituloRascunho(id);
+  }
+
+  // Máscaras Dinâmicas
+  if(e.target.classList.contains('mask-cpf')) aplicarMascaraCpf(e.target);
+  if(e.target.classList.contains('mask-contato')) aplicarMascaraContato(e.target);
+});
+
+// Delegação de Botão de Colar (Funciona para elementos criados dinamicamente)
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.btn-paste');
+  if(btn) {
+    const targetId = btn.dataset.target;
+    const input = document.getElementById(targetId);
+    if (!input) return;
+    try {
+      const texto = await navigator.clipboard.readText();
+      if (!texto) return mostrarToast('Área vazia.');
+      input.value = texto.trim();
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.focus();
+      mostrarToast('Colado com sucesso!');
+    } catch (err) { mostrarToast('Erro na área de transferência.'); }
   }
 });
 
-/* ===================== MÁSCARA DE CPF E CNPJ ===================== */
-const inputCpf = document.getElementById('cpf');
-inputCpf.addEventListener('input', function(e) {
-  let value = e.target.value.replace(/\D/g, '');
+/* ===================== MÁSCARAS ===================== */
+function aplicarMascaraCpf(el) {
+  let value = el.value.replace(/\D/g, '');
   if (value.length <= 11) {
-    value = value.replace(/(\d{3})(\d)/, '$1.$2');
-    value = value.replace(/(\d{3})(\d)/, '$1.$2');
-    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   } else {
     value = value.slice(0, 14);
-    value = value.replace(/(\d{2})(\d)/, '$1.$2');
-    value = value.replace(/(\d{3})(\d)/, '$1.$2');
-    value = value.replace(/(\d{3})(\d)/, '$1/$2');
-    value = value.replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+    value = value.replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1/$2').replace(/(\d{4})(\d{1,2})$/, '$1-$2');
   }
-  e.target.value = value;
-});
+  el.value = value;
+}
 
-/* ===================== MÁSCARA DE CONTATOS (REMOÇÃO DO +55) ===================== */
-const inputContato = document.getElementById('contato');
-inputContato.addEventListener('input', function(e) {
-  let partes = e.target.value.split('/');
+function aplicarMascaraContato(el) {
+  let partes = el.value.split('/');
   let formatado = partes.map(p => {
     let n = p.replace(/\D/g, '');
-    
-    // Tratamento para remover o 55 (Código BR) se o total for 12 ou 13 dígitos
-    if (n.startsWith('55') && (n.length === 12 || n.length === 13)) {
-        n = n.substring(2);
-    }
-
+    if (n.startsWith('55') && (n.length === 12 || n.length === 13)) n = n.substring(2); // Remove +55 BR
     if (n.length === 0) return '';
     if (n.length <= 2) return `(${n}`;
     if (n.length <= 6) return `(${n.slice(0,2)}) ${n.slice(2)}`;
     if (n.length <= 10) return `(${n.slice(0,2)}) ${n.slice(2,6)}-${n.slice(6)}`;
     return `(${n.slice(0,2)}) ${n.slice(2,7)}-${n.slice(7,11)}`;
   });
-  let resultado = formatado.join('/');
-  if (e.target.value.endsWith('/') && !e.target.value.endsWith('//')) {
-    if (!resultado.endsWith('/')) resultado += '/';
+  let res = formatado.join('/');
+  if (el.value.endsWith('/') && !el.value.endsWith('//') && !res.endsWith('/')) res += '/';
+  el.value = res;
+}
+
+/* ===================== SISTEMA DE RASCUNHOS (MINI-FORMULÁRIOS) ===================== */
+function criarNovoRascunho(dadosPreenchidos = null, editId = null) {
+  const id = Date.now().toString() + Math.floor(Math.random()*1000); // ID Único
+  const isEdit = editId !== null;
+  
+  rascunhos[id] = {
+    cadastro: isEdit && dadosPreenchidos.cadastro ? dadosPreenchidos.cadastro : null,
+    isEdit: isEdit,
+    editId: editId
+  };
+
+  const container = document.getElementById('formulariosContainer');
+  
+  // Collapse os outros
+  document.querySelectorAll('.draft-card').forEach(c => c.classList.remove('aberto'));
+  document.querySelectorAll('.draft-toggle-icon').forEach(i => i.innerHTML = '&#9658;');
+
+  // Inicializa dados se for modo de edição
+  let d = dadosPreenchidos || {};
+  let tipoChecked = isEdit ? (d.tipo || 'TELEFONE') : ultimoTipoSelecionado;
+  let dispensaInicial = localStorage.getItem('dispensaCadastro') === 'true';
+
+  const html = `
+    <div class="draft-card aberto ${isEdit ? 'edit-mode' : ''}" id="card-${id}">
+      <div class="draft-header" onclick="toggleDraftRascunho('${id}', event)">
+        <span class="draft-toggle-icon" id="seta-rascunho-${id}">&#9660;</span>
+        <span class="draft-title" id="titulo-rascunho-${id}">Novo Atendimento</span>
+        <button class="btn-fechar-rascunho" onclick="fecharRascunho('${id}', event)" title="Excluir Rascunho">&#10006;</button>
+      </div>
+      
+      <div class="draft-body">
+        <form id="form-${id}" onsubmit="validarEGravar(event, '${id}')" class="form-grid">
+          
+          <div class="row-split">
+            <div class="form-group">
+              <label>Contatos (Telefones)</label>
+              <div class="input-com-paste">
+                <input type="text" id="contato-${id}" class="mask-contato dyn-titulo" data-rascunho="${id}" required autocomplete="off" value="${d.contato || ''}">
+                <button type="button" class="btn-paste" data-target="contato-${id}">&#128203;</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>CPF / CNPJ</label>
+              <div class="input-com-paste">
+                <input type="text" id="cpf-${id}" class="mask-cpf dyn-titulo" data-rascunho="${id}" maxlength="18" autocomplete="off" value="${d.cpf || ''}">
+                <button type="button" class="btn-paste" data-target="cpf-${id}">&#128203;</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Nome do Contato (Pessoa)</label>
+            <input type="text" id="nomeContato-${id}" required autocomplete="off" value="${d.nomeContato || ''}">
+          </div>
+
+          <div class="form-group">
+            <label>Nome do Contrato</label>
+            <div class="input-com-paste">
+              <input type="text" id="nomeContrato-${id}" class="dyn-titulo" data-rascunho="${id}" required autocomplete="off" value="${d.nomeContrato || ''}">
+              <button type="button" class="btn-paste" data-target="nomeContrato-${id}">&#128203;</button>
+            </div>
+          </div>
+
+          <div class="row-split">
+            <div class="form-group">
+              <label>Tipo de Contato</label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="tipo-${id}" value="TELEFONE" ${tipoChecked === 'TELEFONE' ? 'checked' : ''}> Telefone</label>
+                <label class="radio-label"><input type="radio" name="tipo-${id}" value="WHATSAPP" ${tipoChecked === 'WHATSAPP' ? 'checked' : ''}> WhatsApp</label>
+              </div>
+              <div class="dispensa-cadastro-box" id="box-dispensa-${id}">
+                <input type="checkbox" id="dispensa-${id}" onchange="toggleDispensa('${id}')" ${dispensaInicial ? 'checked' : ''}>
+                <label for="dispensa-${id}">Dispensar Cadastro</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Protocolos</label>
+              <div class="input-com-paste">
+                <input type="text" id="protocolo-${id}" required autocomplete="off" value="${d.protocolo || ''}">
+                <button type="button" class="btn-paste" data-target="protocolo-${id}">&#128203;</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:5px">
+            <label class="label-center">Descrição do Ocorrido</label>
+            <textarea id="descricao-${id}" class="descricao" required>${d.descricao || ''}</textarea>
+          </div>
+
+          <div class="actions-center">
+            <button type="button" class="btn-cadastro" id="btnGerenciar-${id}" onclick="abrirModalParaRascunho('${id}')">
+              <span class="status-icon" id="iconeStatus-${id}">&#9888;</span>
+              <span id="textoStatus-${id}">Gerenciar Cadastro</span>
+            </button>
+            <button type="submit" class="btn ${isEdit ? 'btn-warning-submit' : 'btn-primary'}">${isEdit ? 'Atualizar Atendimento' : 'Gravar Atendimento'}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  container.insertAdjacentHTML('afterbegin', html);
+  atualizarStatusVisualCadastroRascunho(id);
+  atualizarTituloRascunho(id);
+
+  // Força atualização de cor se houver campos preenchidos
+  setTimeout(() => {
+    document.querySelectorAll(`#form-${id} input, #form-${id} textarea`).forEach(el => {
+      if(el.value.trim() !== '') el.classList.add('campo-preenchido');
+    });
+    if(!isEdit) document.getElementById(`contato-${id}`).focus();
+  }, 10);
+}
+
+function fecharRascunho(id, event) {
+  event.stopPropagation();
+  if(confirm('Tem certeza que deseja apagar este rascunho? O que foi digitado será perdido.')) {
+    document.getElementById(`card-${id}`).remove();
+    delete rascunhos[id];
   }
-  e.target.value = resultado;
-});
-
-/* ===================== BOTÕES DE COLAR (CLIPBOARD) ===================== */
-document.querySelectorAll('.btn-paste').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const targetId = btn.dataset.target;
-    const input = document.getElementById(targetId);
-    if (!input) return;
-    try {
-      const texto = await navigator.clipboard.readText();
-      if (!texto) {
-        mostrarToast('Área de transferência vazia.');
-        return;
-      }
-      input.value = texto.trim();
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-      input.focus();
-      mostrarToast('Colado com sucesso!');
-    } catch (err) {
-      mostrarToast('Não foi possível acessar a área de transferência.');
-    }
-  });
-});
-
-/* ===================== ESTADO DA APLICAÇÃO ===================== */
-let historico = JSON.parse(localStorage.getItem('atendimentos')) || [];
-let idEmEdicao = null;
-let ultimoTipoSelecionado = 'TELEFONE';
-if (historico.length > 0) {
-  ultimoTipoSelecionado = historico[historico.length - 1].tipo || 'TELEFONE';
 }
 
-let cadastroAtual = null; 
-
-/* ===================== REFERÊNCIAS ===================== */
-const form = document.getElementById('formAtendimento');
-const listaHistorico = document.getElementById('listaHistorico');
-const txtQtdRegistros = document.getElementById('txtQtdRegistros');
-const btnSubmit = document.getElementById('btnSubmit');
-const btnCancelar = document.getElementById('btnCancelar');
-const tituloForm = document.getElementById('tituloForm');
-
-const btnGerenciarCadastro = document.getElementById('btnGerenciarCadastro');
-const iconeStatusCadastro = document.getElementById('iconeStatusCadastro');
-const textoStatusCadastro = document.getElementById('textoStatusCadastro');
-
-const chkDispensaCadastro = document.getElementById('chkDispensaCadastro');
-const dispensaCadastroBox = document.getElementById('dispensaCadastroBox');
-
-const modalCadastro = document.getElementById('modalCadastro');
-const modalInfoProtocolo = document.getElementById('modalInfoProtocolo');
-const modalInfoContato = document.getElementById('modalInfoContato');
-const modalErro = document.getElementById('modalErro');
-const camposAlteracao = document.getElementById('camposAlteracao');
-const btnModalCancelar = document.getElementById('btnModalCancelar');
-const btnModalSalvar = document.getElementById('btnModalSalvar');
-
-const modalEmailRemovido = document.getElementById('modalEmailRemovido');
-const modalNumeroRemovido = document.getElementById('modalNumeroRemovido');
-const modalEmailAdicionado = document.getElementById('modalEmailAdicionado');
-const modalNumeroAdicionado = document.getElementById('modalNumeroAdicionado');
-
-function obterDataHoraAtual() {
-  const agora = new Date();
-  const dia = String(agora.getDate()).padStart(2, '0');
-  const mes = String(agora.getMonth() + 1).padStart(2, '0');
-  const ano = agora.getFullYear();
-  const hora = String(agora.getHours()).padStart(2, '0');
-  const minuto = String(agora.getMinutes()).padStart(2, '0');
-  return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+function toggleDraftRascunho(id, event) {
+  if(event.target.classList.contains('btn-fechar-rascunho')) return;
+  const card = document.getElementById(`card-${id}`);
+  const seta = document.getElementById(`seta-rascunho-${id}`);
+  
+  if (card.classList.contains('aberto')) {
+    card.classList.remove('aberto');
+    seta.innerHTML = '&#9658;';
+  } else {
+    // Recolhe os outros
+    document.querySelectorAll('.draft-card').forEach(c => c.classList.remove('aberto'));
+    document.querySelectorAll('.draft-toggle-icon').forEach(i => i.innerHTML = '&#9658;');
+    // Abre este
+    card.classList.add('aberto');
+    seta.innerHTML = '&#9660;';
+  }
 }
 
-/* ===================== FLAG "DISPENSAR CADASTRO" ===================== */
-chkDispensaCadastro.checked = localStorage.getItem('dispensaCadastro') === 'true';
-
-function atualizarVisualDispensa() {
-  dispensaCadastroBox.classList.toggle('ativo', chkDispensaCadastro.checked);
+function atualizarTituloRascunho(id) {
+  const nomeContrato = document.getElementById(`nomeContrato-${id}`)?.value.trim() || '';
+  const contato = document.getElementById(`contato-${id}`)?.value.trim() || '';
+  const cpf = document.getElementById(`cpf-${id}`)?.value.trim() || '';
+  
+  let titulo = 'Novo Atendimento';
+  if (nomeContrato) titulo = nomeContrato;
+  if (contato || cpf) titulo += ` | ${contato || cpf}`;
+  
+  const span = document.getElementById(`titulo-rascunho-${id}`);
+  if(span) span.innerText = rascunhos[id].isEdit ? `(Editando) ${titulo}` : titulo;
 }
 
-chkDispensaCadastro.addEventListener('change', () => {
-  localStorage.setItem('dispensaCadastro', chkDispensaCadastro.checked);
-  atualizarVisualDispensa();
-  atualizarStatusVisualCadastro();
-});
+function toggleDispensa(id) {
+  const isChecked = document.getElementById(`dispensa-${id}`).checked;
+  localStorage.setItem('dispensaCadastro', isChecked);
+  atualizarStatusVisualCadastroRascunho(id);
+}
 
-/* ===================== LÓGICA DO MODAL DE CADASTRO ===================== */
-function abrirModalCadastro() {
-  const protocolo = document.getElementById('protocolo').value.trim();
-  const contato = document.getElementById('contato').value.trim();
-  modalInfoProtocolo.innerText = protocolo || '(não informado ainda)';
-  modalInfoContato.innerText = contato || '(não informado ainda)';
+/* ===================== LÓGICA DO MODAL DE CADASTRO PARA MÚLTIPLOS FORMS ===================== */
+function abrirModalParaRascunho(id) {
+  rascunhoAtivoModal = id;
+  const protocolo = document.getElementById(`protocolo-${id}`).value.trim();
+  const contato = document.getElementById(`contato-${id}`).value.trim();
+  document.getElementById('modalInfoProtocolo').innerText = protocolo || '(Não informado)';
+  document.getElementById('modalInfoContato').innerText = contato || '(Não informado)';
 
   document.querySelectorAll('.modal-option').forEach(op => op.classList.remove('selecionado'));
   document.querySelectorAll('input[name="opcaoCadastro"]').forEach(r => r.checked = false);
-  camposAlteracao.classList.remove('visivel');
-  modalErro.classList.remove('visivel');
-  modalEmailRemovido.value = '';
-  modalNumeroRemovido.value = '';
-  modalEmailAdicionado.value = '';
-  modalNumeroAdicionado.value = '';
-
-  if (cadastroAtual) {
-    const radio = document.querySelector(`input[name="opcaoCadastro"][value="${cadastroAtual.opcao}"]`);
+  document.getElementById('camposAlteracao').classList.remove('visivel');
+  document.getElementById('modalErro').classList.remove('visivel');
+  
+  const cad = rascunhos[id].cadastro;
+  if (cad) {
+    const radio = document.querySelector(`input[name="opcaoCadastro"][value="${cad.opcao}"]`);
     if (radio) {
       radio.checked = true;
       radio.closest('.modal-option').classList.add('selecionado');
     }
-    if (cadastroAtual.opcao === 'alterado') {
-      camposAlteracao.classList.add('visivel');
-      modalEmailRemovido.value = cadastroAtual.emailRemovido || '';
-      modalNumeroRemovido.value = cadastroAtual.numeroRemovido || '';
-      modalEmailAdicionado.value = cadastroAtual.emailAdicionado || '';
-      modalNumeroAdicionado.value = cadastroAtual.numeroAdicionado || '';
+    if (cad.opcao === 'alterado') {
+      document.getElementById('camposAlteracao').classList.add('visivel');
+      document.getElementById('modalEmailRemovido').value = cad.emailRemovido || '';
+      document.getElementById('modalNumeroRemovido').value = cad.numeroRemovido || '';
+      document.getElementById('modalEmailAdicionado').value = cad.emailAdicionado || '';
+      document.getElementById('modalNumeroAdicionado').value = cad.numeroAdicionado || '';
+    } else {
+      document.getElementById('modalEmailRemovido').value = '';
+      document.getElementById('modalNumeroRemovido').value = '';
+      document.getElementById('modalEmailAdicionado').value = '';
+      document.getElementById('modalNumeroAdicionado').value = '';
     }
+  } else {
+      document.getElementById('modalEmailRemovido').value = '';
+      document.getElementById('modalNumeroRemovido').value = '';
+      document.getElementById('modalEmailAdicionado').value = '';
+      document.getElementById('modalNumeroAdicionado').value = '';
   }
-  
-  // Atualiza os destaques caso tenham campos preenchidos previamente
-  setTimeout(atualizarDestaqueCampos, 10);
-  modalCadastro.classList.add('aberto');
+  document.getElementById('modalCadastro').classList.add('aberto');
 }
 
 function fecharModalCadastro() {
-  modalCadastro.classList.remove('aberto');
+  document.getElementById('modalCadastro').classList.remove('aberto');
+  rascunhoAtivoModal = null;
 }
 
 document.querySelectorAll('.modal-option').forEach(opcaoEl => {
   opcaoEl.addEventListener('click', () => {
     document.querySelectorAll('.modal-option').forEach(op => op.classList.remove('selecionado'));
     opcaoEl.classList.add('selecionado');
-    const radio = opcaoEl.querySelector('input[type="radio"]');
-    radio.checked = true;
-
-    if (opcaoEl.dataset.opcao === 'alterado') {
-      camposAlteracao.classList.add('visivel');
-    } else {
-      camposAlteracao.classList.remove('visivel');
-    }
-    modalErro.classList.remove('visivel');
+    opcaoEl.querySelector('input[type="radio"]').checked = true;
+    if (opcaoEl.dataset.opcao === 'alterado') document.getElementById('camposAlteracao').classList.add('visivel');
+    else document.getElementById('camposAlteracao').classList.remove('visivel');
+    document.getElementById('modalErro').classList.remove('visivel');
   });
 });
 
-btnGerenciarCadastro.addEventListener('click', abrirModalCadastro);
-btnModalCancelar.addEventListener('click', fecharModalCadastro);
-
-btnModalSalvar.addEventListener('click', () => {
+document.getElementById('btnModalSalvar').addEventListener('click', () => {
+  if(!rascunhoAtivoModal) return;
   const opcaoSelecionada = document.querySelector('input[name="opcaoCadastro"]:checked');
-
-  if (!opcaoSelecionada) {
-    modalErro.innerText = 'Selecione uma das três opções para continuar.';
-    modalErro.classList.add('visivel');
-    return;
-  }
+  if (!opcaoSelecionada) { document.getElementById('modalErro').classList.add('visivel'); return; }
 
   const opcao = opcaoSelecionada.value;
+  let dadosSalvos = { opcao };
 
   if (opcao === 'alterado') {
-    const emailRemovido = modalEmailRemovido.value.trim();
-    const numeroRemovido = modalNumeroRemovido.value.trim();
-    const emailAdicionado = modalEmailAdicionado.value.trim();
-    const numeroAdicionado = modalNumeroAdicionado.value.trim();
+    const eR = document.getElementById('modalEmailRemovido').value.trim();
+    const nR = document.getElementById('modalNumeroRemovido').value.trim();
+    const eA = document.getElementById('modalEmailAdicionado').value.trim();
+    const nA = document.getElementById('modalNumeroAdicionado').value.trim();
 
-    if (!emailRemovido && !numeroRemovido && !emailAdicionado && !numeroAdicionado) {
-      modalErro.innerText = 'Preencha ao menos um dos quatro campos (removido ou adicionado).';
-      modalErro.classList.add('visivel');
-      return;
-    }
-
-    cadastroAtual = {
-      opcao: 'alterado',
-      emailRemovido, numeroRemovido, emailAdicionado, numeroAdicionado
-    };
-  } else {
-    cadastroAtual = { opcao };
+    if (!eR && !nR && !eA && !nA) { document.getElementById('modalErro').classList.add('visivel'); return; }
+    dadosSalvos = { opcao: 'alterado', emailRemovido: eR, numeroRemovido: nR, emailAdicionado: eA, numeroAdicionado: nA };
   }
 
-  atualizarStatusVisualCadastro();
+  rascunhos[rascunhoAtivoModal].cadastro = dadosSalvos;
+  atualizarStatusVisualCadastroRascunho(rascunhoAtivoModal);
+  
+  const formToSubmit = document.getElementById(`form-${rascunhoAtivoModal}`);
   fecharModalCadastro();
-
-  if (gravamentoPendente) {
-    gravamentoPendente = false;
-    form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true }));
-  }
+  
+  // Retrigger Submit
+  if (formToSubmit) formToSubmit.dispatchEvent(new Event('submit', { cancelable: true }));
 });
 
-function atualizarStatusVisualCadastro() {
-  btnGerenciarCadastro.classList.remove('status-ok', 'status-dispensado');
-  iconeStatusCadastro.classList.remove('pending', 'ok', 'dispensado');
+function atualizarStatusVisualCadastroRascunho(id) {
+  const btn = document.getElementById(`btnGerenciar-${id}`);
+  const icon = document.getElementById(`iconeStatus-${id}`);
+  const text = document.getElementById(`textoStatus-${id}`);
+  const boxDispensa = document.getElementById(`box-dispensa-${id}`);
+  const isDispensado = document.getElementById(`dispensa-${id}`).checked;
 
-  if (cadastroAtual) {
-    btnGerenciarCadastro.classList.add('status-ok');
-    iconeStatusCadastro.classList.add('ok');
-    iconeStatusCadastro.innerHTML = '&#10003;';
-    const labels = { atualizado: 'Cadastro Registrado (Já Atualizado)', nada: 'Cadastro Registrado (Sem Alteração)', alterado: 'Cadastro Registrado (Alterado)' };
-    textoStatusCadastro.innerText = labels[cadastroAtual.opcao];
-  } else if (chkDispensaCadastro.checked) {
-    btnGerenciarCadastro.classList.add('status-dispensado');
-    iconeStatusCadastro.classList.add('dispensado');
-    iconeStatusCadastro.innerHTML = '&#8226;';
-    textoStatusCadastro.innerText = 'Gerenciar Cadastro (Dispensado hoje)';
+  if(!btn) return;
+
+  btn.classList.remove('status-ok', 'status-dispensado');
+  icon.classList.remove('pending', 'ok', 'dispensado');
+  
+  if (isDispensado) boxDispensa.classList.add('ativo'); else boxDispensa.classList.remove('ativo');
+
+  const cad = rascunhos[id].cadastro;
+  if (cad) {
+    btn.classList.add('status-ok');
+    icon.classList.add('ok'); icon.innerHTML = '&#10003;';
+    const labels = { atualizado: 'Cadastro (Já Atualizado)', nada: 'Cadastro (Sem Alteração)', alterado: 'Cadastro (Alterado)' };
+    text.innerText = labels[cad.opcao];
+  } else if (isDispensado) {
+    btn.classList.add('status-dispensado');
+    icon.classList.add('dispensado'); icon.innerHTML = '&#8226;';
+    text.innerText = 'Gerenciar Cadastro (Dispensado)';
   } else {
-    iconeStatusCadastro.classList.add('pending');
-    iconeStatusCadastro.innerHTML = '&#9888;';
-    textoStatusCadastro.innerText = 'Gerenciar Cadastro';
+    icon.classList.add('pending'); icon.innerHTML = '&#9888;';
+    text.innerText = 'Gerenciar Cadastro';
   }
 }
 
+/* ===================== GRAVAÇÃO NO HISTÓRICO ===================== */
+function validarEGravar(e, id) {
+  e.preventDefault();
+  
+  const cad = rascunhos[id].cadastro;
+  const dispensa = document.getElementById(`dispensa-${id}`).checked;
+  if (!cad && !dispensa) { abrirModalParaRascunho(id); return; }
+
+  const tipo = document.querySelector(`input[name="tipo-${id}"]:checked`).value;
+  const nomeContrato = document.getElementById(`nomeContrato-${id}`).value.trim();
+  const nomeContato = document.getElementById(`nomeContato-${id}`).value.trim();
+  const cpf = document.getElementById(`cpf-${id}`).value.trim();
+  let contato = document.getElementById(`contato-${id}`).value.trim();
+  if (contato.endsWith('/')) contato = contato.slice(0, -1).trim();
+  const protocolo = document.getElementById(`protocolo-${id}`).value.trim();
+  const descricao = document.getElementById(`descricao-${id}`).value.trim();
+
+  let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n\nCONTATO: ${contato}\nPROTOCOLO: ${protocolo}`.toUpperCase();
+  const dataHoraAtual = obterDataHoraAtual();
+
+  const isEdit = rascunhos[id].isEdit;
+  const editId = rascunhos[id].editId;
+
+  if (isEdit) {
+    const index = historico.findIndex(r => r.id === editId);
+    if (index !== -1) {
+      historico[index] = {
+        ...historico[index],
+        nomeContrato: nomeContrato.toUpperCase(), nomeContato: nomeContato.toUpperCase(),
+        cpf, tipo, contato, protocolo, descricao, textoGerado: textoTemplate,
+        cadastro: cad, dataHora: dataHoraAtual + ' (Editado)'
+      };
+    }
+  } else {
+    historico.push({
+      id: Date.now(),
+      nomeContrato: nomeContrato.toUpperCase(), nomeContato: nomeContato.toUpperCase(),
+      cpf, tipo, contato, protocolo, descricao, textoGerado: textoTemplate,
+      cadastro: cad, concluido: false,
+      dataHora: dataHoraAtual, hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    });
+  }
+
+  ultimoTipoSelecionado = tipo;
+  localStorage.setItem('atendimentos', JSON.stringify(historico));
+  renderizarHistorico();
+  
+  // Fecha o rascunho
+  document.getElementById(`card-${id}`).remove();
+  delete rascunhos[id];
+
+  // Se não houver mais rascunhos, abre um vazio automático
+  if(Object.keys(rascunhos).length === 0) criarNovoRascunho();
+}
+
+/* ===================== RENDERIZAÇÃO E FUNÇÕES DO HISTÓRICO ===================== */
 function gerarSubHistoricoTexto(cadastro, contato, protocolo) {
-  if (!cadastro) return '';
-  if (cadastro.opcao === 'atualizado') return '';
-
-  if (cadastro.opcao === 'nada') {
-    let linhas = ['DADOS DO CADASTRO NÃO FORAM ALTERADOS.', ''];
-    linhas.push(`CONTATO: ${contato}`);
-    linhas.push(`PROTOCOLO: ${protocolo}`);
-    return linhas.join('\n');
-  }
-
-  if (cadastro.opcao === 'alterado') {
-    let linhas = ['DADOS DO CADASTRO QUE FORAM ALTERADOS:', ''];
-    if (cadastro.emailRemovido) linhas.push(`E-MAIL REMOVIDO: ${cadastro.emailRemovido}`);
-    if (cadastro.numeroRemovido) linhas.push(`NÚMERO REMOVIDO: ${cadastro.numeroRemovido}`);
-    if (cadastro.emailAdicionado) linhas.push(`E-MAIL ADICIONADO: ${cadastro.emailAdicionado}`);
-    if (cadastro.numeroAdicionado) linhas.push(`NÚMERO ADICIONADO: ${cadastro.numeroAdicionado}`);
-    linhas.push('');
-    linhas.push(`CONTATO: ${contato}`);
-    linhas.push(`PROTOCOLO: ${protocolo}`);
-    return linhas.join('\n');
-  }
-  return '';
+  if (!cadastro || cadastro.opcao === 'atualizado') return '';
+  if (cadastro.opcao === 'nada') return `DADOS DO CADASTRO NÃO FORAM ALTERADOS.\n\nCONTATO: ${contato}\nPROTOCOLO: ${protocolo}`;
+  let linhas = ['DADOS DO CADASTRO QUE FORAM ALTERADOS:', ''];
+  if (cadastro.emailRemovido) linhas.push(`E-MAIL REMOVIDO: ${cadastro.emailRemovido}`);
+  if (cadastro.numeroRemovido) linhas.push(`NÚMERO REMOVIDO: ${cadastro.numeroRemovido}`);
+  if (cadastro.emailAdicionado) linhas.push(`E-MAIL ADICIONADO: ${cadastro.emailAdicionado}`);
+  if (cadastro.numeroAdicionado) linhas.push(`NÚMERO ADICIONADO: ${cadastro.numeroAdicionado}`);
+  linhas.push(''); linhas.push(`CONTATO: ${contato}`); linhas.push(`PROTOCOLO: ${protocolo}`);
+  return linhas.join('\n');
 }
 
 function badgeInfoCadastro(cadastro) {
@@ -696,331 +682,129 @@ function badgeInfoCadastro(cadastro) {
   return { classe: 'badge-alterado', label: 'Alterado' };
 }
 
-/* ===================== FUNÇÃO PARA RENDERIZAR A TELA ===================== */
 function renderizarHistorico() {
-  listaHistorico.innerHTML = '';
+  const div = document.getElementById('listaHistorico');
+  div.innerHTML = '';
   
   if (historico.length === 0) {
-    txtQtdRegistros.innerText = 'Nenhum atendimento gravado hoje ainda.';
-    listaHistorico.innerHTML = '<p style="color:var(--text-light); text-align:center; margin-top:20px; font-size:0.9rem">Os registros aparecerão aqui.</p>';
+    document.getElementById('txtQtdRegistros').innerText = 'Nenhum atendimento gravado.';
+    div.innerHTML = '<p style="color:var(--text-light); text-align:center; margin-top:20px; font-size:0.9rem">Os registros aparecerão aqui.</p>';
     return;
   }
   
   const concluidos = historico.filter(r => r.concluido).length;
-  txtQtdRegistros.innerText = `${historico.length} atendimento(s) gravado(s) — ${concluidos} concluído(s)`;
+  document.getElementById('txtQtdRegistros').innerText = `${historico.length} gravado(s) — ${concluidos} concluído(s)`;
 
-  historico.slice().reverse().forEach((registro, index) => {
-    let numRegistro = historico.length - index;
-    let isEditando = idEmEdicao === registro.id ? 'editando' : '';
-    let isConcluido = registro.concluido ? true : false;
-    let dataExibicao = registro.dataHora || registro.hora;
-
-    let identificadores = [];
-    if (registro.cpf) {
-      let tipoDocumento = registro.cpf.length > 14 ? 'CNPJ' : 'CPF';
-      identificadores.push(`${tipoDocumento}: ${registro.cpf}`);
-    }
-    if (registro.contato) identificadores.push(`CONTATO: ${registro.contato}`);
-    let cabecalhoDocumento = identificadores.join(' | ');
-
-    let nomeFormatado = (registro.nomeContrato || registro.nome || "").toUpperCase();
-    let tituloFormatado = `Registro #${numRegistro.toString().padStart(2, '0')} — ${nomeFormatado} | ${cabecalhoDocumento}`;
-
-    const badge = badgeInfoCadastro(registro.cadastro);
-    const subTexto = gerarSubHistoricoTexto(registro.cadastro, registro.contato, registro.protocolo);
-    const temTextoSub = subTexto && subTexto.trim().length > 0;
-    const mensagemPadrao = registro.cadastro
-      ? 'Cadastro já estava atualizado. Nenhuma alteração registrada.'
-      : 'Gestão de cadastro dispensada para este atendimento.';
-
-    const card = document.createElement('div');
-    card.className = `card ${isEditando} ${isConcluido ? 'concluido' : ''}`;
-    card.id = `card-${registro.id}`;
+  historico.slice().reverse().forEach((r, i) => {
+    let numReg = (historico.length - i).toString().padStart(2, '0');
+    let ids = [];
+    if (r.cpf) ids.push(`${r.cpf.length > 14 ? 'CNPJ' : 'CPF'}: ${r.cpf}`);
+    if (r.contato) ids.push(`CONTATO: ${r.contato}`);
     
-    card.innerHTML = `
-      <div class="card-header" onclick="toggleCardCollapse(${registro.id})">
-        <div class="card-header-title">
-          <span class="card-toggle-icon" id="seta-${registro.id}">${isConcluido ? '&#9658;' : '&#9660;'}</span>
-          <span>${tituloFormatado}</span>
-        </div>
-        <span>${dataExibicao}</span>
-      </div>
-      
-      <div id="collapse-${registro.id}" style="display: ${isConcluido ? 'none' : 'block'};">
-        <div class="card-body" id="texto-registro-${registro.id}">${registro.textoGerado}</div>
-        
-        <div class="sub-historico-wrapper">
-          <button type="button" class="btn-ver-cadastro ${badge.classe}" onclick="toggleSubHistorico(${registro.id})">
-            Ver Cadastro <span class="badge">${badge.label}</span>
-          </button>
-          <div class="sub-historico-body" id="sub-historico-${registro.id}">${temTextoSub ? subTexto : mensagemPadrao}</div>
-          ${temTextoSub ? `<div class="sub-historico-footer" id="sub-historico-footer-${registro.id}"><button type="button" class="btn-copy-sub" onclick="copiarSubHistorico(${registro.id})">Copiar Texto do Cadastro</button></div>` : ''}
-        </div>
-        
-        <div class="card-footer-container">
-          <div class="concluido-wrapper">
-            <label>
-              <input type="checkbox" onchange="marcarConcluido(${registro.id}, this.checked)" ${isConcluido ? 'checked' : ''}>
-              Marcar como concluído
-            </label>
+    let titulo = `Registro #${numReg} — ${(r.nomeContrato || r.nome).toUpperCase()} | ${ids.join(' | ')}`;
+    let badge = badgeInfoCadastro(r.cadastro);
+    let subTexto = gerarSubHistoricoTexto(r.cadastro, r.contato, r.protocolo);
+    let temSub = subTexto.length > 0;
+    
+    div.innerHTML += `
+      <div class="card ${r.concluido ? 'concluido' : ''}">
+        <div class="card-header" onclick="toggleHistoryCollapse(${r.id})">
+          <div class="card-header-title">
+            <span class="card-toggle-icon" id="seta-hist-${r.id}">${r.concluido ? '&#9658;' : '&#9660;'}</span>
+            <span>${titulo}</span>
           </div>
-          <div class="card-footer-actions">
-            <button class="btn btn-sm btn-delete" onclick="excluirRegistro(${registro.id})">Excluir</button>
-            <button class="btn btn-sm btn-edit" onclick="editarRegistro(${registro.id})">Editar</button>
-            <button class="btn btn-sm btn-copy" onclick="copiarTexto('texto-registro-${registro.id}')">Copiar Texto</button>
+          <span>${r.dataHora || r.hora}</span>
+        </div>
+        <div id="collapse-hist-${r.id}" style="display: ${r.concluido ? 'none' : 'block'}">
+          <div class="card-body" id="texto-registro-${r.id}">${r.textoGerado}</div>
+          <div class="sub-historico-wrapper">
+            <button type="button" class="btn-ver-cadastro ${badge.classe}" onclick="toggleSubHistorico(${r.id})">Ver Cadastro <span class="badge">${badge.label}</span></button>
+            <div class="sub-historico-body" id="sub-hist-${r.id}">${temSub ? subTexto : 'Nenhuma alteração de cadastro.'}</div>
+            ${temSub ? `<div class="sub-historico-footer" id="sub-foot-${r.id}"><button type="button" class="btn-copy-sub" onclick="copiarTexto('sub-hist-${r.id}')">Copiar Cadastro</button></div>` : ''}
+          </div>
+          <div class="card-footer-container">
+            <div class="concluido-wrapper"><label><input type="checkbox" onchange="marcarConcluido(${r.id}, this.checked)" ${r.concluido ? 'checked' : ''}> Marcar como concluído</label></div>
+            <div class="card-footer-actions">
+              <button class="btn btn-sm btn-delete" onclick="excluirRegistro(${r.id})">Excluir</button>
+              <button class="btn btn-sm btn-edit" onclick="editarRegistro(${r.id})">Editar</button>
+              <button class="btn btn-sm btn-copy" onclick="copiarTexto('texto-registro-${r.id}')">Copiar</button>
+            </div>
           </div>
         </div>
       </div>
     `;
-    listaHistorico.appendChild(card);
   });
 }
 
-window.toggleCardCollapse = function(id) {
-  const collapseArea = document.getElementById(`collapse-${id}`);
-  const seta = document.getElementById(`seta-${id}`);
-  if (collapseArea.style.display === 'none') {
-    collapseArea.style.display = 'block';
-    seta.innerHTML = '&#9660;';
-  } else {
-    collapseArea.style.display = 'none';
-    seta.innerHTML = '&#9658;';
-  }
+window.toggleHistoryCollapse = function(id) {
+  const el = document.getElementById(`collapse-hist-${id}`);
+  const seta = document.getElementById(`seta-hist-${id}`);
+  if (el.style.display === 'none') { el.style.display = 'block'; seta.innerHTML = '&#9660;'; } 
+  else { el.style.display = 'none'; seta.innerHTML = '&#9658;'; }
 };
 
-window.marcarConcluido = function(id, isChecked) {
-  const index = historico.findIndex(r => r.id === id);
-  if (index !== -1) {
-    historico[index].concluido = isChecked;
+window.marcarConcluido = function(id, checked) {
+  const idx = historico.findIndex(r => r.id === id);
+  if(idx !== -1) { historico[idx].concluido = checked; localStorage.setItem('atendimentos', JSON.stringify(historico)); renderizarHistorico(); }
+};
+
+window.toggleSubHistorico = function(id) {
+  const el = document.getElementById(`sub-hist-${id}`);
+  const ft = document.getElementById(`sub-foot-${id}`);
+  if(el) el.classList.toggle('aberto'); if(ft) ft.classList.toggle('aberto');
+};
+
+window.excluirRegistro = function(id) {
+  if (confirm('Excluir este atendimento?')) {
+    historico = historico.filter(r => r.id !== id);
     localStorage.setItem('atendimentos', JSON.stringify(historico));
     renderizarHistorico();
   }
 };
 
-window.toggleSubHistorico = function(id) {
-  const el = document.getElementById(`sub-historico-${id}`);
-  const footer = document.getElementById(`sub-historico-footer-${id}`);
-  if (el) el.classList.toggle('aberto');
-  if (footer) footer.classList.toggle('aberto');
-};
-
-window.copiarSubHistorico = function(id) {
-  const el = document.getElementById(`sub-historico-${id}`);
-  if (!el) return;
-  navigator.clipboard.writeText(el.innerText).then(() => mostrarToast());
-};
-
-/* ===================== EVENTO DE GRAVAR/ATUALIZAR REGISTRO ===================== */
-let gravamentoPendente = false;
-
-form.addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  if (!cadastroAtual && !chkDispensaCadastro.checked) {
-    gravamentoPendente = true;
-    abrirModalCadastro();
-    return;
-  }
-
-  const tipo = document.querySelector('input[name="tipo"]:checked').value;
-  const nomeContrato = document.getElementById('nomeContrato').value.trim();
-  const nomeContato = document.getElementById('nomeContato').value.trim();
-  const cpf = document.getElementById('cpf').value.trim();
-  let contato = document.getElementById('contato').value.trim();
-  if (contato.endsWith('/')) contato = contato.slice(0, -1).trim();
-  const protocolo = document.getElementById('protocolo').value.trim();
-  const descricao = document.getElementById('descricao').value.trim();
-
-  let textoTemplate = `${nomeContato} ENTROU EM CONTATO POR ${tipo}, ${descricao}.\n\n`;
-  textoTemplate += `CONTATO: ${contato}\n`;
-  textoTemplate += `PROTOCOLO: ${protocolo}`;
-  textoTemplate = textoTemplate.toUpperCase();
-
-  const dataHoraAtual = obterDataHoraAtual();
-
-  if (idEmEdicao) {
-    const index = historico.findIndex(r => r.id === idEmEdicao);
-    if (index !== -1) {
-      historico[index] = {
-        ...historico[index],
-        nomeContrato: nomeContrato.toUpperCase(),
-        nomeContato: nomeContato.toUpperCase(),
-        cpf: cpf,
-        tipo: tipo,
-        contato: contato,
-        protocolo: protocolo,
-        descricao: descricao,
-        textoGerado: textoTemplate,
-        cadastro: cadastroAtual,
-        dataHora: dataHoraAtual + ' (Editado)'
-      };
-    }
-    cancelarEdicao();
-  } else {
-    const novoRegistro = {
-      id: Date.now(),
-      nomeContrato: nomeContrato.toUpperCase(),
-      nomeContato: nomeContato.toUpperCase(),
-      cpf: cpf,
-      tipo: tipo,
-      contato: contato,
-      protocolo: protocolo,
-      descricao: descricao,
-      textoGerado: textoTemplate,
-      cadastro: cadastroAtual,
-      concluido: false,
-      dataHora: dataHoraAtual,
-      hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-    };
-    historico.push(novoRegistro);
-  }
-
-  ultimoTipoSelecionado = tipo;
-  localStorage.setItem('atendimentos', JSON.stringify(historico));
-  renderizarHistorico();
-
-  if (!idEmEdicao) {
-    form.reset();
-    document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
-    chkDispensaCadastro.checked = localStorage.getItem('dispensaCadastro') === 'true';
-    atualizarVisualDispensa();
-    setTimeout(atualizarDestaqueCampos, 10);
-    document.getElementById('contato').focus();
-  }
-
-  cadastroAtual = null;
-  atualizarStatusVisualCadastro();
-});
-
-/* ===================== FUNÇÃO DE EDITAR ===================== */
 window.editarRegistro = function(id) {
-  const registro = historico.find(r => r.id === id);
-  if (!registro) return;
-
-  document.getElementById('nomeContrato').value = registro.nomeContrato || registro.nome;
-  document.getElementById('nomeContato').value = registro.nomeContato || registro.nome;
-  document.getElementById('cpf').value = registro.cpf;
-  document.querySelectorAll('input[name="tipo"]').forEach(radio => radio.checked = false);
-  if (registro.tipo) {
-    const r = document.querySelector(`input[name="tipo"][value="${registro.tipo}"]`);
-    if (r) r.checked = true;
-  }
-  document.getElementById('contato').value = registro.contato;
-  document.getElementById('protocolo').value = registro.protocolo;
-  document.getElementById('descricao').value = registro.descricao;
-
-  cadastroAtual = registro.cadastro || null;
-  atualizarStatusVisualCadastro();
-  setTimeout(atualizarDestaqueCampos, 10);
-
-  idEmEdicao = id;
-  tituloForm.innerText = 'Editando Atendimento';
-  btnSubmit.innerText = 'Atualizar Atendimento';
-  btnSubmit.classList.add('btn-warning-submit');
-  btnCancelar.style.display = 'inline-block';
-  renderizarHistorico();
-  window.scrollTo(0, 0);
+  const reg = historico.find(r => r.id === id);
+  if (reg) criarNovoRascunho(reg, id);
 };
 
-/* ===================== FUNÇÃO PARA CANCELAR EDIÇÃO ===================== */
-function cancelarEdicao() {
-  idEmEdicao = null;
-  form.reset();
-  document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
-  chkDispensaCadastro.checked = localStorage.getItem('dispensaCadastro') === 'true';
-  atualizarVisualDispensa();
-  tituloForm.innerText = 'Novo Atendimento';
-  btnSubmit.innerText = 'Gravar Atendimento';
-  btnSubmit.classList.remove('btn-warning-submit');
-  btnCancelar.style.display = 'none';
-  cadastroAtual = null;
-  atualizarStatusVisualCadastro();
-  setTimeout(atualizarDestaqueCampos, 10);
-  renderizarHistorico();
-}
-btnCancelar.addEventListener('click', cancelarEdicao);
-
-/* ===================== FUNÇÃO DE EXCLUIR ===================== */
-window.excluirRegistro = function(id) {
-  if (!confirm('Tem certeza que deseja excluir este atendimento? Esta ação não pode ser desfeita.')) return;
-  historico = historico.filter(r => r.id !== id);
-  localStorage.setItem('atendimentos', JSON.stringify(historico));
-  if (idEmEdicao === id) {
-    cancelarEdicao();
-  } else {
-    renderizarHistorico();
-  }
-};
-
-/* ===================== FUNÇÃO DE COPIAR ===================== */
 window.copiarTexto = function(elementId) {
-  const texto = document.getElementById(elementId).innerText;
-  navigator.clipboard.writeText(texto).then(() => mostrarToast());
+  navigator.clipboard.writeText(document.getElementById(elementId).innerText).then(() => mostrarToast());
 };
 
-function mostrarToast(mensagem) {
+function mostrarToast(msg) {
   const toast = document.getElementById('toast');
-  if (mensagem) toast.innerText = mensagem;
-  else toast.innerText = 'Texto copiado!';
-  toast.style.opacity = 1;
-  setTimeout(() => { toast.style.opacity = 0; }, 2000);
+  toast.innerText = msg || 'Texto copiado!';
+  toast.style.opacity = 1; setTimeout(() => toast.style.opacity = 0, 2000);
 }
 
-/* ===================== GERAR ARQUIVO TXT ===================== */
 document.getElementById('btnExportar').addEventListener('click', function() {
-  if (historico.length === 0) {
-    alert('Não há registros para exportar!');
-    return;
-  }
-  let conteudoTxt = '';
-  historico.forEach((registro, index) => {
-    let numRegistro = (index + 1).toString().padStart(2, '0');
-    let dataExibicao = registro.dataHora || registro.hora;
-
-    conteudoTxt += `--- REGISTRO ${numRegistro} ---\n`;
-    conteudoTxt += `DATA/HORA: ${dataExibicao}\n`;
-    conteudoTxt += `CONTRATO: ${registro.nomeContrato || registro.nome}\n`;
-    conteudoTxt += `NOME DO CONTATO: ${registro.nomeContato || registro.nome}\n`;
-    if (registro.cpf) {
-      let tipoDocumento = registro.cpf.length > 14 ? 'CNPJ' : 'CPF';
-      conteudoTxt += `${tipoDocumento}: ${registro.cpf}\n`;
-    }
-    if (registro.contato) conteudoTxt += `CONTATOS: ${registro.contato}\n`;
-    conteudoTxt += `TEXTO GERADO:\n${registro.textoGerado}\n`;
-
-    const subTexto = gerarSubHistoricoTexto(registro.cadastro, registro.contato, registro.protocolo);
-    if (subTexto) {
-      conteudoTxt += `\n${subTexto}\n`;
-    }
-    conteudoTxt += `\n`;
+  if (historico.length === 0) return alert('Não há registros para exportar!');
+  let txt = '';
+  historico.forEach((r, i) => {
+    txt += `--- REGISTRO ${(i + 1).toString().padStart(2, '0')} ---\nDATA/HORA: ${r.dataHora || r.hora}\nCONTRATO: ${r.nomeContrato || r.nome}\nNOME DO CONTATO: ${r.nomeContato || r.nome}\n`;
+    if (r.cpf) txt += `${r.cpf.length > 14 ? 'CNPJ' : 'CPF'}: ${r.cpf}\n`;
+    if (r.contato) txt += `CONTATOS: ${r.contato}\n`;
+    txt += `TEXTO GERADO:\n${r.textoGerado}\n`;
+    const sub = gerarSubHistoricoTexto(r.cadastro, r.contato, r.protocolo);
+    if (sub) txt += `\n${sub}\n`;
+    txt += `\n`;
   });
-
-  const blob = new Blob([conteudoTxt], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const hoje = new Date();
-  const nomeArquivo = `${hoje.getDate().toString().padStart(2,'0')}-${(hoje.getMonth()+1).toString().padStart(2,'0')}-${hoje.getFullYear()}.txt`;
-  a.href = url;
-  a.download = nomeArquivo;
+  const d = new Date();
+  a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' }));
+  a.download = `${d.getDate().toString().padStart(2,'0')}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getFullYear()}.txt`;
   a.click();
-  URL.revokeObjectURL(url);
 });
 
-/* ===================== LIMPAR HISTÓRICO ===================== */
 document.getElementById('btnLimpar').addEventListener('click', function() {
-  if (!confirm('Tem certeza que deseja apagar todo o histórico do dia? Certifique-se de já ter gerado o arquivo .txt.')) return;
-  historico = [];
-  localStorage.removeItem('atendimentos');
-  cancelarEdicao();
-  renderizarHistorico();
+  if (confirm('Apagar todo o histórico do dia?')) { historico = []; localStorage.removeItem('atendimentos'); renderizarHistorico(); }
 });
 
 /* ===================== INICIALIZAÇÃO ===================== */
 renderizarHistorico();
-document.querySelector(`input[name="tipo"][value="${ultimoTipoSelecionado}"]`).checked = true;
-atualizarVisualDispensa();
-atualizarStatusVisualCadastro();
-atualizarDestaqueCampos();
+// Cria o primeiro formulário automaticamente ao abrir
+if(Object.keys(rascunhos).length === 0) criarNovoRascunho();
+
 </script>
 </body>
 </html>
