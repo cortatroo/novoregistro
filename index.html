@@ -108,6 +108,9 @@
   .btn-export:hover { background-color: #059669; }
   .btn-clear { background-color: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 8px 14px; font-size: 0.85rem; }
   .btn-clear:hover { background-color: var(--danger); color: white; }
+  
+  .btn-notas-extras { background: none; border: none; color: var(--text-light); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-top: 8px; font-weight: 600; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; }
+  .btn-notas-extras:hover { background-color: #e2e8f0; color: var(--text); }
 
   #listaHistorico { display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px; }
   .card { background-color: var(--surface); padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.2s; }
@@ -149,7 +152,7 @@
   .modal-overlay.aberto { display: flex; }
   .modal-box { background-color: var(--surface); border-radius: 8px; padding: 25px 30px; width: 480px; max-height: 85vh; overflow-y: auto; }
   
-  .modal-box h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 5px; }
+  .modal-box h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
   .modal-box .modal-subtitle { font-size: 0.8rem; color: var(--text-light); margin-bottom: 18px; }
   .modal-info-box { background-color: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 8px 12px; font-size: 0.75rem; color: var(--text-light); margin-bottom: 18px; }
   .modal-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
@@ -189,7 +192,7 @@
     <!-- Mini formulários entrarão aqui -->
   </div>
 
-  <!-- BLOCO DE NOTAS GLOBAL -->
+  <!-- BLOCO DE NOTAS GLOBAL (1 e 2) -->
   <div class="bloco-notas-global">
     <div class="form-group">
       <label>Anotações 1</label>
@@ -222,17 +225,44 @@
         </div>
       </div>
     </div>
-    <div class="actions">
-      <button id="btnExportar" class="btn btn-export">Gerar Arquivo .txt</button>
-      <button id="btnLimpar" class="btn btn-clear">Limpar Histórico</button>
+    
+    <!-- Ações e Botão de Anotações 3 -->
+    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+      <div class="actions">
+        <button id="btnExportar" class="btn btn-export">Gerar Arquivo .txt</button>
+        <button id="btnLimpar" class="btn btn-clear">Limpar Histórico</button>
+      </div>
+      <button class="btn-notas-extras" onclick="abrirModalNotas3()">
+        <span>📝</span> Anotações Extras
+      </button>
     </div>
   </div>
+  
   <div id="listaHistorico"></div>
 </div>
 
 <div id="toast" class="toast">Texto copiado!</div>
 
-<!-- MODAL DE TEXTOS RÁPIDOS (SNIPPETS) -->
+<!-- MODAL: ANOTAÇÕES EXTRAS (3) -->
+<div class="modal-overlay" id="modalNotas3">
+  <div class="modal-box" style="width: 550px;">
+    <h2>📝 Anotações Extras</h2>
+    <p class="modal-subtitle">Este bloco de notas (assim como as Anotações 1 e 2) é salvo automaticamente no seu navegador.</p>
+    
+    <div class="form-group" style="margin-top: 15px;">
+      <div class="input-com-paste">
+        <textarea id="blocoNotas3" style="min-height: 250px; background-color: #fefce8; border-color: #fde047;" placeholder="Cole aqui informações longas, textos de apoio ou rascunhos maiores..."></textarea>
+        <button type="button" class="btn-paste" data-target="blocoNotas3" style="top:15px; transform:none;">&#128203;</button>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button type="button" class="btn-modal-cancelar" onclick="fecharModalNotas3()">Fechar Janela</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: TEXTOS RÁPIDOS (SNIPPETS) -->
 <div class="modal-overlay" id="modalQuickReply">
   <div class="modal-box" style="width: 400px;">
     <h2 id="modalQrTitle">Novo Texto Rápido</h2>
@@ -264,7 +294,7 @@
   </div>
 </div>
 
-<!-- MODAL DE GESTÃO DE CADASTRO -->
+<!-- MODAL: GESTÃO DE CADASTRO -->
 <div class="modal-overlay" id="modalCadastro">
   <div class="modal-box">
     <h2>Gestão de Cadastro</h2>
@@ -312,6 +342,31 @@
 </div>
 
 <script>
+/* ===================== CARREGAR ANOTAÇÕES SALVAS ===================== */
+// Recupera o que foi digitado mesmo se a página atualizar
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById('blocoNotas1').value = localStorage.getItem('blocoNotas1_salvo') || '';
+  document.getElementById('blocoNotas2').value = localStorage.getItem('blocoNotas2_salvo') || '';
+  document.getElementById('blocoNotas3').value = localStorage.getItem('blocoNotas3_salvo') || '';
+});
+
+// Salva em tempo real enquanto digita
+document.getElementById('blocoNotas1').addEventListener('input', (e) => localStorage.setItem('blocoNotas1_salvo', e.target.value));
+document.getElementById('blocoNotas2').addEventListener('input', (e) => localStorage.setItem('blocoNotas2_salvo', e.target.value));
+document.getElementById('blocoNotas3').addEventListener('input', (e) => localStorage.setItem('blocoNotas3_salvo', e.target.value));
+
+
+/* ===================== LÓGICA DO MODAL NOTAS 3 ===================== */
+function abrirModalNotas3() {
+  document.getElementById('modalNotas3').classList.add('aberto');
+  document.getElementById('blocoNotas3').focus();
+}
+
+function fecharModalNotas3() {
+  document.getElementById('modalNotas3').classList.remove('aberto');
+}
+
+
 /* ===================== FUNÇÃO DE DATA E HORA ===================== */
 function obterDataHoraAtual() {
   const agora = new Date();
@@ -330,7 +385,7 @@ let rascunhos = {};
 let ultimoTipoSelecionado = 'TELEFONE';
 let rascunhoAtivoModal = null; 
 let editQrId = null;
-let clickTimer = null; // Timer para distinguir click simples de duplo clique nos Emojis
+let clickTimer = null; 
 
 /* ===================== DELEGAÇÃO GERAL DE EVENTOS ===================== */
 document.addEventListener('input', (e) => {
@@ -358,6 +413,7 @@ document.addEventListener('click', async (e) => {
       const texto = await navigator.clipboard.readText();
       if (!texto) return mostrarToast('Área vazia.');
       input.value = texto.trim();
+      // O dispatchEvent ativa a função de salvar no localStorage também
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.focus();
       mostrarToast('Colado com sucesso!');
@@ -393,7 +449,7 @@ function aplicarMascaraContato(el) {
   el.value = res;
 }
 
-/* ===================== MÓDULO: TEXTOS RÁPIDOS (SNIPPETS / EMOJIS) ===================== */
+/* ===================== MÓDULO: TEXTOS RÁPIDOS ===================== */
 function renderQuickReplies() {
   const container = document.getElementById('quickRepliesContainer');
   container.innerHTML = '';
@@ -402,9 +458,8 @@ function renderQuickReplies() {
     const btn = document.createElement('span');
     btn.className = 'qr-btn';
     btn.innerText = qr.emoji;
-    btn.title = qr.text; // Mostra o texto quando passa o mouse por cima
+    btn.title = qr.text; 
     
-    // Tratamento para 1 clique vs 2 cliques
     btn.onclick = () => {
       if (clickTimer) clearTimeout(clickTimer);
       clickTimer = setTimeout(() => handleQrSingleClick(qr.id), 250); 
@@ -417,7 +472,6 @@ function renderQuickReplies() {
     container.appendChild(btn);
   });
   
-  // Botão de adicionar fica sempre no final
   const addBtn = document.createElement('button');
   addBtn.className = 'btn-add-qr';
   addBtn.innerText = '+';
@@ -434,15 +488,15 @@ function handleQrSingleClick(id) {
   
   if (qr.hasVar) {
     let variavel = prompt("Digite o valor para [var]:");
-    if (variavel === null) return; // Cancela silenciosamente se apertar Esc ou Cancelar
-    textoFinal = textoFinal.replace(/\[var\]/gi, variavel); // Procura [var] e substitui
+    if (variavel === null) return; 
+    textoFinal = textoFinal.replace(/\[var\]/gi, variavel);
   }
   
   navigator.clipboard.writeText(textoFinal).then(() => mostrarToast('Texto copiado!'));
 }
 
 function handleQrDoubleClick(id) {
-  window.getSelection().removeAllRanges(); // Limpa seleção de texto acidental do dblclick
+  window.getSelection().removeAllRanges(); 
   const qr = quickReplies.find(q => q.id === id);
   if (!qr) return;
   
