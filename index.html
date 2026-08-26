@@ -109,7 +109,10 @@
   .btn-clear { background-color: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 8px 14px; font-size: 0.85rem; }
   .btn-clear:hover { background-color: var(--danger); color: white; }
   
-  .btn-notas-extras { background: none; border: none; color: var(--text-light); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-top: 8px; font-weight: 600; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; }
+  /* Novos botões de Importar/Exportar + Anotações Extras */
+  .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 2px 4px; transition: transform 0.2s; border-radius: 4px; }
+  .btn-icon:hover { transform: scale(1.15); background-color: #e2e8f0; }
+  .btn-notas-extras { background: none; border: none; color: var(--text-light); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; }
   .btn-notas-extras:hover { background-color: #e2e8f0; color: var(--text); }
 
   #listaHistorico { display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px; }
@@ -226,15 +229,25 @@
       </div>
     </div>
     
-    <!-- Ações e Botão de Anotações 3 -->
+    <!-- Ações e Ferramentas Extras -->
     <div style="display: flex; flex-direction: column; align-items: flex-end;">
       <div class="actions">
         <button id="btnExportar" class="btn btn-export">Gerar Arquivo .txt</button>
         <button id="btnLimpar" class="btn btn-clear">Limpar Histórico</button>
       </div>
-      <button class="btn-notas-extras" onclick="abrirModalNotas3()">
-        <span>📝</span> Anotações Extras
-      </button>
+      
+      <!-- Container com Emojis de Exportar/Importar e Anotações Extras -->
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+        <!-- Input invisível para importar -->
+        <input type="file" id="fileImportQr" style="display:none;" accept=".json" onchange="importarQuickReplies(event)">
+        
+        <button class="btn-icon" onclick="exportarQuickReplies()" title="Exportar Textos Rápidos para arquivo JSON">📤</button>
+        <button class="btn-icon" onclick="document.getElementById('fileImportQr').click()" title="Importar Textos Rápidos de um arquivo">📥</button>
+        
+        <button class="btn-notas-extras" onclick="abrirModalNotas3()" style="margin-top: 0;">
+          <span>📝</span> Anotações Extras
+        </button>
+      </div>
     </div>
   </div>
   
@@ -343,18 +356,15 @@
 
 <script>
 /* ===================== CARREGAR ANOTAÇÕES SALVAS ===================== */
-// Recupera o que foi digitado mesmo se a página atualizar
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('blocoNotas1').value = localStorage.getItem('blocoNotas1_salvo') || '';
   document.getElementById('blocoNotas2').value = localStorage.getItem('blocoNotas2_salvo') || '';
   document.getElementById('blocoNotas3').value = localStorage.getItem('blocoNotas3_salvo') || '';
 });
 
-// Salva em tempo real enquanto digita
 document.getElementById('blocoNotas1').addEventListener('input', (e) => localStorage.setItem('blocoNotas1_salvo', e.target.value));
 document.getElementById('blocoNotas2').addEventListener('input', (e) => localStorage.setItem('blocoNotas2_salvo', e.target.value));
 document.getElementById('blocoNotas3').addEventListener('input', (e) => localStorage.setItem('blocoNotas3_salvo', e.target.value));
-
 
 /* ===================== LÓGICA DO MODAL NOTAS 3 ===================== */
 function abrirModalNotas3() {
@@ -365,7 +375,6 @@ function abrirModalNotas3() {
 function fecharModalNotas3() {
   document.getElementById('modalNotas3').classList.remove('aberto');
 }
-
 
 /* ===================== FUNÇÃO DE DATA E HORA ===================== */
 function obterDataHoraAtual() {
@@ -413,7 +422,6 @@ document.addEventListener('click', async (e) => {
       const texto = await navigator.clipboard.readText();
       if (!texto) return mostrarToast('Área vazia.');
       input.value = texto.trim();
-      // O dispatchEvent ativa a função de salvar no localStorage também
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.focus();
       mostrarToast('Colado com sucesso!');
@@ -556,6 +564,54 @@ function deletarQuickReply() {
     fecharModalQr();
     renderQuickReplies();
   }
+}
+
+/* === FUNÇÕES DE EXPORTAR E IMPORTAR TEXTOS RÁPIDOS === */
+function exportarQuickReplies() {
+  if (quickReplies.length === 0) {
+    alert('Você ainda não possui textos rápidos cadastrados para exportar.');
+    return;
+  }
+  const dataStr = JSON.stringify(quickReplies, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = "meus_textos_rapidos.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importarQuickReplies(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const importados = JSON.parse(e.target.result);
+      if (Array.isArray(importados)) {
+        if (confirm('Deseja SUBSTITUIR seus emojis atuais pelos do arquivo? \n\n[OK] = Substituir tudo\n[Cancelar] = Manter os atuais e adicionar os novos')) {
+           quickReplies = importados;
+        } else {
+           // Mesclar e evitar IDs duplicados
+           importados.forEach(imp => {
+               imp.id = Date.now() + Math.floor(Math.random() * 10000);
+               quickReplies.push(imp);
+           });
+        }
+        localStorage.setItem('quickReplies', JSON.stringify(quickReplies));
+        renderQuickReplies();
+        mostrarToast('Textos rápidos importados!');
+      } else {
+        alert('O arquivo selecionado não contém um formato válido.');
+      }
+    } catch (error) {
+      alert('Erro ao ler o arquivo. Certifique-se de que é um arquivo .json válido.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // Limpa o input para poder importar de novo
 }
 
 /* ===================== SISTEMA DE RASCUNHOS (MINI-FORMULÁRIOS) ===================== */
