@@ -13,7 +13,36 @@
     --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
-  body { background-color: var(--surface); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+  
+  /* Alterado para acomodar a tela de bloqueio */
+  body { background-color: var(--surface); color: var(--text); margin: 0; padding: 0; }
+  
+  /* Wrapper do Aplicativo (Escondido até desbloquear) */
+  .app-wrapper { display: none; height: 100vh; overflow: hidden; width: 100%; }
+  .app-wrapper.liberado { display: flex; }
+
+  /* --- TELA DE BLOQUEIO --- */
+  .lock-screen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: var(--bg); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lock-box {
+    background: var(--surface); padding: 40px; border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid var(--border);
+    text-align: center; width: 380px;
+  }
+  .lock-box h2 { color: var(--primary); font-size: 1.5rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .lock-box p { color: var(--text-light); font-size: 0.9rem; margin-bottom: 25px; line-height: 1.4; }
+  .lock-box input {
+    font-size: 1.8rem; text-align: center; letter-spacing: 6px;
+    padding: 12px; margin-bottom: 10px; font-family: monospace;
+    font-weight: bold; color: var(--text); border-width: 2px;
+  }
+  .lock-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px #eff6ff; }
+  .lock-error { color: var(--danger); font-size: 0.85rem; display: none; font-weight: 600; margin-bottom: 15px; }
+  .lock-error.visivel { display: block; }
+  /* ------------------------ */
 
   /* Estrutura Principal */
   .left-column { width: 45%; padding: 25px 30px; overflow-y: auto; border-right: 2px solid var(--border); display: flex; flex-direction: column; position: relative; }
@@ -21,20 +50,15 @@
 
   h1 { font-size: 1.2rem; margin-bottom: 15px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
   
-  /* Botão Criar Novo Rascunho */
   .btn-novo-rascunho { background-color: var(--primary); color: white; border: none; padding: 6px 15px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
   .btn-novo-rascunho:hover { background-color: var(--primary-hover); }
 
-  /* Lista de Formulários (Sanfona) */
   #formulariosContainer { display: flex; flex-direction: column; gap: 10px; flex: 1; }
   
   .draft-card { border: 1px solid var(--border-dark); border-radius: 6px; background-color: var(--surface); overflow: hidden; }
   .draft-card.edit-mode { border: 2px solid var(--warning); }
   
-  .draft-header { 
-    background-color: #f8fafc; padding: 12px 15px; cursor: pointer; display: flex; 
-    align-items: center; gap: 8px; border-bottom: 1px solid transparent;
-  }
+  .draft-header { background-color: #f8fafc; padding: 12px 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid transparent; }
   .draft-card.aberto .draft-header { border-bottom-color: var(--border); background-color: #eff6ff; }
   .draft-toggle-icon { font-size: 0.7rem; color: var(--text-light); transition: transform 0.2s; }
   .draft-title { font-size: 0.85rem; font-weight: 600; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text; }
@@ -44,15 +68,14 @@
   .draft-body { display: none; padding: 15px; }
   .draft-card.aberto .draft-body { display: block; }
 
-  /* Elementos do Formulário */
   .form-grid { display: flex; flex-direction: column; gap: 12px; }
   .row-split { display: grid; gap: 20px; align-items: start; }
   .form-group { display: flex; flex-direction: column; }
   label { font-size: 0.75rem; font-weight: 800; margin-bottom: 4px; color: #000; text-transform: uppercase; }
   .label-center { text-align: center; margin-bottom: 6px; }
   
-  input[type="text"], textarea { padding: 8px 10px; border: 1px solid var(--border-dark); border-radius: 4px; font-size: 0.85rem; outline: none; transition: all 0.2s; width: 100%; }
-  input[type="text"]:focus, textarea:focus { border-color: var(--primary); }
+  input[type="text"], input[type="password"], textarea { padding: 8px 10px; border: 1px solid var(--border-dark); border-radius: 4px; font-size: 0.85rem; outline: none; transition: all 0.2s; width: 100%; }
+  input[type="text"]:focus, input[type="password"]:focus, textarea:focus { border-color: var(--primary); }
   input[type="text"].campo-preenchido, textarea.campo-preenchido { border-color: var(--success); background-color: #f0fdf4; }
   textarea.descricao { min-height: 110px; background-color: #f1f5f9; resize: vertical; }
   
@@ -87,12 +110,10 @@
   .btn-cadastro .status-icon.ok { color: var(--success); }
   .btn-cadastro .status-icon.dispensado { color: var(--text-light); }
 
-  /* Bloco de Notas Global Horizontal */
   .bloco-notas-global { display: flex; gap: 15px; margin-top: 20px; border-top: 2px dashed var(--border); padding-top: 20px; }
   .bloco-notas-global .form-group { flex: 1; }
   .bloco-notas-global textarea { min-height: 90px; background-color: #fefce8; border-color: #fde047; }
   
-  /* Histórico na Direita e Quick Replies */
   .history-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .history-title-box { background-color: #e2e8f0; padding: 10px 15px; border-radius: 6px; flex: 1; margin-right: 15px; }
   .history-title-box h2 { font-size: 1.1rem; color: var(--text); margin-bottom: 2px; }
@@ -109,7 +130,6 @@
   .btn-clear { background-color: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 8px 14px; font-size: 0.85rem; }
   .btn-clear:hover { background-color: var(--danger); color: white; }
   
-  /* Novos botões de Importar/Exportar + Anotações Extras */
   .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 2px 4px; transition: transform 0.2s; border-radius: 4px; }
   .btn-icon:hover { transform: scale(1.15); background-color: #e2e8f0; }
   .btn-notas-extras { background: none; border: none; color: var(--text-light); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; }
@@ -184,74 +204,88 @@
 </head>
 <body>
 
-<!-- COLUNA ESQUERDA - FORMULÁRIOS DINÂMICOS -->
-<div class="left-column">
-  <h1>
-    Atendimentos em Andamento
-    <button class="btn-novo-rascunho" onclick="criarNovoRascunho()">+ Novo Atendimento</button>
-  </h1>
-  
-  <div id="formulariosContainer">
-    <!-- Mini formulários entrarão aqui -->
-  </div>
-
-  <!-- BLOCO DE NOTAS GLOBAL (1 e 2) -->
-  <div class="bloco-notas-global">
-    <div class="form-group">
-      <label>Anotações 1</label>
-      <div class="input-com-paste">
-        <textarea id="blocoNotas1" placeholder="Rascunhos temporários..."></textarea>
-        <button type="button" class="btn-paste" data-target="blocoNotas1" style="top:15px; transform:none;">&#128203;</button>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Anotações 2</label>
-      <div class="input-com-paste">
-        <textarea id="blocoNotas2" placeholder="Outras observações..."></textarea>
-        <button type="button" class="btn-paste" data-target="blocoNotas2" style="top:15px; transform:none;">&#128203;</button>
-      </div>
-    </div>
+<!-- TELA DE BLOQUEIO DE ACESSO -->
+<div id="lockScreen" class="lock-screen">
+  <div class="lock-box">
+    <h2>🔒 Acesso Restrito</h2>
+    <p>Para continuar, digite a senha diária de acesso (DIA+MÊS+ANO).</p>
+    <input type="password" id="inputSenhaDiaria" maxlength="8" placeholder="DDMMAAAA" autocomplete="off">
+    <p id="lockError" class="lock-error">Senha incorreta. Tente novamente.</p>
+    <button id="btnDesbloquear" class="btn btn-primary" style="width: 100%;">Desbloquear Sistema</button>
   </div>
 </div>
 
-<!-- COLUNA DIREITA - HISTÓRICO E TEXTOS RÁPIDOS -->
-<div class="right-column">
-  <div class="history-header">
-    <div class="history-title-box">
-      <h2>Histórico do Dia</h2>
-      <div style="display: flex; align-items: center; gap: 15px;">
-        <p id="txtQtdRegistros" style="color:var(--text-light); font-size:0.85rem; white-space: nowrap;">Carregando...</p>
+<!-- CONTAINER PRINCIPAL DO APLICATIVO (ESCONDIDO ATÉ O DESBLOQUEIO) -->
+<div class="app-wrapper" id="appWrapper">
+  <!-- COLUNA ESQUERDA - FORMULÁRIOS DINÂMICOS -->
+  <div class="left-column">
+    <h1>
+      Atendimentos em Andamento
+      <button class="btn-novo-rascunho" onclick="criarNovoRascunho()">+ Novo Atendimento</button>
+    </h1>
+    
+    <div id="formulariosContainer">
+      <!-- Mini formulários entrarão aqui -->
+    </div>
+
+    <!-- BLOCO DE NOTAS GLOBAL (1 e 2) -->
+    <div class="bloco-notas-global">
+      <div class="form-group">
+        <label>Anotações 1</label>
+        <div class="input-com-paste">
+          <textarea id="blocoNotas1" placeholder="Rascunhos temporários..."></textarea>
+          <button type="button" class="btn-paste" data-target="blocoNotas1" style="top:15px; transform:none;">&#128203;</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Anotações 2</label>
+        <div class="input-com-paste">
+          <textarea id="blocoNotas2" placeholder="Outras observações..."></textarea>
+          <button type="button" class="btn-paste" data-target="blocoNotas2" style="top:15px; transform:none;">&#128203;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLUNA DIREITA - HISTÓRICO E TEXTOS RÁPIDOS -->
+  <div class="right-column">
+    <div class="history-header">
+      <div class="history-title-box">
+        <h2>Histórico do Dia</h2>
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <p id="txtQtdRegistros" style="color:var(--text-light); font-size:0.85rem; white-space: nowrap;">Carregando...</p>
+          
+          <!-- AREA DOS TEXTOS RÁPIDOS (EMOJIS) -->
+          <div id="quickRepliesContainer" class="quick-replies-container">
+            <!-- Os emojis serão carregados aqui -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Ações e Ferramentas Extras -->
+      <div style="display: flex; flex-direction: column; align-items: flex-end;">
+        <div class="actions">
+          <button id="btnExportar" class="btn btn-export">Gerar Arquivo .txt</button>
+          <button id="btnLimpar" class="btn btn-clear">Limpar Histórico</button>
+        </div>
         
-        <!-- AREA DOS TEXTOS RÁPIDOS (EMOJIS) -->
-        <div id="quickRepliesContainer" class="quick-replies-container">
-          <!-- Os emojis serão carregados aqui -->
+        <!-- Container com Emojis de Exportar/Importar e Anotações Extras -->
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+          <!-- Input invisível para importar -->
+          <input type="file" id="fileImportQr" style="display:none;" accept=".json" onchange="importarQuickReplies(event)">
+          
+          <button class="btn-icon" onclick="exportarQuickReplies()" title="Exportar Textos Rápidos para arquivo JSON">📤</button>
+          <button class="btn-icon" onclick="document.getElementById('fileImportQr').click()" title="Importar Textos Rápidos de um arquivo">📥</button>
+          
+          <button class="btn-notas-extras" onclick="abrirModalNotas3()" style="margin-top: 0;">
+            <span>📝</span> Anotações Extras
+          </button>
         </div>
       </div>
     </div>
     
-    <!-- Ações e Ferramentas Extras -->
-    <div style="display: flex; flex-direction: column; align-items: flex-end;">
-      <div class="actions">
-        <button id="btnExportar" class="btn btn-export">Gerar Arquivo .txt</button>
-        <button id="btnLimpar" class="btn btn-clear">Limpar Histórico</button>
-      </div>
-      
-      <!-- Container com Emojis de Exportar/Importar e Anotações Extras -->
-      <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
-        <!-- Input invisível para importar -->
-        <input type="file" id="fileImportQr" style="display:none;" accept=".json" onchange="importarQuickReplies(event)">
-        
-        <button class="btn-icon" onclick="exportarQuickReplies()" title="Exportar Textos Rápidos para arquivo JSON">📤</button>
-        <button class="btn-icon" onclick="document.getElementById('fileImportQr').click()" title="Importar Textos Rápidos de um arquivo">📥</button>
-        
-        <button class="btn-notas-extras" onclick="abrirModalNotas3()" style="margin-top: 0;">
-          <span>📝</span> Anotações Extras
-        </button>
-      </div>
-    </div>
+    <div id="listaHistorico"></div>
   </div>
-  
-  <div id="listaHistorico"></div>
 </div>
 
 <div id="toast" class="toast">Texto copiado!</div>
@@ -355,6 +389,59 @@
 </div>
 
 <script>
+/* ===================== SISTEMA DE BLOQUEIO DE ACESSO (SENHA DIÁRIA) ===================== */
+function verificarBloqueioAcesso() {
+  const d = new Date();
+  const dia = String(d.getDate()).padStart(2, '0');
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const ano = d.getFullYear();
+  const senhaCorretaHoje = `${dia}${mes}${ano}`;
+  
+  const ultimoAcesso = localStorage.getItem('ultimoAcessoData');
+  
+  if (ultimoAcesso === senhaCorretaHoje) {
+    liberarSistema();
+  } else {
+    // Fica na tela de bloqueio
+    document.getElementById('inputSenhaDiaria').focus();
+  }
+}
+
+function tentarDesbloqueio() {
+  const d = new Date();
+  const dia = String(d.getDate()).padStart(2, '0');
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const ano = d.getFullYear();
+  const senhaCorretaHoje = `${dia}${mes}${ano}`;
+  
+  const inputEl = document.getElementById('inputSenhaDiaria');
+  const erroEl = document.getElementById('lockError');
+  
+  if (inputEl.value === senhaCorretaHoje) {
+    localStorage.setItem('ultimoAcessoData', senhaCorretaHoje);
+    liberarSistema();
+  } else {
+    erroEl.classList.add('visivel');
+    inputEl.value = '';
+    inputEl.focus();
+  }
+}
+
+function liberarSistema() {
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('appWrapper').classList.add('liberado');
+}
+
+document.getElementById('btnDesbloquear').addEventListener('click', tentarDesbloqueio);
+document.getElementById('inputSenhaDiaria').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') tentarDesbloqueio();
+  document.getElementById('lockError').classList.remove('visivel');
+});
+
+// Executa a verificação de bloqueio assim que o código carrega
+verificarBloqueioAcesso();
+/* ======================================================================================== */
+
 /* ===================== CARREGAR ANOTAÇÕES SALVAS ===================== */
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('blocoNotas1').value = localStorage.getItem('blocoNotas1_salvo') || '';
@@ -594,7 +681,6 @@ function importarQuickReplies(event) {
         if (confirm('Deseja SUBSTITUIR seus emojis atuais pelos do arquivo? \n\n[OK] = Substituir tudo\n[Cancelar] = Manter os atuais e adicionar os novos')) {
            quickReplies = importados;
         } else {
-           // Mesclar e evitar IDs duplicados
            importados.forEach(imp => {
                imp.id = Date.now() + Math.floor(Math.random() * 10000);
                quickReplies.push(imp);
@@ -611,7 +697,7 @@ function importarQuickReplies(event) {
     }
   };
   reader.readAsText(file);
-  event.target.value = ''; // Limpa o input para poder importar de novo
+  event.target.value = ''; 
 }
 
 /* ===================== SISTEMA DE RASCUNHOS (MINI-FORMULÁRIOS) ===================== */
