@@ -14,14 +14,12 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
   
-  /* Alterado para acomodar a tela de bloqueio */
   body { background-color: var(--surface); color: var(--text); margin: 0; padding: 0; }
   
-  /* Wrapper do Aplicativo (Escondido até desbloquear) */
   .app-wrapper { display: none; height: 100vh; overflow: hidden; width: 100%; }
   .app-wrapper.liberado { display: flex; }
 
-  /* --- TELA DE BLOQUEIO --- */
+  /* TELA DE BLOQUEIO */
   .lock-screen {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: var(--bg); z-index: 9999;
@@ -42,9 +40,8 @@
   .lock-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px #eff6ff; }
   .lock-error { color: var(--danger); font-size: 0.85rem; display: none; font-weight: 600; margin-bottom: 15px; }
   .lock-error.visivel { display: block; }
-  /* ------------------------ */
 
-  /* Estrutura Principal */
+  /* COLUNAS */
   .left-column { width: 45%; padding: 25px 30px; overflow-y: auto; border-right: 2px solid var(--border); display: flex; flex-direction: column; position: relative; }
   .right-column { width: 55%; padding: 25px 30px; background-color: var(--bg); overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
 
@@ -135,6 +132,9 @@
   .btn-notas-extras { background: none; border: none; color: var(--text-light); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; }
   .btn-notas-extras:hover { background-color: #e2e8f0; color: var(--text); }
 
+  .btn-alteracoes { background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; }
+  .btn-alteracoes:hover { background-color: #dcfce7; }
+
   #listaHistorico { display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px; }
   .card { background-color: var(--surface); padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.2s; }
   .card.concluido { border-color: var(--success); background-color: #f8fafc; opacity: 0.85; }
@@ -170,7 +170,7 @@
 
   .toast { position: fixed; bottom: 20px; right: 20px; background-color: #333; color: white; padding: 10px 20px; border-radius: 5px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; }
 
-  /* MODAIS */
+  /* MODAIS GERAIS */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
   .modal-overlay.aberto { display: flex; }
   .modal-box { background-color: var(--surface); border-radius: 8px; padding: 25px 30px; width: 480px; max-height: 85vh; overflow-y: auto; }
@@ -200,6 +200,11 @@
   .btn-modal-cancelar:hover { background-color: #e2e8f0; }
   .btn-modal-salvar { background-color: var(--primary); color: white; border: none; padding: 9px 22px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; }
   .btn-modal-salvar:hover { background-color: var(--primary-hover); }
+
+  /* CAIXAS DE CHECKBOX DO MODAL ALTERAÇÕES */
+  .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; background: var(--bg); padding: 12px; border-radius: 6px; border: 1px solid var(--border); }
+  .checkbox-item { display: flex; align-items: flex-start; gap: 6px; font-size: 0.8rem; color: var(--text); cursor: pointer; line-height: 1.2; }
+  .checkbox-item input[type="checkbox"] { margin-top: 2px; accent-color: var(--primary); cursor: pointer; width: 14px; height: 14px; }
 </style>
 </head>
 <body>
@@ -208,14 +213,14 @@
 <div id="lockScreen" class="lock-screen">
   <div class="lock-box">
     <h2>🔒 Acesso Restrito</h2>
-    <p>Para continuar, digite a senha de acesso.</p>
-    <input type="password" id="inputSenhaDiaria" maxlength="8" placeholder="SENHA" autocomplete="off">
+    <p>Para continuar, digite a senha diária de acesso (DIA+MÊS+ANO).</p>
+    <input type="password" id="inputSenhaDiaria" maxlength="8" placeholder="DDMMAAAA" autocomplete="off">
     <p id="lockError" class="lock-error">Senha incorreta. Tente novamente.</p>
     <button id="btnDesbloquear" class="btn btn-primary" style="width: 100%;">Desbloquear Sistema</button>
   </div>
 </div>
 
-<!-- CONTAINER PRINCIPAL DO APLICATIVO (ESCONDIDO ATÉ O DESBLOQUEIO) -->
+<!-- CONTAINER PRINCIPAL DO APLICATIVO -->
 <div class="app-wrapper" id="appWrapper">
   <!-- COLUNA ESQUERDA - FORMULÁRIOS DINÂMICOS -->
   <div class="left-column">
@@ -269,10 +274,14 @@
           <button id="btnLimpar" class="btn btn-clear">Limpar Histórico</button>
         </div>
         
-        <!-- Container com Emojis de Exportar/Importar e Anotações Extras -->
+        <!-- Container com Emojis de Exportar/Importar, Alterações e Notas Extras -->
         <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
           <!-- Input invisível para importar -->
           <input type="file" id="fileImportQr" style="display:none;" accept=".json" onchange="importarQuickReplies(event)">
+          
+          <button class="btn-alteracoes" onclick="abrirModalAlteracoes()" title="Gerar texto de Alteração de Plano">
+            <span>🔄</span> Alterações
+          </button>
           
           <button class="btn-icon" onclick="exportarQuickReplies()" title="Exportar Textos Rápidos para arquivo JSON">📤</button>
           <button class="btn-icon" onclick="document.getElementById('fileImportQr').click()" title="Importar Textos Rápidos de um arquivo">📥</button>
@@ -289,6 +298,53 @@
 </div>
 
 <div id="toast" class="toast">Texto copiado!</div>
+
+<!-- ================= MODAL: INFORMAÇÕES PLANO (ALTERAÇÕES) ================= -->
+<div class="modal-overlay" id="modalAlteracoes">
+  <div class="modal-box" style="width: 650px;">
+    <h2>🔄 Informações Plano</h2>
+    <p class="modal-subtitle">Preencha os dados abaixo para gerar o texto de alteração de plano.</p>
+    
+    <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
+      <div class="form-group"><label>Plano Antigo</label><input type="text" id="altPlanoAntigo" placeholder="Ex: Basic"></div>
+      <div class="form-group"><label>Preço Antigo</label><input type="text" id="altPrecoAntigo" placeholder="Ex: R$ 89,90" oninput="aplicarMascaraMoeda(this)"></div>
+    </div>
+    <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
+      <div class="form-group"><label>Novo Plano</label><input type="text" id="altNovoPlano" placeholder="Ex: Pro"></div>
+      <div class="form-group"><label>Preço Novo</label><input type="text" id="altPrecoNovo" placeholder="Ex: R$ 119,90" oninput="aplicarMascaraMoeda(this)"></div>
+    </div>
+    <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 15px;">
+      <div class="form-group"><label>Velocidade (ex: 500 Mega)</label><input type="text" id="altVelocidade" placeholder="Ex: 500 Mega"></div>
+      <div class="form-group"><label>Número de Canais (ex: 56 ou 98)</label><input type="text" id="altCanais" placeholder="Ex: 98"></div>
+    </div>
+
+    <label style="font-size: 0.75rem; font-weight: 800; color: #000; text-transform: uppercase;">Aplicativos que compõem o plano</label>
+    <div class="checkbox-grid">
+      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Mumo para ficar por dentro de podcasts e rádios" checked disabled> Mumo (Padrão)</label>
+      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Bit Trainers, voltado para saúde e bem estar" checked disabled> Bit Trainers (Padrão)</label>
+      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="HBO MAX em até duas telas simultâneas"> HBO MAX</label>
+      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Disney+ em até duas telas simultâneas"> Disney+</label>
+      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Deezer para você ouvir suas músicas onde quiser (um usuário)"> Deezer</label>
+      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Premiere para acompanhar os melhores jogos"> Premiere</label>
+      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Globo Canais, com acesso a conteúdos como GNT, Multishow, Viva entre outros."> Globo Canais</label>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 15px;">
+      <button class="btn btn-primary" onclick="gerarTextoAlteracoes()">⬇️ Gerar Texto Abaixo ⬇️</button>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 0;">
+      <label>Resultado Final (Revise ou edite se necessário)</label>
+      <textarea id="altResultado" style="min-height: 180px; font-size: 0.85rem; font-family: monospace;"></textarea>
+    </div>
+
+    <div class="modal-footer" style="justify-content: space-between; margin-top: 15px;">
+      <button type="button" class="btn-modal-cancelar" onclick="fecharModalAlteracoes()">Fechar</button>
+      <button type="button" class="btn-modal-salvar" onclick="copiarTextoAlteracoes()">Copiar Resultado</button>
+    </div>
+  </div>
+</div>
+<!-- ========================================================================= -->
 
 <!-- MODAL: ANOTAÇÕES EXTRAS (3) -->
 <div class="modal-overlay" id="modalNotas3">
@@ -402,7 +458,6 @@ function verificarBloqueioAcesso() {
   if (ultimoAcesso === senhaCorretaHoje) {
     liberarSistema();
   } else {
-    // Fica na tela de bloqueio
     document.getElementById('inputSenhaDiaria').focus();
   }
 }
@@ -438,9 +493,93 @@ document.getElementById('inputSenhaDiaria').addEventListener('keypress', (e) => 
   document.getElementById('lockError').classList.remove('visivel');
 });
 
-// Executa a verificação de bloqueio assim que o código carrega
 verificarBloqueioAcesso();
-/* ======================================================================================== */
+
+/* ===================== LÓGICA DO MODAL DE ALTERAÇÕES ===================== */
+function aplicarMascaraMoeda(i) {
+  let v = i.value.replace(/\D/g,'');
+  if(v === '') return;
+  v = (v/100).toFixed(2) + '';
+  v = v.replace(".", ",");
+  v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+  v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+  i.value = v === "0,00" ? "" : "R$ " + v;
+}
+
+function abrirModalAlteracoes() {
+  document.getElementById('modalAlteracoes').classList.add('aberto');
+  document.getElementById('altPlanoAntigo').focus();
+}
+
+function fecharModalAlteracoes() {
+  document.getElementById('modalAlteracoes').classList.remove('aberto');
+}
+
+function gerarTextoAlteracoes() {
+  const pAntigo = document.getElementById('altPlanoAntigo').value.trim() || '[plano antigo]';
+  const pAntigoPreco = document.getElementById('altPrecoAntigo').value.trim() || '[preço 1]';
+  const pNovo = document.getElementById('altNovoPlano').value.trim() || '[novo plano]';
+  const pNovoPreco = document.getElementById('altPrecoNovo').value.trim() || '[preço 2]';
+  const vel = document.getElementById('altVelocidade').value.trim() || '[velocidade plano]';
+  const canais = document.getElementById('altCanais').value.trim() || '[numero canais]';
+
+  let appsText = "";
+  document.querySelectorAll('.alt-app').forEach(box => {
+    if(box.checked) {
+      appsText += `   ${box.value}\n`;
+    }
+  });
+
+  const template = `📢 ATUALIZAÇÃO IMPORTANTE!
+
+O seu plano ${pAntigo} ${pAntigoPreco} será atualizado para o ${pNovo} ${pNovoPreco}.  🎉 Agora você conta com benefícios e vantagens exclusivas para transformar sua experiência com a Super Cabo Multi!
+
+✨ BENEFÍCIOS DO PACOTE
+
+📶 ${vel} de Internet Fibra Óptica Conexão rápida, estável e confiável para trabalhar, estudar, assistir filmes, jogar online e muito mais.
+
+📺 ${canais} canais de TV no app Super Cabo Play Assista em até 3 telas simultâneas no nosso streaming exclusivo
+
+🥳 E AINDA TEM MUITO MAIS
+${appsText}
+⚡ APROVEITE AO MÁXIMO SUA VELOCIDADE!
+   Para utilizar toda a velocidade contratada, os dispositivos conectados (celulares, notebooks, Smart TVs etc.) precisam ser compatíveis com o plano.
+   Lembre-se também de que a velocidade é compartilhada entre todos os dispositivos conectados à rede.
+
+🔑 ATIVAÇÃO DOS APLICATIVOS DE STREAMING
+   Durante a visita técnica, tenha em mãos o e-mail e senha da sua conta.
+   ➡️ Sem esses dados, não será possível configurar os apps.
+   Se precisar recuperar sua senha, faça isso antes da visita.
+
+📺 INFORMAÇÃO SOBRE TVS
+   Nos novos planos, os canais de TV são disponibilizados exclusivamente pelo aplicativo Super Cabo Play, não mais por cabo.
+   Para utilizar o aplicativo diretamente na TV, ela precisa ser Smart e compatível com o Super Cabo Play.
+   Se a sua TV não for compatível, você pode optar pela compra ou aluguel de um Smart Box, ou adquirir um equipamento de terceiros homologados pela ANATEL.
+   Se quiser, posso te ajudar a verificar se o modelo da sua TV é compatível e também posso te passar os valores das opções de Smart Box.
+
+📌 CONDIÇÕES GERAIS  
+✅ Bonificação renovada por 12 meses.  
+⚠️ Cancelamentos nesse período têm multa proporcional de até R$ 500,00.  
+💳 Fatura digital enviada para seu e-mail e disponível no app Central do Assinante.  
+⏳ Pagamentos em atraso (+5 dias) podem bloquear o sinal.  
+🧾 Sua próxima fatura pode ter cobrança proporcional do plano antigo e do novo.  
+⚠️ Redução da velocidade do plano antes de completar 6 meses da contratação, será cobrada uma taxa de R$ 50,00.  
+⚠️ Redução da quantidade de canais antes de 6 meses da contratação, será cobrada uma taxa de R$ 50,00.
+
+💡 DICAS PARA MELHOR USO
+🧾 Use a Central do Assinante para faturas, pagamentos e serviços extras.
+📡 Para melhor qualidade, prefira cabo ou Wi-Fi 5GHz. O 2.4GHz é útil em áreas mais distantes do roteador.`;
+
+  document.getElementById('altResultado').value = template;
+}
+
+function copiarTextoAlteracoes() {
+  const txt = document.getElementById('altResultado').value;
+  if(!txt) return alert('Por favor, clique em "Gerar Texto Abaixo" primeiro!');
+  navigator.clipboard.writeText(txt).then(() => {
+    mostrarToast('Texto copiado com sucesso!');
+  });
+}
 
 /* ===================== CARREGAR ANOTAÇÕES SALVAS ===================== */
 document.addEventListener("DOMContentLoaded", () => {
@@ -453,7 +592,6 @@ document.getElementById('blocoNotas1').addEventListener('input', (e) => localSto
 document.getElementById('blocoNotas2').addEventListener('input', (e) => localStorage.setItem('blocoNotas2_salvo', e.target.value));
 document.getElementById('blocoNotas3').addEventListener('input', (e) => localStorage.setItem('blocoNotas3_salvo', e.target.value));
 
-/* ===================== LÓGICA DO MODAL NOTAS 3 ===================== */
 function abrirModalNotas3() {
   document.getElementById('modalNotas3').classList.add('aberto');
   document.getElementById('blocoNotas3').focus();
