@@ -44,6 +44,13 @@
   [data-theme="dark"] .toggle-btn.active { background-color: var(--primary); color: white; }
   [data-theme="dark"] .tab-btn:hover, [data-theme="dark"] .tab-btn.active { color: #60a5fa; border-bottom-color: #60a5fa; }
 
+  /* Correção Dark Mode para o Gestor de Cadastro */
+  [data-theme="dark"] .modal-option { background-color: #1e1e1e; border-color: var(--border); }
+  [data-theme="dark"] .modal-option:hover, [data-theme="dark"] .modal-option.selecionado { background-color: #1e293b; border-color: var(--primary); }
+  [data-theme="dark"] .modal-campos-alteracao { background-color: #121212; border-color: var(--border); }
+  [data-theme="dark"] .modal-erro { background: #450a0a; border-color: #7f1d1d; color: #fca5a5; }
+  [data-theme="dark"] .modal-option-text strong { color: var(--text); }
+
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
   
   body { background-color: var(--surface); color: var(--text); margin: 0; padding: 0; transition: background-color 0.3s, color 0.3s; }
@@ -218,7 +225,7 @@
 
   /* CAIXAS DE CHECKBOX DO MODAL ALTERAÇÕES */
   .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; background: var(--bg); padding: 12px; border-radius: 6px; border: 1px solid var(--border); }
-  .checkbox-item { display: flex; align-items: flex-start; gap: 6px; font-size: 0.8rem; color: var(--text); cursor: pointer; line-height: 1.2; }
+  .checkbox-item { display: flex; align-items: flex-start; gap: 6px; font-size: 0.8rem; color: var(--text); cursor: pointer; line-height: 1.2; text-transform: none; font-weight: normal; margin-bottom: 0; }
   .checkbox-item input[type="checkbox"] { margin-top: 2px; accent-color: var(--primary); cursor: pointer; width: 14px; height: 14px; }
 
   /* ABAS E TOGGLES */
@@ -232,6 +239,21 @@
   .toggle-group { display: flex; gap: 5px; }
   .toggle-btn { padding: 6px 14px; border: 1px solid var(--border-dark); background: #f8fafc; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; color: var(--text-light); transition: all 0.2s; }
   .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  /* CORREÇÕES VISUAIS DO GESTOR DE CADASTRO */
+  .modal-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+  .modal-option { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: normal; text-transform: none; margin-bottom: 0; background: var(--surface); }
+  .modal-option:hover, .modal-option.selecionado { border-color: var(--primary); background-color: #eff6ff; }
+  .modal-option input[type="radio"] { margin-top: 2px; accent-color: var(--primary); }
+  .modal-option-text { display: flex; flex-direction: column; gap: 2px; }
+  .modal-option-text strong { font-size: 0.9rem; color: var(--text); font-weight: 700; text-transform: none; }
+  .modal-option-text span { font-size: 0.75rem; color: var(--text-light); font-weight: normal; text-transform: none; }
+  
+  .modal-campos-alteracao { display: none; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; background-color: var(--bg); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 15px; }
+  .modal-campos-alteracao.visivel { display: grid; }
+  
+  .modal-erro { color: #991b1b; font-size: 0.8rem; font-weight: 600; margin-bottom: 15px; display: none; background: #fee2e2; padding: 10px; border-radius: 4px; border: 1px solid #fca5a5; }
+  .modal-erro.visivel { display: block; }
 </style>
 </head>
 <body>
