@@ -97,6 +97,8 @@
   .btn-primary:hover { background-color: var(--primary-hover); }
   .btn-warning-submit { background-color: var(--warning); color: white; padding: 10px 30px; font-size: 0.95rem; min-width: 220px; }
   .btn-warning-submit:hover { background-color: #d97706; }
+  .btn-secondary { background-color: var(--bg); border: 1px solid var(--border-dark); color: var(--text); padding: 8px 16px; font-size: 0.85rem; }
+  .btn-secondary:hover { background-color: #e2e8f0; }
   
   .btn-cadastro { background-color: #f1f5f9; color: var(--text-light); border: 1px solid var(--border-dark); padding: 10px 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
   .btn-cadastro:hover { background-color: #e2e8f0; }
@@ -178,22 +180,6 @@
   .modal-box h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
   .modal-box .modal-subtitle { font-size: 0.8rem; color: var(--text-light); margin-bottom: 18px; }
   .modal-info-box { background-color: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 8px 12px; font-size: 0.75rem; color: var(--text-light); margin-bottom: 18px; }
-  .modal-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-  .modal-option { border: 1px solid var(--border-dark); border-radius: 6px; padding: 12px 14px; cursor: pointer; display: flex; align-items: flex-start; gap: 10px; }
-  .modal-option.selecionado { border-color: var(--primary); background-color: #eff6ff; box-shadow: 0 0 0 1px var(--primary); }
-  .modal-option input[type="radio"] { margin-top: 3px; accent-color: var(--primary); cursor: pointer; }
-  .modal-option-text { display: flex; flex-direction: column; }
-  .modal-option-text strong { font-size: 0.85rem; color: var(--text); }
-  .modal-option-text span { font-size: 0.72rem; color: var(--text-light); margin-top: 2px; }
-  
-  .modal-campos-alteracao { display: none; flex-direction: column; gap: 10px; margin: 8px 0 15px 26px; border-left: 2px solid var(--primary); padding-left: 14px; }
-  .modal-campos-alteracao.visivel { display: flex; }
-  .modal-campos-alteracao .form-group label { font-size: 0.7rem; }
-  .modal-campos-alteracao .removido label { color: var(--danger); }
-  .modal-campos-alteracao .adicionado label { color: var(--success); }
-  
-  .modal-erro { display: none; background-color: #fef2f2; border: 1px solid var(--danger); color: #b91c1c; font-size: 0.78rem; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px; }
-  .modal-erro.visivel { display: block; }
   
   .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
   .btn-modal-cancelar { background-color: transparent; color: var(--text-light); border: 1px solid var(--border-dark); padding: 9px 18px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; }
@@ -205,6 +191,18 @@
   .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; background: var(--bg); padding: 12px; border-radius: 6px; border: 1px solid var(--border); }
   .checkbox-item { display: flex; align-items: flex-start; gap: 6px; font-size: 0.8rem; color: var(--text); cursor: pointer; line-height: 1.2; }
   .checkbox-item input[type="checkbox"] { margin-top: 2px; accent-color: var(--primary); cursor: pointer; width: 14px; height: 14px; }
+
+  /* ABAS E TOGGLES */
+  .tabs-header { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 15px; }
+  .tab-btn { padding: 10px 16px; cursor: pointer; border: none; background: none; font-weight: 600; font-size: 0.85rem; color: var(--text-light); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: 0.2s; }
+  .tab-btn:hover { color: var(--primary); }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  
+  .toggle-group { display: flex; gap: 5px; }
+  .toggle-btn { padding: 6px 14px; border: 1px solid var(--border-dark); background: #f8fafc; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; color: var(--text-light); transition: all 0.2s; }
+  .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 </style>
 </head>
 <body>
@@ -213,8 +211,8 @@
 <div id="lockScreen" class="lock-screen">
   <div class="lock-box">
     <h2>🔒 Acesso Restrito</h2>
-    <p>Para continuar, digite a senha.</p>
-    <input type="password" id="inputSenhaDiaria" maxlength="8" placeholder="********" autocomplete="off">
+    <p>Para continuar, digite a senha diária de acesso (DIA+MÊS+ANO).</p>
+    <input type="password" id="inputSenhaDiaria" maxlength="8" placeholder="DDMMAAAA" autocomplete="off">
     <p id="lockError" class="lock-error">Senha incorreta. Tente novamente.</p>
     <button id="btnDesbloquear" class="btn btn-primary" style="width: 100%;">Desbloquear Sistema</button>
   </div>
@@ -229,11 +227,9 @@
       <button class="btn-novo-rascunho" onclick="criarNovoRascunho()">+ Novo Atendimento</button>
     </h1>
     
-    <div id="formulariosContainer">
-      <!-- Mini formulários entrarão aqui -->
-    </div>
+    <div id="formulariosContainer"></div>
 
-    <!-- BLOCO DE NOTAS GLOBAL (1 e 2) -->
+    <!-- BLOCO DE NOTAS GLOBAL -->
     <div class="bloco-notas-global">
       <div class="form-group">
         <label>Anotações 1</label>
@@ -259,33 +255,25 @@
         <h2>Histórico do Dia</h2>
         <div style="display: flex; align-items: center; gap: 15px;">
           <p id="txtQtdRegistros" style="color:var(--text-light); font-size:0.85rem; white-space: nowrap;">Carregando...</p>
-          
-          <!-- AREA DOS TEXTOS RÁPIDOS (EMOJIS) -->
-          <div id="quickRepliesContainer" class="quick-replies-container">
-            <!-- Os emojis serão carregados aqui -->
-          </div>
+          <div id="quickRepliesContainer" class="quick-replies-container"></div>
         </div>
       </div>
       
-      <!-- Ações e Ferramentas Extras -->
       <div style="display: flex; flex-direction: column; align-items: flex-end;">
         <div class="actions">
           <button id="btnExportar" class="btn btn-export">Gerar Arquivo .txt</button>
           <button id="btnLimpar" class="btn btn-clear">Limpar Histórico</button>
         </div>
         
-        <!-- Container com Emojis de Exportar/Importar, Alterações e Notas Extras -->
         <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
-          <!-- Input invisível para importar -->
           <input type="file" id="fileImportQr" style="display:none;" accept=".json" onchange="importarQuickReplies(event)">
           
-          <button class="btn-alteracoes" onclick="abrirModalAlteracoes()" title="Gerar texto de Alteração de Plano">
+          <button class="btn-alteracoes" onclick="abrirModalAlteracoes()" title="Gerar texto de Alteração de Plano ou O.S">
             <span>🔄</span> Alterações
           </button>
           
-          <button class="btn-icon" onclick="exportarQuickReplies()" title="Exportar Textos Rápidos para arquivo JSON">📤</button>
-          <button class="btn-icon" onclick="document.getElementById('fileImportQr').click()" title="Importar Textos Rápidos de um arquivo">📥</button>
-          
+          <button class="btn-icon" onclick="exportarQuickReplies()" title="Exportar Textos Rápidos">📤</button>
+          <button class="btn-icon" onclick="document.getElementById('fileImportQr').click()" title="Importar Textos Rápidos">📥</button>
           <button class="btn-notas-extras" onclick="abrirModalNotas3()" style="margin-top: 0;">
             <span>📝</span> Anotações Extras
           </button>
@@ -299,52 +287,153 @@
 
 <div id="toast" class="toast">Texto copiado!</div>
 
-<!-- ================= MODAL: INFORMAÇÕES PLANO (ALTERAÇÕES) ================= -->
+<!-- ================= MODAL: INFORMAÇÕES PLANO (ALTERAÇÕES / O.S) ================= -->
 <div class="modal-overlay" id="modalAlteracoes">
-  <div class="modal-box" style="width: 650px;">
-    <h2>🔄 Informações Plano</h2>
-    <p class="modal-subtitle">Preencha os dados abaixo para gerar o texto de alteração de plano.</p>
+  <div class="modal-box" style="width: 700px; padding: 20px 25px;">
+    <h2 style="margin-bottom: 10px;">🔄 Central de Alterações</h2>
     
-    <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
-      <div class="form-group"><label>Plano Antigo</label><input type="text" id="altPlanoAntigo" placeholder="Ex: Basic"></div>
-      <div class="form-group"><label>Preço Antigo</label><input type="text" id="altPrecoAntigo" placeholder="Ex: R$ 89,90" oninput="aplicarMascaraMoeda(this)"></div>
-    </div>
-    <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
-      <div class="form-group"><label>Novo Plano</label><input type="text" id="altNovoPlano" placeholder="Ex: Pro"></div>
-      <div class="form-group"><label>Preço Novo</label><input type="text" id="altPrecoNovo" placeholder="Ex: R$ 119,90" oninput="aplicarMascaraMoeda(this)"></div>
-    </div>
-    <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 15px;">
-      <div class="form-group"><label>Velocidade (ex: 500 Mega)</label><input type="text" id="altVelocidade" placeholder="Ex: 500 Mega"></div>
-      <div class="form-group"><label>Número de Canais (ex: 56 ou 98)</label><input type="text" id="altCanais" placeholder="Ex: 98"></div>
+    <div class="tabs-header">
+      <button class="tab-btn active" onclick="switchTab(this, 'abaMensagem')">📱 Mensagem Cliente</button>
+      <button class="tab-btn" onclick="switchTab(this, 'abaOS')">📋 O.S Alteração</button>
     </div>
 
-    <label style="font-size: 0.75rem; font-weight: 800; color: #000; text-transform: uppercase;">Aplicativos que compõem o plano</label>
-    <div class="checkbox-grid">
-      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Mumo para ficar por dentro de podcasts e rádios" checked disabled> Mumo (Padrão)</label>
-      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Bit Trainers, voltado para saúde e bem estar" checked disabled> Bit Trainers (Padrão)</label>
-      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="HBO MAX em até duas telas simultâneas"> HBO MAX</label>
-      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Disney+ em até duas telas simultâneas"> Disney+</label>
-      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Deezer para você ouvir suas músicas onde quiser (um usuário)"> Deezer</label>
-      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Premiere para acompanhar os melhores jogos"> Premiere</label>
-      <label class="checkbox-item"><input type="checkbox" class="alt-app" value="Globo Canais, com acesso a conteúdos como GNT, Multishow, Viva entre outros."> Globo Canais</label>
+    <!-- ================= ABA 1: MENSAGEM CLIENTE ================= -->
+    <div id="abaMensagem" class="tab-content active">
+      <p class="modal-subtitle">Preencha os dados abaixo para gerar o texto comunicativo para o cliente.</p>
+      
+      <div class="dispensa-cadastro-box" style="margin-bottom: 15px; padding: 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px;">
+        <input type="checkbox" id="syncTabs" onchange="sincronizarAbas()" checked>
+        <label for="syncTabs" style="color: #1e40af;">Utilizar esses planos, valores e aplicativos para gerar a O.S na outra aba.</label>
+      </div>
+
+      <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
+        <div class="form-group"><label>Plano Antigo</label><input type="text" id="msgPlanoAntigo" placeholder="Ex: Basic" oninput="sincronizarAbas()"></div>
+        <div class="form-group"><label>Preço Antigo</label><input type="text" id="msgPrecoAntigo" placeholder="Ex: R$ 89,90" oninput="aplicarMascaraMoeda(this); sincronizarAbas()"></div>
+      </div>
+      <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
+        <div class="form-group"><label>Novo Plano</label><input type="text" id="msgNovoPlano" placeholder="Ex: Pro" oninput="sincronizarAbas()"></div>
+        <div class="form-group"><label>Preço Novo</label><input type="text" id="msgPrecoNovo" placeholder="Ex: R$ 119,90" oninput="aplicarMascaraMoeda(this); sincronizarAbas()"></div>
+      </div>
+      <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 15px;">
+        <div class="form-group"><label>Velocidade (ex: 500 Mega)</label><input type="text" id="msgVelocidade" placeholder="Ex: 500 Mega"></div>
+        <div class="form-group"><label>Número de Canais (ex: 56 ou 98)</label><input type="text" id="msgCanais" placeholder="Ex: 98"></div>
+      </div>
+
+      <label style="font-size: 0.75rem; font-weight: 800; color: #000; text-transform: uppercase;">Aplicativos que compõem o plano</label>
+      <div class="checkbox-grid">
+        <label class="checkbox-item"><input type="checkbox" class="msg-app" value="Mumo para ficar por dentro de podcasts e rádios" onchange="sincronizarAbas(true)"> Mumo</label>
+        <label class="checkbox-item"><input type="checkbox" class="msg-app" value="Bit Trainers, voltado para saúde e bem estar" onchange="sincronizarAbas(true)"> Bit Trainers</label>
+        <label class="checkbox-item"><input type="checkbox" class="msg-app" value="HBO MAX em até duas telas simultâneas" onchange="sincronizarAbas(true)"> HBO MAX</label>
+        <label class="checkbox-item"><input type="checkbox" class="msg-app" value="Disney+ em até duas telas simultâneas" onchange="sincronizarAbas(true)"> Disney+</label>
+        <label class="checkbox-item"><input type="checkbox" class="msg-app" value="Deezer para você ouvir suas músicas onde quiser (um usuário)" onchange="sincronizarAbas(true)"> Deezer</label>
+        <label class="checkbox-item"><input type="checkbox" class="msg-app" value="Premiere para acompanhar os melhores jogos" onchange="sincronizarAbas(true)"> Premiere</label>
+        <label class="checkbox-item"><input type="checkbox" class="msg-app" value="Globo Canais, com acesso a conteúdos como GNT, Multishow, Viva entre outros." onchange="sincronizarAbas(true)"> Globo Canais</label>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <button class="btn btn-secondary" onclick="limparCamposAbaMensagem()">Limpar Campos</button>
+        <button class="btn btn-primary" onclick="gerarTextoMensagem()">⬇️ Gerar Texto Abaixo ⬇️</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <textarea id="msgResultado" style="min-height: 150px; font-size: 0.8rem; font-family: monospace;"></textarea>
+      </div>
+      
+      <div class="modal-footer" style="margin-top: 15px;">
+        <button type="button" class="btn-modal-cancelar" onclick="fecharModalAlteracoes()">Fechar</button>
+        <button type="button" class="btn-modal-salvar" onclick="copiarTexto('msgResultado')">Copiar Mensagem</button>
+      </div>
     </div>
 
-    <div style="text-align: center; margin-bottom: 15px;">
-      <button class="btn btn-primary" onclick="gerarTextoAlteracoes()">⬇️ Gerar Texto Abaixo ⬇️</button>
-    </div>
+    <!-- ================= ABA 2: O.S ALTERAÇÃO ================= -->
+    <div id="abaOS" class="tab-content">
+      <div class="row-split" style="grid-template-columns: 1fr; margin-bottom: 12px;">
+        <div class="form-group"><label>OBSERVAÇÃO (Específica da Instalação)</label><input type="text" id="osObs" placeholder="Ex: Cliente só está em casa após as 14h"></div>
+      </div>
+      
+      <div class="row-split" style="grid-template-columns: 1fr 1fr 1.5fr; margin-bottom: 12px; align-items: end;">
+        <div class="form-group">
+          <label>Canal</label>
+          <div class="toggle-group" data-group="canal">
+            <button class="toggle-btn active" onclick="setToggle('canal', 'Telefone', this)">Tel</button>
+            <button class="toggle-btn" onclick="setToggle('canal', 'WhatsApp', this)">Wpp</button>
+          </div>
+        </div>
+        <div class="form-group"><label>Data da O.S</label><input type="text" id="osData" placeholder="DD/MM/AAAA"></div>
+        <div class="form-group"><label>Vendedor</label><input type="text" id="osVendedor" value="Danilo de Souza"></div>
+      </div>
 
-    <div class="form-group" style="margin-bottom: 0;">
-      <label>Resultado Final (Revise ou edite se necessário)</label>
-      <textarea id="altResultado" style="min-height: 180px; font-size: 0.85rem; font-family: monospace;"></textarea>
-    </div>
+      <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
+        <div class="form-group">
+          <label>Data de Agendamento</label>
+          <div style="display:flex; gap: 8px;">
+            <input type="text" id="osDataAgendamento" placeholder="DD/MM/AAAA" style="flex:1;">
+            <div class="toggle-group" data-group="turno">
+              <button class="toggle-btn" onclick="setToggle('turno', 'Manhã', this)">M</button>
+              <button class="toggle-btn" onclick="setToggle('turno', 'Tarde', this)">T</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group"><label>Solicitante (Titular)</label><input type="text" id="osSolicitante" placeholder="Nome completo"></div>
+      </div>
 
-    <div class="modal-footer" style="justify-content: space-between; margin-top: 15px;">
-      <button type="button" class="btn-modal-cancelar" onclick="fecharModalAlteracoes()">Fechar</button>
-      <button type="button" class="btn-modal-salvar" onclick="copiarTextoAlteracoes()">Copiar Resultado</button>
+      <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
+        <div class="form-group"><label>Plano Atual</label><input type="text" id="osPlanoAntigo" placeholder="Ex: Basic"></div>
+        <div class="form-group"><label>Valor Atual</label><input type="text" id="osPrecoAntigo" placeholder="Ex: R$ 89,90" oninput="aplicarMascaraMoeda(this)"></div>
+      </div>
+      <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
+        <div class="form-group"><label>Novo Plano</label><input type="text" id="osNovoPlano" placeholder="Ex: Pro"></div>
+        <div class="form-group"><label>Novo Valor</label><input type="text" id="osPrecoNovo" placeholder="Ex: R$ 119,90" oninput="aplicarMascaraMoeda(this)"></div>
+      </div>
+
+      <div class="row-split" style="grid-template-columns: 1fr 1fr; margin-bottom: 15px;">
+        <div class="form-group"><label>Instalar (Equipamentos)</label><input type="text" id="osInstalar" placeholder="Ex: Roteador"></div>
+        <div class="form-group">
+          <label>Recolher</label>
+          <div style="display: flex; gap: 5px;">
+             <input type="text" id="osRecolher" placeholder="Ex: ONT antiga" style="flex: 1;">
+             <button class="btn btn-secondary" onclick="preencherNadaRecolher()" style="padding: 6px; font-size: 0.75rem;" title="Preencher com 'Nada a recolher'">❌ Nada</button>
+          </div>
+        </div>
+      </div>
+
+      <label style="font-size: 0.75rem; font-weight: 800; color: #000; text-transform: uppercase;">Configurar Serviços e Aplicativos</label>
+      <div class="checkbox-grid">
+        <label class="checkbox-item"><input type="checkbox" class="os-check" data-tipo="servico" value="Smart Box"> Smart Box</label>
+        <label class="checkbox-item"><input type="checkbox" class="os-check" data-tipo="servico" value="WiFi - 360"> WiFi - 360</label>
+        <label class="checkbox-item"><input type="checkbox" class="os-check" data-tipo="app" value="Mumo"> Mumo</label>
+        <label class="checkbox-item"><input type="checkbox" class="os-check" data-tipo="app" value="Bit Trainers"> Bit Trainers</label>
+        <label class="checkbox-item"><input type="checkbox" class="os-check" data-tipo="app" value="HBO MAX"> HBO MAX</label>
+        <label class="checkbox-item"><input type="checkbox" class="os-check" data-tipo="app" value="Disney+"> Disney+</label>
+        <label class="checkbox-item"><input type="checkbox" class="os-check" data-tipo="app" value="Deezer"> Deezer</label>
+        <label class="checkbox-item"><input type="checkbox" class="os-check" data-tipo="app" value="Premiere"> Premiere</label>
+        <label class="checkbox-item"><input type="checkbox" class="os-check" data-tipo="app" value="Globo Canais"> Globo Canais</label>
+        <label class="checkbox-item"><input type="checkbox" class="os-check" data-tipo="app" value="Globoplay"> Globoplay</label>
+      </div>
+
+      <div class="row-split" style="grid-template-columns: 1fr 1.5fr; margin-bottom: 15px;">
+        <div class="form-group"><label>Telefone</label><input type="text" id="osTel" class="mask-contato" placeholder="(XX) XXXXX-XXXX" autocomplete="off"></div>
+        <div class="form-group"><label>E-mail</label><input type="text" id="osEmail" placeholder="cliente@email.com" autocomplete="off"></div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <button class="btn btn-secondary" onclick="limparCamposAbaOS()">Limpar Campos</button>
+        <button class="btn btn-primary" onclick="gerarTextoOS()">⬇️ Gerar O.S Abaixo ⬇️</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <textarea id="osResultado" style="min-height: 120px; font-size: 0.8rem; font-family: monospace;"></textarea>
+      </div>
+
+      <div class="modal-footer" style="margin-top: 15px;">
+        <button type="button" class="btn-modal-cancelar" onclick="fecharModalAlteracoes()">Fechar</button>
+        <button type="button" class="btn-modal-salvar" onclick="copiarTexto('osResultado')">Copiar O.S</button>
+      </div>
     </div>
   </div>
 </div>
 <!-- ========================================================================= -->
+
 
 <!-- MODAL: ANOTAÇÕES EXTRAS (3) -->
 <div class="modal-overlay" id="modalNotas3">
@@ -495,7 +584,31 @@ document.getElementById('inputSenhaDiaria').addEventListener('keypress', (e) => 
 
 verificarBloqueioAcesso();
 
+
 /* ===================== LÓGICA DO MODAL DE ALTERAÇÕES ===================== */
+let osCanalSelecionado = 'Telefone';
+let osTurnoSelecionado = '';
+
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+function setToggle(group, value, btnEl) {
+  if(btnEl.classList.contains('active') && group === 'turno') {
+     btnEl.classList.remove('active');
+     osTurnoSelecionado = '';
+     return;
+  }
+  document.querySelectorAll(`.toggle-group[data-group="${group}"] .toggle-btn`).forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  
+  if(group === 'canal') osCanalSelecionado = value;
+  if(group === 'turno') osTurnoSelecionado = value;
+}
+
 function aplicarMascaraMoeda(i) {
   let v = i.value.replace(/\D/g,'');
   if(v === '') return;
@@ -508,23 +621,118 @@ function aplicarMascaraMoeda(i) {
 
 function abrirModalAlteracoes() {
   document.getElementById('modalAlteracoes').classList.add('aberto');
-  document.getElementById('altPlanoAntigo').focus();
+  // Seta a data de hoje automaticamente na aba O.S se estiver vazio
+  const osData = document.getElementById('osData');
+  if(!osData.value) {
+    const d = new Date();
+    osData.value = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  }
 }
 
 function fecharModalAlteracoes() {
   document.getElementById('modalAlteracoes').classList.remove('aberto');
 }
 
-function gerarTextoAlteracoes() {
-  const pAntigo = document.getElementById('altPlanoAntigo').value.trim() || '[plano antigo]';
-  const pAntigoPreco = document.getElementById('altPrecoAntigo').value.trim() || '[preço 1]';
-  const pNovo = document.getElementById('altNovoPlano').value.trim() || '[novo plano]';
-  const pNovoPreco = document.getElementById('altPrecoNovo').value.trim() || '[preço 2]';
-  const vel = document.getElementById('altVelocidade').value.trim() || '[velocidade plano]';
-  const canais = document.getElementById('altCanais').value.trim() || '[numero canais]';
+/* Lógica de Sincronização de Abas */
+function sincronizarAbas(appMudou = false) {
+  const usarSync = document.getElementById('syncTabs').checked;
+  const osFields = ['osPlanoAntigo', 'osPrecoAntigo', 'osNovoPlano', 'osPrecoNovo'];
+  
+  if (usarSync) {
+    document.getElementById('osPlanoAntigo').value = document.getElementById('msgPlanoAntigo').value;
+    document.getElementById('osPrecoAntigo').value = document.getElementById('msgPrecoAntigo').value;
+    document.getElementById('osNovoPlano').value = document.getElementById('msgNovoPlano').value;
+    document.getElementById('osPrecoNovo').value = document.getElementById('msgPrecoNovo').value;
+    
+    osFields.forEach(id => {
+       document.getElementById(id).readOnly = true;
+       document.getElementById(id).style.backgroundColor = '#f1f5f9';
+    });
+
+    if (appMudou) {
+      // Cria um mapa simplificado para os checkboxes da OS (Nome curto)
+      const nomesCurtos = {
+         "Mumo": "Mumo", "Bit Trainers": "Bit Trainers", "HBO MAX": "HBO MAX", "Disney+": "Disney+", "Deezer": "Deezer", "Premiere": "Premiere", "Globo Canais": "Globo Canais"
+      };
+      
+      // Reseta todos apps na aba OS
+      document.querySelectorAll('.os-check[data-tipo="app"]').forEach(cb => cb.checked = false);
+
+      // Marca o que estiver marcado na Aba 1
+      document.querySelectorAll('.msg-app:checked').forEach(cb => {
+         const txtLongo = cb.value;
+         for(let chave in nomesCurtos) {
+            if(txtLongo.includes(chave)) {
+               const checkOS = document.querySelector(`.os-check[data-tipo="app"][value="${nomesCurtos[chave]}"]`);
+               if(checkOS) checkOS.checked = true;
+            }
+         }
+      });
+    }
+  } else {
+    osFields.forEach(id => {
+       document.getElementById(id).readOnly = false;
+       document.getElementById(id).style.backgroundColor = '';
+    });
+  }
+}
+
+function limparCamposAbaMensagem() {
+  document.getElementById('msgPlanoAntigo').value = '';
+  document.getElementById('msgPrecoAntigo').value = '';
+  document.getElementById('msgNovoPlano').value = '';
+  document.getElementById('msgPrecoNovo').value = '';
+  document.getElementById('msgVelocidade').value = '';
+  document.getElementById('msgCanais').value = '';
+  document.getElementById('msgResultado').value = '';
+  document.querySelectorAll('.msg-app').forEach(cb => cb.checked = false);
+  sincronizarAbas(true);
+}
+
+function limparCamposAbaOS() {
+  document.getElementById('osObs').value = '';
+  document.getElementById('osDataAgendamento').value = '';
+  document.getElementById('osSolicitante').value = '';
+  if(!document.getElementById('syncTabs').checked) {
+    document.getElementById('osPlanoAntigo').value = '';
+    document.getElementById('osPrecoAntigo').value = '';
+    document.getElementById('osNovoPlano').value = '';
+    document.getElementById('osPrecoNovo').value = '';
+  }
+  document.getElementById('osInstalar').value = '';
+  document.getElementById('osRecolher').value = '';
+  document.getElementById('osTel').value = '';
+  document.getElementById('osEmail').value = '';
+  document.getElementById('osResultado').value = '';
+  
+  if(!document.getElementById('syncTabs').checked) {
+     document.querySelectorAll('.os-check').forEach(cb => cb.checked = false);
+  } else {
+     document.querySelectorAll('.os-check[data-tipo="servico"]').forEach(cb => cb.checked = false);
+  }
+  
+  // Reseta Toggles de turno
+  document.querySelectorAll(`.toggle-group[data-group="turno"] .toggle-btn`).forEach(b => b.classList.remove('active'));
+  osTurnoSelecionado = '';
+  
+  // A data e vendedor não limpo por conveniência, mas mantenho o focus
+  document.getElementById('osObs').focus();
+}
+
+function preencherNadaRecolher() {
+  document.getElementById('osRecolher').value = "Nada a recolher";
+}
+
+function gerarTextoMensagem() {
+  const pAntigo = document.getElementById('msgPlanoAntigo').value.trim() || '[plano antigo]';
+  const pAntigoPreco = document.getElementById('msgPrecoAntigo').value.trim() || '[preço 1]';
+  const pNovo = document.getElementById('msgNovoPlano').value.trim() || '[novo plano]';
+  const pNovoPreco = document.getElementById('msgPrecoNovo').value.trim() || '[preço 2]';
+  const vel = document.getElementById('msgVelocidade').value.trim() || '[velocidade plano]';
+  const canais = document.getElementById('msgCanais').value.trim() || '[numero canais]';
 
   let appsText = "";
-  document.querySelectorAll('.alt-app').forEach(box => {
+  document.querySelectorAll('.msg-app').forEach(box => {
     if(box.checked) {
       appsText += `   ${box.value}\n`;
     }
@@ -554,7 +762,7 @@ ${appsText}
 📺 INFORMAÇÃO SOBRE TVS
    Nos novos planos, os canais de TV são disponibilizados exclusivamente pelo aplicativo Super Cabo Play, não mais por cabo.
    Para utilizar o aplicativo diretamente na TV, ela precisa ser Smart e compatível com o Super Cabo Play.
-   Se a sua TV não for compatível, você pode optar pela compra ou aluguel de um Smart Box, ou adquirir um equipamento de terceiros homologados pela ANATEL.
+   Se a sua TV não for compatível, você pode optar pela compra ou aluguel de Smart Box, ou adquirir equipamento de terceiros homologados pela ANATEL.
    Se quiser, posso te ajudar a verificar se o modelo da sua TV é compatível e também posso te passar os valores das opções de Smart Box.
 
 📌 CONDIÇÕES GERAIS  
@@ -563,22 +771,61 @@ ${appsText}
 💳 Fatura digital enviada para seu e-mail e disponível no app Central do Assinante.  
 ⏳ Pagamentos em atraso (+5 dias) podem bloquear o sinal.  
 🧾 Sua próxima fatura pode ter cobrança proporcional do plano antigo e do novo.  
-⚠️ Redução da velocidade do plano antes de completar 6 meses da contratação, será cobrada uma taxa de R$ 50,00.  
-⚠️ Redução da quantidade de canais antes de 6 meses da contratação, será cobrada uma taxa de R$ 50,00.
+⚠️ Redução da velocidade do plano antes de completar 6 meses da contratação, será cobrada taxa de R$ 50,00.  
+⚠️ Redução da quantidade de canais antes de 6 meses da contratação, será cobrada taxa de R$ 50,00.
 
 💡 DICAS PARA MELHOR USO
 🧾 Use a Central do Assinante para faturas, pagamentos e serviços extras.
 📡 Para melhor qualidade, prefira cabo ou Wi-Fi 5GHz. O 2.4GHz é útil em áreas mais distantes do roteador.`;
 
-  document.getElementById('altResultado').value = template;
+  document.getElementById('msgResultado').value = template;
 }
 
-function copiarTextoAlteracoes() {
-  const txt = document.getElementById('altResultado').value;
-  if(!txt) return alert('Por favor, clique em "Gerar Texto Abaixo" primeiro!');
-  navigator.clipboard.writeText(txt).then(() => {
-    mostrarToast('Texto copiado com sucesso!');
+function gerarTextoOS() {
+  const obs = document.getElementById('osObs').value.trim() || '[Informação específica da instalação]';
+  const dataOS = document.getElementById('osData').value.trim() || '[Data]';
+  const vendedor = document.getElementById('osVendedor').value.trim() || '[Nome]';
+  
+  let dataAgendamento = document.getElementById('osDataAgendamento').value.trim();
+  let txtAgendamento = dataAgendamento ? dataAgendamento : '[Data e turno, se houver]';
+  if (dataAgendamento && osTurnoSelecionado) txtAgendamento += ` - ${osTurnoSelecionado}`;
+
+  const solicitante = document.getElementById('osSolicitante').value.trim() || '[Nome completo do titular]';
+  const planoAntigo = document.getElementById('osPlanoAntigo').value.trim() || '[Plano atual]';
+  const precoAntigo = document.getElementById('osPrecoAntigo').value.trim() || '[Valor]';
+  const planoNovo = document.getElementById('osNovoPlano').value.trim() || '[Plano novo]';
+  const precoNovo = document.getElementById('osPrecoNovo').value.trim() || '[Valor]';
+  
+  const instalar = document.getElementById('osInstalar').value.trim() || '[Equipamentos a instalar]';
+  const recolher = document.getElementById('osRecolher').value.trim() || '[Equipamentos a recolher / Nada a recolher]';
+  
+  const tel = document.getElementById('osTel').value.trim() || '[Número]';
+  const email = document.getElementById('osEmail').value.trim() || '[E-mail]';
+
+  let servicosArr = [];
+  let appsArr = [];
+  
+  document.querySelectorAll('.os-check:checked').forEach(cb => {
+    if(cb.dataset.tipo === 'servico') servicosArr.push(cb.value);
+    else appsArr.push(cb.value);
   });
+
+  const txtServicos = servicosArr.length > 0 ? servicosArr.join(' / ') : '[Serviços]';
+  const txtApps = appsArr.length > 0 ? appsArr.join(' / ') : '[Aplicativos]';
+
+  const textoFinal = `OBS.: ${obs}
+ALTERAÇÃO DE PLANO REALIZADA POR: ${osCanalSelecionado} – ${dataOS} | Vendedor: ${vendedor}
+DATA DE AGENDAMENTO: ${txtAgendamento}
+SOLICITANTE: ${solicitante}
+ALTERAÇÃO DE PLANO: ${planoAntigo} ${precoAntigo} para ${planoNovo} ${precoNovo}
+INSTALAR: ${instalar}
+RECOLHER: ${recolher}
+CONFIGURAR: ${txtServicos} | Aplicativos: ${txtApps}
+TEL.: ${tel}
+E-MAIL: ${email}
+CIÊNCIA: CLIENTE CIENTE DAS CONDIÇÕES COMERCIAIS, BONIFICAÇÃO DE 12 MESES, TAXA DE DESCONEXÃO DE R$ 500,00 PROPORCIONAL AO TEMPO DE USO, TAXA DE R$ 50,00 PELA REDUÇÃO DE PLANO ANTES DE 6 MESES E NECESSIDADE DE EQUIPAMENTOS COMPATÍVEIS COM O SERVIÇO CONTRATADO`;
+
+  document.getElementById('osResultado').value = textoFinal;
 }
 
 /* ===================== CARREGAR ANOTAÇÕES SALVAS ===================== */
@@ -586,6 +833,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('blocoNotas1').value = localStorage.getItem('blocoNotas1_salvo') || '';
   document.getElementById('blocoNotas2').value = localStorage.getItem('blocoNotas2_salvo') || '';
   document.getElementById('blocoNotas3').value = localStorage.getItem('blocoNotas3_salvo') || '';
+  sincronizarAbas(true); // Sincroniza ao abrir
 });
 
 document.getElementById('blocoNotas1').addEventListener('input', (e) => localStorage.setItem('blocoNotas1_salvo', e.target.value));
@@ -1293,7 +1541,7 @@ window.editarRegistro = function(id) {
 };
 
 window.copiarTexto = function(elementId) {
-  navigator.clipboard.writeText(document.getElementById(elementId).innerText).then(() => mostrarToast());
+  navigator.clipboard.writeText(document.getElementById(elementId).value || document.getElementById(elementId).innerText).then(() => mostrarToast());
 };
 
 function mostrarToast(msg) {
