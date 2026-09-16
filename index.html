@@ -27,12 +27,22 @@
   [data-theme="dark"] input[type="text"].campo-preenchido, [data-theme="dark"] textarea.campo-preenchido { background-color: #064e3b; border-color: var(--success); }
   [data-theme="dark"] textarea.descricao { background-color: #1a1a1a; }
   [data-theme="dark"] .bloco-notas-global textarea, [data-theme="dark"] #blocoNotas3 { background-color: #332b00; border-color: #997a00; color:#f8fafc; }
-  [data-theme="dark"] .btn-cadastro { background-color: #2c2c2c; color: var(--text-light); }
-  [data-theme="dark"] .btn-cadastro:hover { background-color: #3d3d3d; }
+  
+  /* Ajustes de contraste dos botões do Modo Escuro */
+  [data-theme="dark"] .btn-cadastro { background-color: #334155; color: #cbd5e1; border-color: #475569; }
+  [data-theme="dark"] .btn-cadastro:hover { background-color: #475569; }
+  [data-theme="dark"] .btn-cadastro.status-ok { background-color: #064e3b; border-color: #059669; color: #a7f3d0; }
+  [data-theme="dark"] .btn-cadastro.status-dispensado { background-color: #1e293b; border-color: #334155; color: #94a3b8; }
   [data-theme="dark"] .btn-secondary { background-color: #2c2c2c; color: var(--text); border-color: var(--border-dark); }
   [data-theme="dark"] .btn-secondary:hover { background-color: #3d3d3d; }
+  [data-theme="dark"] .btn-copy { background-color: #475569; color: #f8fafc; }
+  
+  /* Ajustes de contraste para Histórico (Modo Escuro) */
   [data-theme="dark"] .card { background-color: #1e1e1e; }
   [data-theme="dark"] .card-body { background-color: #121212; color: #cbd5e1; }
+  [data-theme="dark"] .card.concluido { background-color: #0f172a; border-color: #1e293b; opacity: 0.6; }
+  [data-theme="dark"] .card.concluido .card-body { background-color: #020617; color: #64748b; }
+  
   [data-theme="dark"] .sub-historico-body { background-color: #332b00; border-color: #997a00; color: #fcd34d; }
   [data-theme="dark"] .modal-box { background-color: var(--surface); }
   [data-theme="dark"] .modal-info-box, [data-theme="dark"] .checkbox-grid { background-color: #121212; border-color: var(--border); }
@@ -101,9 +111,9 @@
   label { font-size: 0.75rem; font-weight: 800; margin-bottom: 4px; color: #000; text-transform: uppercase; }
   .label-center { text-align: center; margin-bottom: 6px; }
   
-  /* REGRA CAIXA ALTA (UPPERCASE) PARA INPUTS */
+  /* REGRA CAIXA ALTA (UPPERCASE) PARA INPUTS (Exceto E-mails, Blocos de Notas e Textos Finais Gerados) */
   input[type="text"]:not(#osEmail):not(#modalEmailRemovido):not(#modalEmailAdicionado),
-  textarea:not(#blocoNotas1):not(#blocoNotas2):not(#blocoNotas3) {
+  textarea:not(#blocoNotas1):not(#blocoNotas2):not(#blocoNotas3):not(#msgResultado):not(#osResultado) {
       text-transform: uppercase;
   }
 
@@ -202,7 +212,7 @@
   .concluido-wrapper input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--success); cursor: pointer; }
   .card-footer-actions { display: flex; gap: 8px; }
   .btn-sm { padding: 6px 10px; font-size: 0.8rem; }
-  .btn-copy { background-color: var(--text); color: white; }
+  .btn-copy { background-color: #4b5563; color: white; }
   .btn-edit { background-color: var(--warning); color: white; }
   .btn-delete { background-color: var(--danger); color: white; }
 
@@ -806,58 +816,58 @@ function preencherNadaRecolher() {
 }
 
 function gerarTextoMensagem() {
-  const pAntigo = document.getElementById('msgPlanoAntigo').value.trim().toUpperCase() || '[PLANO ANTIGO]';
-  const pAntigoPreco = document.getElementById('msgPrecoAntigo').value.trim().toUpperCase() || '[PREÇO 1]';
-  const pNovo = document.getElementById('msgNovoPlano').value.trim().toUpperCase() || '[NOVO PLANO]';
-  const pNovoPreco = document.getElementById('msgPrecoNovo').value.trim().toUpperCase() || '[PREÇO 2]';
-  const vel = document.getElementById('msgVelocidade').value.trim().toUpperCase() || '[VELOCIDADE PLANO]';
-  const canais = document.getElementById('msgCanais').value.trim().toUpperCase() || '[NUMERO CANAIS]';
+  const pAntigo = document.getElementById('msgPlanoAntigo').value.trim() || '[plano antigo]';
+  const pAntigoPreco = document.getElementById('msgPrecoAntigo').value.trim() || '[preço 1]';
+  const pNovo = document.getElementById('msgNovoPlano').value.trim() || '[novo plano]';
+  const pNovoPreco = document.getElementById('msgPrecoNovo').value.trim() || '[preço 2]';
+  const vel = document.getElementById('msgVelocidade').value.trim() || '[velocidade plano]';
+  const canais = document.getElementById('msgCanais').value.trim() || '[numero canais]';
 
   let appsText = "";
   document.querySelectorAll('.msg-app').forEach(box => {
     if(box.checked) {
-      appsText += `   ${box.value.toUpperCase()}\n`;
+      appsText += `   ${box.value}\n`;
     }
   });
 
-  const blocoMais = appsText ? `\n🥳 E AINDA TEM MUITO MAIS\n${appsText}` : "\n";
+  const blocoMais = appsText ? `\n🥳 E AINDA TEM MUITO MAIS\n${appsText}\n` : "\n";
 
   const template = `📢 ATUALIZAÇÃO IMPORTANTE!
 
-O SEU PLANO ${pAntigo} ${pAntigoPreco} SERÁ ATUALIZADO PARA O ${pNovo} ${pNovoPreco}. 🎉 AGORA VOCÊ CONTA COM BENEFÍCIOS E VANTAGENS EXCLUSIVAS PARA TRANSFORMAR SUA EXPERIÊNCIA COM A SUPER CABO MULTI!
+O seu plano ${pAntigo} ${pAntigoPreco} será atualizado para o ${pNovo} ${pNovoPreco}. 🎉 Agora você conta com benefícios e vantagens exclusivas para transformar sua experiência com a Super Cabo Multi!
 
 ✨ BENEFÍCIOS DO PACOTE
 
-📶 ${vel} DE INTERNET FIBRA ÓPTICA CONEXÃO RÁPIDA, ESTÁVEL E CONFIÁVEL PARA TRABALHAR, ESTUDAR, ASSISTIR FILMES, JOGAR ONLINE E MUITO MAIS.
+📶 ${vel} de Internet Fibra Óptica Conexão rápida, estável e confiável para trabalhar, estudar, assistir filmes, jogar online e muito mais.
 
-📺 ${canais} CANAIS DE TV NO APP SUPER CABO PLAY ASSISTA EM ATÉ 3 TELAS SIMULTÂNEAS NO NOSSO STREAMING EXCLUSIVO
+📺 ${canais} canais de TV no app Super Cabo Play Assista em até 3 telas simultâneas no nosso streaming exclusivo
 ${blocoMais}⚡ APROVEITE AO MÁXIMO SUA VELOCIDADE!
-   PARA UTILIZAR TODA A VELOCIDADE CONTRATADA, OS DISPOSITIVOS CONECTADOS (CELULARES, NOTEBOOKS, SMART TVS ETC.) PRECISAM SER COMPATÍVEIS COM O PLANO.
-   LEMBRE-SE TAMBÉM DE QUE A VELOCIDADE É COMPARTILHADA ENTRE TODOS OS DISPOSITIVOS CONECTADOS À REDE.
+   Para utilizar toda a velocidade contratada, os dispositivos conectados (celulares, notebooks, Smart TVs etc.) precisam ser compatíveis com o plano.
+   Lembre-se também de que a velocidade é compartilhada entre todos os dispositivos conectados à rede.
 
 🔑 ATIVAÇÃO DOS APLICATIVOS DE STREAMING
-   DURANTE A VISITA TÉCNICA, TENHA EM MÃOS O E-MAIL E SENHA DA SUA CONTA.
-   ➡️ SEM ESSES DADOS, NÃO SERÁ POSSÍVEL CONFIGURAR OS APPS.
-   SE PRECISAR RECUPERAR SUA SENHA, FAÇA ISSO ANTES DA VISITA.
+   Durante a visita técnica, tenha em mãos o e-mail e senha da sua conta.
+   ➡️ Sem esses dados, não será possível configurar os apps.
+   Se precisar recuperar sua senha, faça isso antes da visita.
 
 📺 INFORMAÇÃO SOBRE TVS
-   NOS NOVOS PLANOS, OS CANAIS DE TV SÃO DISPONIBILIZADOS EXCLUSIVAMENTE PELO APLICATIVO SUPER CABO PLAY, NÃO MAIS POR CABO.
-   PARA UTILIZAR O APLICATIVO DIRETAMENTE NA TV, ELA PRECISA SER SMART E COMPATÍVEL COM O SUPER CABO PLAY.
-   SE A SUA TV NÃO FOR COMPATÍVEL, VOCÊ PODE OPTAR PELA COMPRA OU ALUGUEL DE UM SMART BOX, OU ADQUIRIR UM EQUIPAMENTO DE TERCEIROS HOMOLOGADOS PELA ANATEL.
-   SE QUISER, POSSO TE AJUDAR A VERIFICAR SE O MODELO DA SUA TV É COMPATÍVEL E TAMBÉM POSSO TE PASSAR OS VALORES DAS OPÇÕES DE SMART BOX.
+   Nos novos planos, os canais de TV são disponibilizados exclusivamente pelo aplicativo Super Cabo Play, não mais por cabo.
+   Para utilizar o aplicativo diretamente na TV, ela precisa ser Smart e compatível com o Super Cabo Play.
+   Se a sua TV não for compatível, você pode optar pela compra ou aluguel de Smart Box, ou adquirir equipamento de terceiros homologados pela ANATEL.
+   Se quiser, posso te ajudar a verificar se o modelo da sua TV é compatível e também posso te passar os valores das opções de Smart Box.
 
 📌 CONDIÇÕES GERAIS  
-✅ BONIFICAÇÃO RENOVADA POR 12 MESES.  
-⚠️ CANCELAMENTOS NESSE PERÍODO TÊM MULTA PROPORCIONAL DE ATÉ R$ 500,00.  
-💳 FATURA DIGITAL ENVIADA PARA SEU E-MAIL E DISPONÍVEL NO APP CENTRAL DO ASSINANTE.  
-⏳ PAGAMENTOS EM ATRASO (+5 DIAS) PODEM BLOQUEAR O SINAL.  
-🧾 SUA PRÓXIMA FATURA PODE TER COBRANÇA PROPORCIONAL DO PLANO ANTIGO E DO NOVO.  
-⚠️ REDUÇÃO DA VELOCIDADE DO PLANO ANTES DE COMPLETAR 6 MESES DA CONTRATAÇÃO, SERÁ COBRADA UMA TAXA DE R$ 50,00.  
-⚠️ REDUÇÃO DA QUANTIDADE DE CANAIS ANTES DE 6 MESES DA CONTRATAÇÃO, SERÁ COBRADA UMA TAXA DE R$ 50,00.
+✅ Bonificação renovada por 12 meses.  
+⚠️ Cancelamentos nesse período têm multa proporcional de até R$ 500,00.  
+💳 Fatura digital enviada para seu e-mail e disponível no app Central do Assinante.  
+⏳ Pagamentos em atraso (+5 dias) podem bloquear o sinal.  
+🧾 Sua próxima fatura pode ter cobrança proporcional do plano antigo e do novo.  
+⚠️ Redução da velocidade do plano antes de completar 6 meses da contratação, será cobrada taxa de R$ 50,00.  
+⚠️ Redução da quantidade de canais antes de 6 meses da contratação, será cobrada taxa de R$ 50,00.
 
 💡 DICAS PARA MELHOR USO
-🧾 USE A CENTRAL DO ASSINANTE PARA FATURAS, PAGAMENTOS E SERVIÇOS EXTRAS.
-📡 PARA MELHOR QUALIDADE, PREFIRA CABO OU WI-FI 5GHZ. O 2.4GHZ É ÚTIL EM ÁREAS MAIS DISTANTES DO ROTEADOR.`;
+🧾 Use a Central do Assinante para faturas, pagamentos e serviços extras.
+📡 Para melhor qualidade, prefira cabo ou Wi-Fi 5GHz. O 2.4GHz é útil em áreas mais distantes do roteador.`;
 
   document.getElementById('msgResultado').value = template;
 }
@@ -912,6 +922,7 @@ RECOLHER: ${recolher}
 ${configLinha}
 TEL.: ${tel}
 E-MAIL: ${email}
+
 CIÊNCIA: CLIENTE CIENTE DAS CONDIÇÕES COMERCIAIS, BONIFICAÇÃO DE 12 MESES, TAXA DE DESCONEXÃO DE R$ 500,00 PROPORCIONAL AO TEMPO DE USO, TAXA DE R$ 50,00 PELA REDUÇÃO DE PLANO ANTES DE 6 MESES E NECESSIDADE DE EQUIPAMENTOS COMPATÍVEIS COM O SERVIÇO CONTRATADO`;
 
   document.getElementById('osResultado').value = textoFinal;
