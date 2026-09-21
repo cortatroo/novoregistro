@@ -111,9 +111,9 @@
   label { font-size: 0.75rem; font-weight: 800; margin-bottom: 4px; color: #000; text-transform: uppercase; }
   .label-center { text-align: center; margin-bottom: 6px; }
   
-  /* REGRA CAIXA ALTA (UPPERCASE) PARA INPUTS (Exceto E-mails, Blocos de Notas e Textos Finais Gerados) */
-  input[type="text"]:not(#osEmail):not(#modalEmailRemovido):not(#modalEmailAdicionado),
-  textarea:not(#blocoNotas1):not(#blocoNotas2):not(#blocoNotas3):not(#msgResultado):not(#osResultado) {
+  /* REGRA CAIXA ALTA (UPPERCASE) PARA INPUTS */
+  input[type="text"]:not(#osEmail):not(#modalEmailRemovido):not(#modalEmailAdicionado):not(#qrEmoji),
+  textarea:not(#blocoNotas1):not(#blocoNotas2):not(#blocoNotas3):not(#msgResultado):not(#osResultado):not(#qrText) {
       text-transform: uppercase;
   }
 
@@ -816,11 +816,12 @@ function preencherNadaRecolher() {
 }
 
 function gerarTextoMensagem() {
-  const pAntigo = document.getElementById('msgPlanoAntigo').value.trim() || '[plano antigo]';
-  const pAntigoPreco = document.getElementById('msgPrecoAntigo').value.trim() || '[preço 1]';
-  const pNovo = document.getElementById('msgNovoPlano').value.trim() || '[novo plano]';
-  const pNovoPreco = document.getElementById('msgPrecoNovo').value.trim() || '[preço 2]';
-  const vel = document.getElementById('msgVelocidade').value.trim() || '[velocidade plano]';
+  // Ajuste para garantir que Plano e Velocidade fiquem em CAIXA ALTA no texto final
+  const pAntigo = (document.getElementById('msgPlanoAntigo').value.trim() || '[PLANO ANTIGO]').toUpperCase();
+  const pAntigoPreco = document.getElementById('msgPrecoAntigo').value.trim() || '[PREÇO 1]';
+  const pNovo = (document.getElementById('msgNovoPlano').value.trim() || '[NOVO PLANO]').toUpperCase();
+  const pNovoPreco = document.getElementById('msgPrecoNovo').value.trim() || '[PREÇO 2]';
+  const vel = (document.getElementById('msgVelocidade').value.trim() || '[VELOCIDADE PLANO]').toUpperCase();
   const canais = document.getElementById('msgCanais').value.trim() || '[numero canais]';
 
   let appsText = "";
